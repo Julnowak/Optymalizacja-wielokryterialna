@@ -6,15 +6,13 @@
 def bez_filtracji(X):
     P = []
     zdominowane = []
-    niepo = []
-
     i = 0
     while len(X):
         print(f"\n=== Iteracja {i + 1} ===")
         aktywna_lista = X.copy()
         Y = aktywna_lista[0]
         fl = 0
-        j = 1
+        j = i+1
         nieprownywalne = []
         n = len(aktywna_lista)
         if len(X) != 1:

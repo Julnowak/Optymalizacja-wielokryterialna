@@ -8,7 +8,7 @@ def algorytm_z_filtracja(X):
         print(f"\n=== Iteracja {i + 1} ===")
         aktywna_lista = X.copy()
         Y = aktywna_lista[0]
-        j = 1
+        j = i+1
         nieprownywalne = []
         n = len(aktywna_lista)
         if len(X) != 1:
@@ -43,20 +43,26 @@ def algorytm_z_filtracja(X):
         # Dodajemy Y do listy punktów niezdominowanych
         P += [Y]
 
+        aktywna_lista.remove(Y), X.remove(Y)
+
+        print(f"X:{X}")
+        print(f"AL:{aktywna_lista}")
         # X = [x for x in X if not all(x1 >= x2 for x1, x2 in zip(x, Y))]
         new = []
         u = 0
-        for x in X:
-            if not all(x1 >= x2 for x1, x2 in zip(x, Y)):
-                new += [x]
-                u += 2
-        print(u)
-        X = new
 
-        try:
-            aktywna_lista.remove(Y)
-        except:
-            pass
+        Xn = X.copy()
+
+        for x in Xn:
+            u += 2
+            for x1, x2 in zip(x, Y):
+                if not x1 >= x2:
+                    new += [x]
+
+        print(f"Porównania F: {u}")
+
+
+
         print(f"Pozostałe elementy X: {X}")
 
         # Jeśli pozostał jeden element, dodajemy go do listy P
