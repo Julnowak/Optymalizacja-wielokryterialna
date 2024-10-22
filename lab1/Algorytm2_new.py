@@ -1,19 +1,13 @@
-# def all():
-#     sorted = False
-#     pass
 
-
-def bez_filtracji(X):
+def algorytm_z_filtracja(X):
     P = []
     zdominowane = []
-    niepo = []
 
     i = 0
     while len(X):
         print(f"\n=== Iteracja {i + 1} ===")
         aktywna_lista = X.copy()
         Y = aktywna_lista[0]
-        fl = 0
         j = 1
         nieprownywalne = []
         n = len(aktywna_lista)
@@ -22,7 +16,7 @@ def bez_filtracji(X):
                 por_num = 0
                 aktywna_lista = [elem for elem in X if elem not in nieprownywalne]
                 kolejny_elem = aktywna_lista[1].copy()
-                print(f"\n--- Iteracja {i+1}, {j} ---")
+                print(f"\n--- Iteracja {i + 1}, {j} ---")
                 print(f"Element aktywny: {Y}")
                 print(f"Kolejny element: {kolejny_elem}")
                 if all(x1 <= x2 for x1, x2 in zip(Y, kolejny_elem)):
@@ -36,7 +30,6 @@ def bez_filtracji(X):
                     zdominowane.append(Y)
                     aktywna_lista.remove(Y), X.remove(Y)
                     Y = kolejny_elem
-                    fl = 1  # Zmiana flaga na 1
                 else:
                     print(f"Element nieporównywalny: {kolejny_elem}")
                     nieprownywalne.append(kolejny_elem)
@@ -50,10 +43,29 @@ def bez_filtracji(X):
         # Dodajemy Y do listy punktów niezdominowanych
         P += [Y]
 
-        if fl == 0:
-            # Jeśli flaga równa 0, usuwamy Y z X
-            X.remove(Y)
+        # X = [x for x in X if not all(x1 >= x2 for x1, x2 in zip(x, Y))]
+        new = []
+        u = 0
+        for x in X:
+            if not all(x1 >= x2 for x1, x2 in zip(x, Y)):
+                new += [x]
+                u += 2
+        print(u)
+        X = new
 
+        try:
+            aktywna_lista.remove(Y)
+        except:
+            pass
+        print(f"Pozostałe elementy X: {X}")
+
+        # Jeśli pozostał jeden element, dodajemy go do listy P
+        if len(X) == 1:
+            P.append(X[0])
+            print(f"Dodano ostatni element do P: {X[0]}")
+            break
+
+        print(X)
         i += 1
 
     print(f"Zdominowane: {zdominowane}")
@@ -62,7 +74,6 @@ def bez_filtracji(X):
     return unikalne_P  # Zwróć unikalne punkty jako listę
 
 
-# Press the green button in the gutter to run the script.
 if __name__ == "__main__":
     X = [
         [5, 5],
@@ -79,5 +90,5 @@ if __name__ == "__main__":
         [3, 5],
     ]
 
-    P = bez_filtracji(X)
-    print("Punkty niezdominowane (bez filtracji):", P)
+    P = algorytm_z_filtracja(X)
+    print("Punkty niezdominowane (z filtracją):", P)
