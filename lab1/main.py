@@ -6,36 +6,38 @@
 def bez_filtracji(X):
     P = []
     i = 0
-    while len(X) > 1:
+    while len(X):
+        print(f"--- Iteracja {i + 1} ---")
         aktywna_lista = X.copy()
         Y = aktywna_lista[0]
         fl = 0
         j = 1
         nieprownywalne = []
         n = len(aktywna_lista)
-        while j < n:
-            aktywna_lista = [elem for elem in X if elem not in nieprownywalne]
-            kolejny_elem = aktywna_lista[1].copy()
-            print(f"--- Iteracja {i+1}, {j} ---")
-            print(f"Element aktywny: {Y}")
-            print(f"Kolejny element: {kolejny_elem}")
-            if all(x1 <= x2 for x1, x2 in zip(Y, kolejny_elem)):
-                # Y dominuje X(j), usuwamy X(j)
-                X.remove(kolejny_elem)
-                print(f"Usunięto element: {kolejny_elem}")
-            elif all(x1 >= x2 for x1, x2 in zip(Y, kolejny_elem)):
-                # X(j) dominuje Y, aktualizujemy Y
-                print(f"Usunięto element: {Y}")
-                aktywna_lista.remove(Y), X.remove(Y)
-                Y = kolejny_elem
+        if len(X) != 1:
+            while j < n:
+                aktywna_lista = [elem for elem in X if elem not in nieprownywalne]
+                kolejny_elem = aktywna_lista[1].copy()
+                print(f"--- Iteracja {i+1}, {j} ---")
+                print(f"Element aktywny: {Y}")
+                print(f"Kolejny element: {kolejny_elem}")
+                if all(x1 <= x2 for x1, x2 in zip(Y, kolejny_elem)):
+                    # Y dominuje X(j), usuwamy X(j)
+                    X.remove(kolejny_elem)
+                    print(f"Usunięto element: {kolejny_elem}")
+                elif all(x1 >= x2 for x1, x2 in zip(Y, kolejny_elem)):
+                    # X(j) dominuje Y, aktualizujemy Y
+                    print(f"Usunięto element: {Y}")
+                    aktywna_lista.remove(Y), X.remove(Y)
+                    Y = kolejny_elem
 
-                fl = 1  # Zmiana flaga na 1
-            else:
-                print(f"Element nieporównywalny: {kolejny_elem}")
-                nieprownywalne.append(kolejny_elem)
-                # X = np.delete(X, np.where(X == X[j, :])[0][0], axis=0)
-                # print(X)
-            j += 1
+                    fl = 1  # Zmiana flaga na 1
+                else:
+                    print(f"Element nieporównywalny: {kolejny_elem}")
+                    nieprownywalne.append(kolejny_elem)
+                    # X = np.delete(X, np.where(X == X[j, :])[0][0], axis=0)
+                    # print(X)
+                j += 1
 
         # Dodajemy Y do listy punktów niezdominowanych
         P += [Y]
@@ -46,7 +48,6 @@ def bez_filtracji(X):
 
         i += 1
 
-    P.append(X[0])
     unikalne_P = []
     [unikalne_P.append(p) for p in P if p not in unikalne_P]
     return unikalne_P  # Zwróć unikalne punkty jako listę
