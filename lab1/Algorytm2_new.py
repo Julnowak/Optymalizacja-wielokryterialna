@@ -60,7 +60,7 @@ def algorytm_z_filtracja(X):
                     new += [x]
 
         print(f"Porównania F: {u}")
-
+        X = new
 
 
         print(f"Pozostałe elementy X: {X}")
