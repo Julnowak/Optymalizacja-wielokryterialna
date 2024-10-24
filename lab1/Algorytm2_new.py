@@ -1,4 +1,3 @@
-
 def algorytm_z_filtracja(X):
     P = []
     zdominowane = []
@@ -8,7 +7,7 @@ def algorytm_z_filtracja(X):
         print(f"\n=== Iteracja {i + 1} ===")
         aktywna_lista = X.copy()
         Y = aktywna_lista[0]
-        j = i+1
+        j = i + 1
         nieprownywalne = []
         n = len(aktywna_lista)
         if len(X) != 1:
@@ -61,7 +60,6 @@ def algorytm_z_filtracja(X):
 
         print(f"Porównania F: {u}")
         X = new
-
 
         print(f"Pozostałe elementy X: {X}")
 
