@@ -12,7 +12,7 @@ def bez_filtracji(X):
         aktywna_lista = X.copy()
         Y = aktywna_lista[0]
         fl = 0
-        j = i+1
+        j = 1
         nieprownywalne = []
         n = len(aktywna_lista)
         if len(X) != 1:

@@ -2,13 +2,13 @@
 def algorytm_z_filtracja(X):
     P = []
     zdominowane = []
-
+    all_por = 0
     i = 0
     while len(X):
         print(f"\n=== Iteracja {i + 1} ===")
         aktywna_lista = X.copy()
         Y = aktywna_lista[0]
-        j = i+1
+        j = 1
         nieprownywalne = []
         n = len(aktywna_lista)
         if len(X) != 1:
@@ -38,6 +38,7 @@ def algorytm_z_filtracja(X):
                     # print(X)
                 j += 1
                 por_num += 2
+                all_por += por_num
                 print(f"Liczba porównań: {por_num}")
 
         # Dodajemy Y do listy punktów niezdominowanych
@@ -55,6 +56,7 @@ def algorytm_z_filtracja(X):
 
         for x in Xn:
             u += 2
+            all_por += u
             for x1, x2 in zip(x, Y):
                 if not x1 >= x2:
                     new += [x]
@@ -73,7 +75,7 @@ def algorytm_z_filtracja(X):
 
         print(X)
         i += 1
-
+    print(f"Porównania F: {all_por}")
     print(f"Zdominowane: {zdominowane}")
     unikalne_P = []
     [unikalne_P.append(p) for p in P if p not in unikalne_P]
