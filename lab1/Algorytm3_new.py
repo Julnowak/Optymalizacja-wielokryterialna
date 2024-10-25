@@ -41,34 +41,39 @@ def algorytm_oparty_o_punkt_idealny(X_new, directions):
             if y_min > x[1]: y_min = x[1]
 
         ideal = [x_min, y_min]
-        print(ideal)
+        print("Punkt idealny: ", ideal)
         n = len(X)
-        j=0
+        j = 0
         d = dict()
         while j < n:
             d[j] = distance(ideal, X[j])
             j += 1
 
         d_sorted = sorted(d.items(), key=lambda v: v[1])
-        M = n
+        print(d_sorted)
+        M = n - 1
         m = 0
         actual = X.copy()
+
         while m <= M:
             all_por += 2
-            for i in range(len(actual)):
-
-                if X[d_sorted[m][0]] <= X[i]:
+            # Sprawdzanie i usuwanie punktów zdominowanych przez X[d_sorted[m][0]]
+            current_point = X[d_sorted[m][0]]
+            for i in range(len(actual) - 1, -1, -1):  # Iteracja wsteczna, aby bezpiecznie usuwać elementy
+                if i != d_sorted[m][0] and is_point1_dominating_point2(current_point, X[i], directions):
                     try:
-                        actual.remove(X[i])
-                    except:
+                        actual.remove(actual[i])
+                    except ValueError:
                         pass
-            P.append(X[m])
-            try:
-                actual.remove(X[m])
-            except:
-                pass
-            M = M-1
-            m = m+1
+
+            # Dodanie punktu do listy punktów niezdominowanych i usunięcie go z listy
+            if current_point in actual:
+                P.append(current_point)
+                actual.remove(current_point)
+
+            M -= 1
+            m += 1
+
         # print(f"Zdominowane: {zdominowane}")
         [unikalne_P.append(p) for p in P if p not in unikalne_P]
         print("Wszystkie porównania: ", all_por)
