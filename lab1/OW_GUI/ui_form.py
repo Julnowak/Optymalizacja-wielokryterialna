@@ -58,7 +58,18 @@ class Ui_MainWindow(object):
         self.gridLayout_6.addWidget(self.deleteCrit_btn, 1, 1, 1, 1)
 
         self.criteriaTable = QTableWidget(self.groupBox)
+        if (self.criteriaTable.columnCount() < 3):
+            self.criteriaTable.setColumnCount(3)
+        if (self.criteriaTable.rowCount() < 1):
+            self.criteriaTable.setRowCount(1)
         self.criteriaTable.setObjectName(u"criteriaTable")
+        self.criteriaTable.setAutoScrollMargin(16)
+        self.criteriaTable.setRowCount(1)
+        self.criteriaTable.setColumnCount(3)
+        self.criteriaTable.horizontalHeader().setCascadingSectionResizes(False)
+        self.criteriaTable.horizontalHeader().setProperty("showSortIndicator", False)
+        self.criteriaTable.horizontalHeader().setStretchLastSection(True)
+        self.criteriaTable.verticalHeader().setCascadingSectionResizes(False)
 
         self.gridLayout_6.addWidget(self.criteriaTable, 0, 0, 1, 2)
 

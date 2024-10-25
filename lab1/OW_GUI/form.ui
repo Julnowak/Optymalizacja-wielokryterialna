@@ -58,7 +58,33 @@
                </widget>
               </item>
               <item row="0" column="0" colspan="2">
-               <widget class="QTableWidget" name="criteriaTable"/>
+               <widget class="QTableWidget" name="criteriaTable">
+                <property name="autoScrollMargin">
+                 <number>16</number>
+                </property>
+                <property name="rowCount">
+                 <number>1</number>
+                </property>
+                <property name="columnCount">
+                 <number>3</number>
+                </property>
+                <attribute name="horizontalHeaderCascadingSectionResizes">
+                 <bool>false</bool>
+                </attribute>
+                <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
+                 <bool>false</bool>
+                </attribute>
+                <attribute name="horizontalHeaderStretchLastSection">
+                 <bool>true</bool>
+                </attribute>
+                <attribute name="verticalHeaderCascadingSectionResizes">
+                 <bool>false</bool>
+                </attribute>
+                <row/>
+                <column/>
+                <column/>
+                <column/>
+               </widget>
               </item>
              </layout>
             </widget>

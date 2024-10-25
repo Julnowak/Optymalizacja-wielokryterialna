@@ -82,7 +82,6 @@ def algorytm_z_filtracja(X_new, directions: List[str]):
                     print("Punkty nieporównywalne:", nieprownywalne)
                     print("Pozostałe do sprawdzenia: ", left)
                     print("Punkty niezdominowane: ", P)
-                print("dddddddddddddddddddd", all_por)
             # Dodajemy Y do listy punktów niezdominowanych
             P += [Y]
 

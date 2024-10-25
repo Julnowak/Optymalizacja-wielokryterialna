@@ -1,54 +1,63 @@
-import numpy as np
+from typing import List
+from math import sqrt
+from main import is_point1_dominating_point2
 
 
-def algorytm_oparty_o_punkt_idealny(X):
-    # Wejście: X - macierz Nxk z punktami [x1, x2, ..., xk]
-    # Wyjście: P - lista punktów niezdominowanych (zwykła lista int)
+def find_optimum_according_to_directions(X: List[List[int]], directions):
+    result: List[int] = []
 
-    X = np.array(X)  # Przekształcenie listy na macierz numpy
-    k = X.shape[1]  # Liczba współrzędnych w każdym punkcie
-    n = X.shape[0]  # Liczba punktów
+    for i in range(len(directions)):
+        if directions[i] == "min":
+            result.append(min([x[i] for x in X]))
+        elif directions[i] == "max":
+            result.append(max([x[i] for x in X]))
 
-    # 1. Inicjalizacja pustej listy P
-    P = []
+    return result
 
-    # 2-3. Obliczanie xmin (minimalne wartości dla każdej współrzędnej)
-    xmin = np.min(X, axis=0)
 
-    # 4. Obliczanie kwadratów odległości d(j) dla każdego punktu X(j) od xmin
-    d = np.array([np.sum((xmin - X[j, :]) ** 2) for j in range(n)])
+def calculate_distance(x: List[int], y: List[int]):
+    return sqrt(sum((a - b) ** 2 for a, b in zip(x, y)))
 
-    # 5. Posortowanie d(j) rosnąco
-    J = np.argsort(d)  # Indeksy punktów X posortowane według odległości
-    D = d[J]  # Posortowane odległości
 
-    # 7. Zmienna M
-    M = len(J)  # Liczba punktów po sortowaniu
-    m = 0  # Indeks startowy w posortowanych punktach
+def punkt_idealny(X_in: List[List], directions: List[str]):
+    X = X_in.copy()
 
-    # 8. Pętla while do przeglądania posortowanych punktów
-    while m < M:
-        # Punkt X(J[m]) o najmniejszej odległości
-        current_point = X[J[m], :]
+    if not len(directions) == len(X[0]):
+        print("Liczba kierunków optymalizacji nie zgadza się z liczbą parametrów")
+    else:
+        P = []
+        xmin = find_optimum_according_to_directions(X=X, directions=directions)
 
-        # Usunięcie z X wszystkich punktów zdominowanych przez current_point
-        non_dominated_mask = np.any(X > current_point, axis=1)
-        X = X[
-            non_dominated_mask
-        ]  # Zostają tylko punkty, które nie są zdominowane przez current_point
+        d = [calculate_distance(xmin, point) for point in X]
+        J = sorted(range(len(d)), key=lambda i: d[i])
 
-        # Dodajemy current_point do listy punktów niezdominowanych
-        P.append(current_point.tolist())  # Konwersja na zwykłą listę
+        D = [d[i] for i in J]
+        m = 0
+        M = len(X)
+        all_por = 0
+        while len(X) > 1:
+            current_point = X_in[J[m]]
+            if current_point in X:
+                P.append(current_point)
+                X.remove(current_point)
+                M -= 1
+            dominated_points = []
+            for p in X:
+                all_por += 2
+                if is_point1_dominating_point2(
+                    point1=current_point, point2=p, directions=directions
+                ):
+                    dominated_points.append(p)
+            for dp in dominated_points:
+                X.remove(dp)
+                M -= 1
+            m += 1
+        P.append(X[0])
 
-        # Aktualizacja listy J po usunięciu punktów zdominowanych
-        J = J[non_dominated_mask]  # Zaktualizuj J, by odzwierciedlać nowe X
-        D = D[non_dominated_mask]  # Zaktualizuj D po usunięciu zdominowanych
-
-        # Aktualizacja M i m
-        M = len(J)  # Nowa liczba punktów
-        m += 1  # Przejdź do kolejnego punktu
-
-    return P
+        unikalne_P = []
+        [unikalne_P.append(p) for p in P if p not in unikalne_P]
+        print(f"Ilość porównań: {all_por}")
+        return unikalne_P  # Zwróć unikalne punkty jako listę
 
 
 if __name__ == "__main__":
@@ -67,5 +76,5 @@ if __name__ == "__main__":
         [3, 5],
     ]
 
-    P = algorytm_oparty_o_punkt_idealny(X)
+    P = punkt_idealny(X_in=X, directions=["min", "min"])
     print("Punkty niezdominowane (punkt idealny):", P)
