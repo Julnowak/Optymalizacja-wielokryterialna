@@ -34,7 +34,6 @@ def algorytm_z_filtracja(X_new, directions: List[str]):
             print(f"\n=== Iteracja {i + 1} ===")
             aktywna_lista = X.copy()
             Y = aktywna_lista[0]
-            fl = 0
             j = 1
             nieprownywalne = []
             n = len(aktywna_lista)
@@ -67,12 +66,10 @@ def algorytm_z_filtracja(X_new, directions: List[str]):
                     elif is_point1_dominating_point2(
                             point1=kolejny_elem, point2=Y, directions=directions
                     ):
-                        # X(j) dominuje Y, aktualizujemy Y
-                        # print(f"Usunięto element: {Y}")
+
                         zdominowane.append(Y)
                         aktywna_lista.remove(Y), X.remove(Y)
                         Y = kolejny_elem
-                        fl = 1  # Zmiana flaga na 1
                     else:
                         # print(f"Element nieporównywalny: {kolejny_elem}")
                         nieprownywalne.append(kolejny_elem)
@@ -85,13 +82,14 @@ def algorytm_z_filtracja(X_new, directions: List[str]):
                     print("Punkty nieporównywalne:", nieprownywalne)
                     print("Pozostałe do sprawdzenia: ", left)
                     print("Punkty niezdominowane: ", P)
-
+                print("dddddddddddddddddddd", all_por)
             # Dodajemy Y do listy punktów niezdominowanych
             P += [Y]
 
             print(f"X:{X}")
             print(f"AL:{aktywna_lista}")
             print(f"Left:{left}")
+            print(f"Left:{nieprownywalne}")
             # X = [x for x in X if not all(x1 >= x2 for x1, x2 in zip(x, Y))]
             new = []
 
@@ -99,10 +97,12 @@ def algorytm_z_filtracja(X_new, directions: List[str]):
             print(f"AL:{aktywna_lista}")
             print(f"\n{i+1}F iteracja\n")
             for x in nieprownywalne:
-                all_por +=2
+                all_por += 2
                 for x1, x2 in zip(x, Y):
                     if not x1 >= x2:
                         new += [x]
+            print(new)
+            print("num:", all_por)
             X = new
 
             print(f"Pozostałe elementy X: {X}")
@@ -115,9 +115,11 @@ def algorytm_z_filtracja(X_new, directions: List[str]):
             i += 1
 
     print(f"Zdominowane: {zdominowane}")
+
     unikalne_P = []
     [unikalne_P.append(p) for p in P if p not in unikalne_P]
     print("Wszystkie porównania: ", all_por)
+    print(f"Niezdominowane: {unikalne_P}")
     return unikalne_P  # Zwróć unikalne punkty jako listę
 
 

@@ -26,6 +26,7 @@ def bez_filtracji(X_new: List[List], directions: List[str]):
         print("Liczba kierunków optymalizacji nie zgadza się z liczbą parametrów")
     else:
         P = []
+        unikalne_P = []
         zdominowane = []
         i = 0
         while len(X):
@@ -95,7 +96,6 @@ def bez_filtracji(X_new: List[List], directions: List[str]):
             i += 1
 
         # print(f"Zdominowane: {zdominowane}")
-        unikalne_P = []
         [unikalne_P.append(p) for p in P if p not in unikalne_P]
         print("Wszystkie porównania: ",all_por)
         return unikalne_P  # Zwróć unikalne punkty jako listę

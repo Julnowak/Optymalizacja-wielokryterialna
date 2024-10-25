@@ -97,7 +97,7 @@ def algorytm_z_filtracja(X_new, directions: List[str]):
             aktywna_lista.remove(Y), X.remove(Y)
             print(f"AL:{aktywna_lista}")
             print(f"\n{i+1}F iteracja\n")
-            for x in nieprownywalne:
+            for x in X:
                 all_por +=2
                 for x1, x2 in zip(x, Y):
                     if not x1 >= x2:
