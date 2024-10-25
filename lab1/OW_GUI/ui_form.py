@@ -58,14 +58,14 @@ class Ui_MainWindow(object):
         self.gridLayout_6.addWidget(self.deleteCrit_btn, 1, 1, 1, 1)
 
         self.criteriaTable = QTableWidget(self.groupBox)
-        if (self.criteriaTable.columnCount() < 3):
-            self.criteriaTable.setColumnCount(3)
+        if (self.criteriaTable.columnCount() < 2):
+            self.criteriaTable.setColumnCount(2)
         if (self.criteriaTable.rowCount() < 1):
             self.criteriaTable.setRowCount(1)
         self.criteriaTable.setObjectName(u"criteriaTable")
         self.criteriaTable.setAutoScrollMargin(16)
         self.criteriaTable.setRowCount(1)
-        self.criteriaTable.setColumnCount(3)
+        self.criteriaTable.setColumnCount(2)
         self.criteriaTable.horizontalHeader().setCascadingSectionResizes(False)
         self.criteriaTable.horizontalHeader().setProperty("showSortIndicator", False)
         self.criteriaTable.horizontalHeader().setStretchLastSection(True)
@@ -133,23 +133,25 @@ class Ui_MainWindow(object):
 
         self.label_3 = QLabel(self.groupBox_4)
         self.label_3.setObjectName(u"label_3")
+        self.label_3.setMaximumSize(QSize(16777215, 20))
 
         self.gridLayout_5.addWidget(self.label_3, 1, 0, 1, 1)
 
-        self.spinBox = QSpinBox(self.groupBox_4)
-        self.spinBox.setObjectName(u"spinBox")
+        self.mean_num = QSpinBox(self.groupBox_4)
+        self.mean_num.setObjectName(u"mean_num")
 
-        self.gridLayout_5.addWidget(self.spinBox, 2, 0, 1, 1)
+        self.gridLayout_5.addWidget(self.mean_num, 2, 0, 1, 1)
 
         self.spinBox_2 = QSpinBox(self.groupBox_4)
         self.spinBox_2.setObjectName(u"spinBox_2")
 
         self.gridLayout_5.addWidget(self.spinBox_2, 2, 1, 1, 2)
 
-        self.spinBox_3 = QSpinBox(self.groupBox_4)
-        self.spinBox_3.setObjectName(u"spinBox_3")
+        self.point_num = QSpinBox(self.groupBox_4)
+        self.point_num.setObjectName(u"point_num")
+        self.point_num.setMinimum(1)
 
-        self.gridLayout_5.addWidget(self.spinBox_3, 2, 3, 1, 1)
+        self.gridLayout_5.addWidget(self.point_num, 2, 3, 1, 1)
 
         self.generation_btn = QPushButton(self.groupBox_4)
         self.generation_btn.setObjectName(u"generation_btn")
@@ -161,13 +163,15 @@ class Ui_MainWindow(object):
 
         self.gridLayout_5.addWidget(self.sort_btn, 3, 1, 1, 1)
 
-        self.critselect_btn = QSpinBox(self.groupBox_4)
-        self.critselect_btn.setObjectName(u"critselect_btn")
+        self.criterium_num = QSpinBox(self.groupBox_4)
+        self.criterium_num.setObjectName(u"criterium_num")
+        self.criterium_num.setMinimum(1)
 
-        self.gridLayout_5.addWidget(self.critselect_btn, 3, 3, 1, 1)
+        self.gridLayout_5.addWidget(self.criterium_num, 3, 3, 1, 1)
 
         self.label_4 = QLabel(self.groupBox_4)
         self.label_4.setObjectName(u"label_4")
+        self.label_4.setMaximumSize(QSize(16777215, 20))
 
         self.gridLayout_5.addWidget(self.label_4, 1, 3, 1, 1)
 
@@ -253,10 +257,10 @@ class Ui_MainWindow(object):
 
         self.groupBox_4.setTitle(QCoreApplication.translate("MainWindow", u"Generacja", None))
         self.label_2.setText(QCoreApplication.translate("MainWindow", u"Rozk\u0142ad:", None))
-        self.label_3.setText(QCoreApplication.translate("MainWindow", u"\u015arednia", None))
+        self.label_3.setText(QCoreApplication.translate("MainWindow", u"\u015arednia:", None))
         self.generation_btn.setText(QCoreApplication.translate("MainWindow", u"Generuj", None))
         self.sort_btn.setText(QCoreApplication.translate("MainWindow", u"Sortuj", None))
-        self.label_4.setText(QCoreApplication.translate("MainWindow", u"Liczba obiekt\u00f3w", None))
+        self.label_4.setText(QCoreApplication.translate("MainWindow", u"Liczba obiekt\u00f3w:", None))
         self.label_5.setText(QCoreApplication.translate("MainWindow", u"Kryterium:", None))
         self.distribution_select.setItemText(0, QCoreApplication.translate("MainWindow", u"Eksponencjalny", None))
         self.distribution_select.setItemText(1, QCoreApplication.translate("MainWindow", u"Gaussa", None))
