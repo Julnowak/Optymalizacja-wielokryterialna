@@ -1,53 +1,123 @@
 import numpy as np
+from typing import List
 
 
-def algorytm_z_filtracja(X):
-    # Wejście: X - macierz Nx2 z punktami [x, y]
-    # Wyjście: P - lista punktów niezdominowanych
+def is_point1_dominating_point2(
+    point1: List[int], point2: List[int], directions: List[str]
+):
+    result: List[bool] = []
+    for i in range(len(directions)):
+        if directions[i] == "min":
+            result.append(all(x1 <= x2 for x1, x2 in zip(point1, point2)))
+        elif directions[i] == "max":
+            result.append(all(x1 >= x2 for x1, x2 in zip(point1, point2)))
 
-    X = np.array(X)  # Przekształcenie listy na macierz numpy
-    P = []  # Lista punktów niezdominowanych
-    n = X.shape[0]  # Liczba punktów
+    if all(result):
+        # print(f'Punkt {point1} dominuje punkt {point2}')
+        return True
+    else:
+        return False
 
-    i = 0
-    while i < n:
-        Y = X[i, :]  # Pobranie aktualnego punktu Y
-        j = i + 1
 
-        while j < n:
-            if np.all(Y <= X[j, :]):
-                # Y dominuje X(j), usuwamy X(j)
-                X = np.delete(X, j, axis=0)
-                n = X.shape[0]  # Zaktualizowana liczba punktów
-            elif np.all(X[j, :] <= Y):
-                # X(j) dominuje Y, aktualizujemy Y
-                Y = X[j, :]
-                X[i, :] = X[j, :]
-                j += 1
-            else:
-                j += 1
+def algorytm_z_filtracja(X_new, directions: List[str]):
+    X = X_new.copy()
 
-        # Dodajemy Y do listy punktów niezdominowanych
-        P.append(list(Y))
+    all_por = 0
+    if not len(directions) == len(X[0]):
+        print("Liczba kierunków optymalizacji nie zgadza się z liczbą parametrów")
+    else:
+        P = []
+        zdominowane = []
+        i = 0
+        while len(X):
+            left = X.copy()
+            print(f"\n=== Iteracja {i + 1} ===")
+            aktywna_lista = X.copy()
+            Y = aktywna_lista[0]
+            fl = 0
+            j = 1
+            nieprownywalne = []
+            n = len(aktywna_lista)
+            if len(X) != 1:
+                while j < n:
+                    por_num = 0
+                    aktywna_lista = [elem for elem in X if elem not in nieprownywalne]
+                    kolejny_elem = aktywna_lista[1].copy()
+                    print(f"\n--- Iteracja {i + 1}, {j} ---")
+                    print(f"Element aktywny: {Y}")
+                    print(f"Kolejny element: {kolejny_elem}")
 
-        # Filtracja - usunięcie punktów zdominowanych przez Y
-        mask = np.any(
-            X > Y, axis=1
-        )  # Zachowujemy punkty, które nie są zdominowane przez Y
-        X = X[mask, :]
-        n = X.shape[0]
+                    try:
+                        left.remove(Y)
+                    except:
+                        pass
 
-        if n == 1:
-            # Jeśli pozostał tylko jeden punkt, dodaj go do P i zakończ
-            P.append(list(X[0]))
-            break
+                    try:
+                        left.remove(kolejny_elem)
+                    except:
+                        pass
 
-        # Usunięcie Y z listy X
-        if i < n:
-            X = np.delete(X, i, axis=0)
-            n = X.shape[0]
+                    if is_point1_dominating_point2(
+                            point1=Y, point2=kolejny_elem, directions=directions
+                    ):
+                        # Y dominuje X(j), usuwamy X(j)
+                        zdominowane.append(kolejny_elem)
+                        X.remove(kolejny_elem)
+                        # print(f"Usunięto element: {kolejny_elem}")
+                    elif is_point1_dominating_point2(
+                            point1=kolejny_elem, point2=Y, directions=directions
+                    ):
+                        # X(j) dominuje Y, aktualizujemy Y
+                        # print(f"Usunięto element: {Y}")
+                        zdominowane.append(Y)
+                        aktywna_lista.remove(Y), X.remove(Y)
+                        Y = kolejny_elem
+                        fl = 1  # Zmiana flaga na 1
+                    else:
+                        # print(f"Element nieporównywalny: {kolejny_elem}")
+                        nieprownywalne.append(kolejny_elem)
 
-    return np.unique(P, axis=0).tolist()  # Zwróć unikalne punkty jako listę
+                    j += 1
+                    por_num += 2
+                    all_por += 2
+                    print(f"Liczba porównań: {por_num}")
+                    print("Elementy usunięte:", zdominowane)
+                    print("Punkty nieporównywalne:", nieprownywalne)
+                    print("Pozostałe do sprawdzenia: ", left)
+                    print("Punkty niezdominowane: ", P)
+
+            # Dodajemy Y do listy punktów niezdominowanych
+            P += [Y]
+
+            print(f"X:{X}")
+            print(f"AL:{aktywna_lista}")
+            # X = [x for x in X if not all(x1 >= x2 for x1, x2 in zip(x, Y))]
+            new = []
+
+            aktywna_lista.remove(Y), X.remove(Y)
+            print(f"AL:{aktywna_lista}")
+            print(f"\n{i+1}F iteracja\n")
+            for x in nieprownywalne:
+                all_por +=2
+                for x1, x2 in zip(x, Y):
+                    if not x1 >= x2:
+                        new += [x]
+            X = new
+
+            print(f"Pozostałe elementy X: {X}")
+
+            # Jeśli pozostał jeden element, dodajemy go do listy P
+            if len(X) == 1:
+                P.append(X[0])
+                print(f"Dodano ostatni element do P: {X[0]}")
+                break
+            i += 1
+
+    print(f"Zdominowane: {zdominowane}")
+    unikalne_P = []
+    [unikalne_P.append(p) for p in P if p not in unikalne_P]
+    print("Wszystkie porównania: ", all_por)
+    return unikalne_P  # Zwróć unikalne punkty jako listę
 
 
 if __name__ == "__main__":
@@ -66,5 +136,5 @@ if __name__ == "__main__":
         [3, 5],
     ]
 
-    P = algorytm_z_filtracja(X)
+    P = algorytm_z_filtracja(X, directions=["min", "min"])
     print("Punkty niezdominowane (z filtracją):", P)
