@@ -47,16 +47,26 @@ def algorytm_oparty_o_punkt_idealny(X_new, directions):
         d = dict()
         while j < n:
             d[j] = distance(ideal, X[j])
-            j+= 1
+            j += 1
 
         d_sorted = sorted(d.items(), key=lambda v: v[1])
         M = n
         m = 0
         actual = X.copy()
         while m <= M:
-            if X[d_sorted[m][0]] <= X[m]:
-                P.append(X[m])
+            all_por += 2
+            for i in range(len(actual)):
+
+                if X[d_sorted[m][0]] <= X[i]:
+                    try:
+                        actual.remove(X[i])
+                    except:
+                        pass
+            P.append(X[m])
+            try:
                 actual.remove(X[m])
+            except:
+                pass
             M = M-1
             m = m+1
         # print(f"Zdominowane: {zdominowane}")
