@@ -1,61 +1,84 @@
 import numpy as np
+from typing import List
+import math
 
 
-def algorytm_oparty_o_punkt_idealny(X):
-    P = []
-    zdominowane = []
-    i = 0
-    while len(X):
-        print(f"\n=== Iteracja {i + 1} ===")
-        aktywna_lista = X.copy()
-        Y = aktywna_lista[0]
-        fl = 0
-        j = i + 1
-        nieprownywalne = []
-        n = len(aktywna_lista)
-        if len(X) != 1:
-            while j < n:
-                por_num = 0
-                aktywna_lista = [elem for elem in X if elem not in nieprownywalne]
-                kolejny_elem = aktywna_lista[1].copy()
-                print(f"\n--- Iteracja {i + 1}, {j} ---")
-                print(f"Element aktywny: {Y}")
-                print(f"Kolejny element: {kolejny_elem}")
-                if all(x1 <= x2 for x1, x2 in zip(Y, kolejny_elem)):
-                    # Y dominuje X(j), usuwamy X(j)
-                    zdominowane.append(kolejny_elem)
-                    X.remove(kolejny_elem)
-                    print(f"Usunięto element: {kolejny_elem}")
-                elif all(x1 >= x2 for x1, x2 in zip(Y, kolejny_elem)):
-                    # X(j) dominuje Y, aktualizujemy Y
-                    print(f"Usunięto element: {Y}")
-                    zdominowane.append(Y)
-                    aktywna_lista.remove(Y), X.remove(Y)
-                    Y = kolejny_elem
-                    fl = 1  # Zmiana flaga na 1
-                else:
-                    print(f"Element nieporównywalny: {kolejny_elem}")
-                    nieprownywalne.append(kolejny_elem)
+def distance(p1, p2):
+    return math.sqrt((p2[0] - p1[0])**2 + (p2[1] - p1[1])**2)
 
-                    # X = np.delete(X, np.where(X == X[j, :])[0][0], axis=0)
-                    # print(X)
-                j += 1
-                por_num += 2
-                print(f"Liczba porównań: {por_num}")
 
-        # Dodajemy Y do listy punktów niezdominowanych
-        P += [Y]
+def is_point1_dominating_point2(
+        point1: List[int], point2: List[int], directions: List[str]
+):
+    result: List[bool] = []
+    for i in range(len(directions)):
+        if directions[i] == "min":
+            result.append(all(x1 <= x2 for x1, x2 in zip(point1, point2)))
+        elif directions[i] == "max":
+            result.append(all(x1 >= x2 for x1, x2 in zip(point1, point2)))
 
-        if fl == 0:
-            # Jeśli flaga równa 0, usuwamy Y z X
-            X.remove(Y)
+    if all(result):
+        # print(f'Punkt {point1} dominuje punkt {point2}')
+        return True
+    else:
+        return False
 
-        i += 1
 
-    print(f"Zdominowane: {zdominowane}")
-    unikalne_P = []
-    [unikalne_P.append(p) for p in P if p not in unikalne_P]
-    return unikalne_P  # Zwróć unikalne punkty jako listę
+def algorytm_oparty_o_punkt_idealny(X_new, directions):
+    X = X_new.copy()
+
+    all_por = 0
+    if not len(directions) == len(X[0]):
+        print("Liczba kierunków optymalizacji nie zgadza się z liczbą parametrów")
+    else:
+        P = []
+        unikalne_P = []
+
+        x_min = np.inf
+        y_min = np.inf
+        for x in X:
+            if x_min > x[0]: x_min = x[0]
+            if y_min > x[1]: y_min = x[1]
+
+        ideal = [x_min, y_min]
+        print(ideal)
+        n = len(X)
+        j=0
+        d = dict()
+        while j < n:
+            d[j] = distance(ideal, X[j])
+            j += 1
+
+        d_sorted = sorted(d.items(), key=lambda v: v[1])
+        M = n
+        m = 0
+        actual = X.copy()
+        while m <= M:
+            all_por += 2
+            for i in range(len(actual)):
+
+                if X[d_sorted[m][0]] <= X[i]:
+                    try:
+                        actual.remove(X[i])
+                    except:
+                        pass
+            P.append(X[m])
+            try:
+                actual.remove(X[m])
+            except:
+                pass
+            M = M-1
+            m = m+1
+        # print(f"Zdominowane: {zdominowane}")
+        [unikalne_P.append(p) for p in P if p not in unikalne_P]
+        print("Wszystkie porównania: ", all_por)
+        return unikalne_P  # Zwróć unikalne punkty jako listę
+
+# Oczekiwane
+# Liczba porównań: 24
+# (3, 3)
+# (4, 1)
+# (1, 8)
 
 
 if __name__ == "__main__":
@@ -74,5 +97,5 @@ if __name__ == "__main__":
         [3, 5],
     ]
 
-    P = algorytm_oparty_o_punkt_idealny(X)
+    P = algorytm_oparty_o_punkt_idealny(X, directions=["min", "min"])
     print("Punkty niezdominowane (punkt idealny):", P)
