@@ -96,14 +96,17 @@ def algorytm_z_filtracja(X_new, directions: List[str]):
             aktywna_lista.remove(Y), X.remove(Y)
             print(f"AL:{aktywna_lista}")
             print(f"\n{i+1}F iteracja\n")
-            for x in nieprownywalne:
-                all_por += 2
-                for x1, x2 in zip(x, Y):
-                    if not x1 >= x2:
-                        new += [x]
-            print(new)
-            print("num:", all_por)
-            X = new
+            if not (len(nieprownywalne) == 1 and kolejny_elem in nieprownywalne):
+                for x in nieprownywalne:
+                    all_por += 2
+                    print(x)
+                    for x1, x2 in zip(x, Y):
+                        print(x1,x2)
+                        if not x1 >= x2:
+                            new += [x]
+                print(new)
+                print("num:", all_por)
+                X = new
 
             print(f"Pozostałe elementy X: {X}")
 
