@@ -64,6 +64,12 @@ def algorytm_oparty_o_punkt_idealny(X_new, directions):
         print("Wszystkie porównania: ", all_por)
         return unikalne_P  # Zwróć unikalne punkty jako listę
 
+# Oczekiwane
+# Liczba porównań: 24
+# (3, 3)
+# (4, 1)
+# (1, 8)
+
 
 if __name__ == "__main__":
     X = [
