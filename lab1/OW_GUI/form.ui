@@ -18,7 +18,7 @@
     <item row="0" column="0">
      <widget class="QTabWidget" name="box">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tab_3">
        <attribute name="title">
@@ -37,6 +37,146 @@
            <property name="sizeConstraint">
             <enum>QLayout::SetNoConstraint</enum>
            </property>
+           <item row="1" column="0" rowspan="2">
+            <widget class="QGroupBox" name="groupBox_4">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>200</height>
+              </size>
+             </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::DefaultContextMenu</enum>
+             </property>
+             <property name="acceptDrops">
+              <bool>false</bool>
+             </property>
+             <property name="title">
+              <string>Generacja</string>
+             </property>
+             <property name="flat">
+              <bool>false</bool>
+             </property>
+             <property name="checkable">
+              <bool>false</bool>
+             </property>
+             <layout class="QGridLayout" name="gridLayout_5">
+              <item row="0" column="0">
+               <widget class="QLabel" name="label_2">
+                <property name="text">
+                 <string>Rozkład:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="label_3">
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>20</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>Średnia:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="QSpinBox" name="mean_num">
+                <property name="minimum">
+                 <number>-99</number>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1" colspan="2">
+               <widget class="QSpinBox" name="odch_num">
+                <property name="minimum">
+                 <number>-99</number>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="3">
+               <widget class="QSpinBox" name="point_num">
+                <property name="minimum">
+                 <number>1</number>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="0">
+               <widget class="QPushButton" name="generation_btn">
+                <property name="text">
+                 <string>Generuj</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="1">
+               <widget class="QPushButton" name="sort_btn">
+                <property name="text">
+                 <string>Sortuj</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="3">
+               <widget class="QSpinBox" name="criterium_num">
+                <property name="minimum">
+                 <number>1</number>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="3">
+               <widget class="QLabel" name="label_4">
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>20</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>Liczba obiektów:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="2">
+               <widget class="QLabel" name="label_5">
+                <property name="text">
+                 <string>Kryterium:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1" colspan="2">
+               <widget class="QComboBox" name="distribution_select">
+                <item>
+                 <property name="text">
+                  <string>Eksponencjalny</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Jednostajny</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Gaussa</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Poissona</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+              <item row="1" column="1" colspan="2">
+               <widget class="QLabel" name="label_6">
+                <property name="text">
+                 <string>Odchylenie:</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
            <item row="0" column="0">
             <widget class="QGroupBox" name="groupBox">
              <property name="title">
@@ -157,133 +297,13 @@
              </layout>
             </widget>
            </item>
-           <item row="1" column="0" rowspan="2">
-            <widget class="QGroupBox" name="groupBox_4">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>200</height>
-              </size>
-             </property>
-             <property name="contextMenuPolicy">
-              <enum>Qt::DefaultContextMenu</enum>
-             </property>
-             <property name="acceptDrops">
-              <bool>false</bool>
-             </property>
-             <property name="title">
-              <string>Generacja</string>
-             </property>
-             <property name="flat">
-              <bool>false</bool>
-             </property>
-             <property name="checkable">
-              <bool>false</bool>
-             </property>
-             <layout class="QGridLayout" name="gridLayout_5">
-              <item row="0" column="0">
-               <widget class="QLabel" name="label_2">
-                <property name="text">
-                 <string>Rozkład:</string>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="0">
-               <widget class="QLabel" name="label_3">
-                <property name="maximumSize">
-                 <size>
-                  <width>16777215</width>
-                  <height>20</height>
-                 </size>
-                </property>
-                <property name="text">
-                 <string>Średnia:</string>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="0">
-               <widget class="QSpinBox" name="mean_num"/>
-              </item>
-              <item row="2" column="1" colspan="2">
-               <widget class="QSpinBox" name="spinBox_2"/>
-              </item>
-              <item row="2" column="3">
-               <widget class="QSpinBox" name="point_num">
-                <property name="minimum">
-                 <number>1</number>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="0">
-               <widget class="QPushButton" name="generation_btn">
-                <property name="text">
-                 <string>Generuj</string>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="1">
-               <widget class="QPushButton" name="sort_btn">
-                <property name="text">
-                 <string>Sortuj</string>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="3">
-               <widget class="QSpinBox" name="criterium_num">
-                <property name="minimum">
-                 <number>1</number>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="3">
-               <widget class="QLabel" name="label_4">
-                <property name="maximumSize">
-                 <size>
-                  <width>16777215</width>
-                  <height>20</height>
-                 </size>
-                </property>
-                <property name="text">
-                 <string>Liczba obiektów:</string>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="2">
-               <widget class="QLabel" name="label_5">
-                <property name="text">
-                 <string>Kryterium:</string>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="1" colspan="2">
-               <widget class="QComboBox" name="distribution_select">
-                <item>
-                 <property name="text">
-                  <string>Eksponencjalny</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>Gaussa</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>Poissona</string>
-                 </property>
-                </item>
-               </widget>
-              </item>
-             </layout>
-            </widget>
-           </item>
            <item row="0" column="1" rowspan="2" colspan="2">
             <widget class="QGroupBox" name="groupBox_2">
              <property name="title">
               <string>Edytor wartości</string>
              </property>
              <layout class="QGridLayout" name="gridLayout_7">
-              <item row="0" column="0" colspan="2">
+              <item row="0" column="0" colspan="3">
                <widget class="QTableWidget" name="valuesTable"/>
               </item>
               <item row="1" column="0">
@@ -293,10 +313,17 @@
                 </property>
                </widget>
               </item>
-              <item row="1" column="1">
+              <item row="1" column="2">
                <widget class="QPushButton" name="deleteVal_btn">
                 <property name="text">
                  <string>Usuń</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QPushButton" name="load_btn">
+                <property name="text">
+                 <string>Wczytaj z pliku</string>
                 </property>
                </widget>
               </item>
@@ -312,6 +339,11 @@
        <attribute name="title">
         <string>Wyniki</string>
        </attribute>
+       <layout class="QGridLayout" name="gridLayout_8">
+        <item row="0" column="0">
+         <widget class="PlotWidget" name="graph"/>
+        </item>
+       </layout>
       </widget>
      </widget>
     </item>
@@ -329,6 +361,13 @@
    </property>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>PlotWidget</class>
+   <extends>QGraphicsView</extends>
+   <header>plotwidget</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

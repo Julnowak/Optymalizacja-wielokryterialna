@@ -21,6 +21,8 @@ from PySide6.QtWidgets import (QApplication, QComboBox, QFrame, QGridLayout,
     QSpinBox, QStatusBar, QTabWidget, QTableWidget,
     QTableWidgetItem, QWidget)
 
+from plotwidget import PlotWidget
+
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
@@ -43,6 +45,88 @@ class Ui_MainWindow(object):
         self.gridLayout_2 = QGridLayout(self.frame)
         self.gridLayout_2.setObjectName(u"gridLayout_2")
         self.gridLayout_2.setSizeConstraint(QLayout.SetNoConstraint)
+        self.groupBox_4 = QGroupBox(self.frame)
+        self.groupBox_4.setObjectName(u"groupBox_4")
+        self.groupBox_4.setMinimumSize(QSize(0, 200))
+        self.groupBox_4.setContextMenuPolicy(Qt.DefaultContextMenu)
+        self.groupBox_4.setAcceptDrops(False)
+        self.groupBox_4.setFlat(False)
+        self.groupBox_4.setCheckable(False)
+        self.gridLayout_5 = QGridLayout(self.groupBox_4)
+        self.gridLayout_5.setObjectName(u"gridLayout_5")
+        self.label_2 = QLabel(self.groupBox_4)
+        self.label_2.setObjectName(u"label_2")
+
+        self.gridLayout_5.addWidget(self.label_2, 0, 0, 1, 1)
+
+        self.label_3 = QLabel(self.groupBox_4)
+        self.label_3.setObjectName(u"label_3")
+        self.label_3.setMaximumSize(QSize(16777215, 20))
+
+        self.gridLayout_5.addWidget(self.label_3, 1, 0, 1, 1)
+
+        self.mean_num = QSpinBox(self.groupBox_4)
+        self.mean_num.setObjectName(u"mean_num")
+        self.mean_num.setMinimum(-99)
+
+        self.gridLayout_5.addWidget(self.mean_num, 2, 0, 1, 1)
+
+        self.odch_num = QSpinBox(self.groupBox_4)
+        self.odch_num.setObjectName(u"odch_num")
+        self.odch_num.setMinimum(-99)
+
+        self.gridLayout_5.addWidget(self.odch_num, 2, 1, 1, 2)
+
+        self.point_num = QSpinBox(self.groupBox_4)
+        self.point_num.setObjectName(u"point_num")
+        self.point_num.setMinimum(1)
+
+        self.gridLayout_5.addWidget(self.point_num, 2, 3, 1, 1)
+
+        self.generation_btn = QPushButton(self.groupBox_4)
+        self.generation_btn.setObjectName(u"generation_btn")
+
+        self.gridLayout_5.addWidget(self.generation_btn, 3, 0, 1, 1)
+
+        self.sort_btn = QPushButton(self.groupBox_4)
+        self.sort_btn.setObjectName(u"sort_btn")
+
+        self.gridLayout_5.addWidget(self.sort_btn, 3, 1, 1, 1)
+
+        self.criterium_num = QSpinBox(self.groupBox_4)
+        self.criterium_num.setObjectName(u"criterium_num")
+        self.criterium_num.setMinimum(1)
+
+        self.gridLayout_5.addWidget(self.criterium_num, 3, 3, 1, 1)
+
+        self.label_4 = QLabel(self.groupBox_4)
+        self.label_4.setObjectName(u"label_4")
+        self.label_4.setMaximumSize(QSize(16777215, 20))
+
+        self.gridLayout_5.addWidget(self.label_4, 1, 3, 1, 1)
+
+        self.label_5 = QLabel(self.groupBox_4)
+        self.label_5.setObjectName(u"label_5")
+
+        self.gridLayout_5.addWidget(self.label_5, 3, 2, 1, 1)
+
+        self.distribution_select = QComboBox(self.groupBox_4)
+        self.distribution_select.addItem("")
+        self.distribution_select.addItem("")
+        self.distribution_select.addItem("")
+        self.distribution_select.addItem("")
+        self.distribution_select.setObjectName(u"distribution_select")
+
+        self.gridLayout_5.addWidget(self.distribution_select, 0, 1, 1, 2)
+
+        self.label_6 = QLabel(self.groupBox_4)
+        self.label_6.setObjectName(u"label_6")
+
+        self.gridLayout_5.addWidget(self.label_6, 1, 1, 1, 2)
+
+
+        self.gridLayout_2.addWidget(self.groupBox_4, 1, 0, 2, 1)
+
         self.groupBox = QGroupBox(self.frame)
         self.groupBox.setObjectName(u"groupBox")
         self.gridLayout_6 = QGridLayout(self.groupBox)
@@ -117,80 +201,6 @@ class Ui_MainWindow(object):
 
         self.gridLayout_2.addWidget(self.groupBox_3, 2, 1, 1, 2)
 
-        self.groupBox_4 = QGroupBox(self.frame)
-        self.groupBox_4.setObjectName(u"groupBox_4")
-        self.groupBox_4.setMinimumSize(QSize(0, 200))
-        self.groupBox_4.setContextMenuPolicy(Qt.DefaultContextMenu)
-        self.groupBox_4.setAcceptDrops(False)
-        self.groupBox_4.setFlat(False)
-        self.groupBox_4.setCheckable(False)
-        self.gridLayout_5 = QGridLayout(self.groupBox_4)
-        self.gridLayout_5.setObjectName(u"gridLayout_5")
-        self.label_2 = QLabel(self.groupBox_4)
-        self.label_2.setObjectName(u"label_2")
-
-        self.gridLayout_5.addWidget(self.label_2, 0, 0, 1, 1)
-
-        self.label_3 = QLabel(self.groupBox_4)
-        self.label_3.setObjectName(u"label_3")
-        self.label_3.setMaximumSize(QSize(16777215, 20))
-
-        self.gridLayout_5.addWidget(self.label_3, 1, 0, 1, 1)
-
-        self.mean_num = QSpinBox(self.groupBox_4)
-        self.mean_num.setObjectName(u"mean_num")
-
-        self.gridLayout_5.addWidget(self.mean_num, 2, 0, 1, 1)
-
-        self.spinBox_2 = QSpinBox(self.groupBox_4)
-        self.spinBox_2.setObjectName(u"spinBox_2")
-
-        self.gridLayout_5.addWidget(self.spinBox_2, 2, 1, 1, 2)
-
-        self.point_num = QSpinBox(self.groupBox_4)
-        self.point_num.setObjectName(u"point_num")
-        self.point_num.setMinimum(1)
-
-        self.gridLayout_5.addWidget(self.point_num, 2, 3, 1, 1)
-
-        self.generation_btn = QPushButton(self.groupBox_4)
-        self.generation_btn.setObjectName(u"generation_btn")
-
-        self.gridLayout_5.addWidget(self.generation_btn, 3, 0, 1, 1)
-
-        self.sort_btn = QPushButton(self.groupBox_4)
-        self.sort_btn.setObjectName(u"sort_btn")
-
-        self.gridLayout_5.addWidget(self.sort_btn, 3, 1, 1, 1)
-
-        self.criterium_num = QSpinBox(self.groupBox_4)
-        self.criterium_num.setObjectName(u"criterium_num")
-        self.criterium_num.setMinimum(1)
-
-        self.gridLayout_5.addWidget(self.criterium_num, 3, 3, 1, 1)
-
-        self.label_4 = QLabel(self.groupBox_4)
-        self.label_4.setObjectName(u"label_4")
-        self.label_4.setMaximumSize(QSize(16777215, 20))
-
-        self.gridLayout_5.addWidget(self.label_4, 1, 3, 1, 1)
-
-        self.label_5 = QLabel(self.groupBox_4)
-        self.label_5.setObjectName(u"label_5")
-
-        self.gridLayout_5.addWidget(self.label_5, 3, 2, 1, 1)
-
-        self.distribution_select = QComboBox(self.groupBox_4)
-        self.distribution_select.addItem("")
-        self.distribution_select.addItem("")
-        self.distribution_select.addItem("")
-        self.distribution_select.setObjectName(u"distribution_select")
-
-        self.gridLayout_5.addWidget(self.distribution_select, 0, 1, 1, 2)
-
-
-        self.gridLayout_2.addWidget(self.groupBox_4, 1, 0, 2, 1)
-
         self.groupBox_2 = QGroupBox(self.frame)
         self.groupBox_2.setObjectName(u"groupBox_2")
         self.gridLayout_7 = QGridLayout(self.groupBox_2)
@@ -198,7 +208,7 @@ class Ui_MainWindow(object):
         self.valuesTable = QTableWidget(self.groupBox_2)
         self.valuesTable.setObjectName(u"valuesTable")
 
-        self.gridLayout_7.addWidget(self.valuesTable, 0, 0, 1, 2)
+        self.gridLayout_7.addWidget(self.valuesTable, 0, 0, 1, 3)
 
         self.addVal_btn = QPushButton(self.groupBox_2)
         self.addVal_btn.setObjectName(u"addVal_btn")
@@ -208,7 +218,12 @@ class Ui_MainWindow(object):
         self.deleteVal_btn = QPushButton(self.groupBox_2)
         self.deleteVal_btn.setObjectName(u"deleteVal_btn")
 
-        self.gridLayout_7.addWidget(self.deleteVal_btn, 1, 1, 1, 1)
+        self.gridLayout_7.addWidget(self.deleteVal_btn, 1, 2, 1, 1)
+
+        self.load_btn = QPushButton(self.groupBox_2)
+        self.load_btn.setObjectName(u"load_btn")
+
+        self.gridLayout_7.addWidget(self.load_btn, 1, 1, 1, 1)
 
 
         self.gridLayout_2.addWidget(self.groupBox_2, 0, 1, 2, 2)
@@ -219,6 +234,13 @@ class Ui_MainWindow(object):
         self.box.addTab(self.tab_3, "")
         self.tab_4 = QWidget()
         self.tab_4.setObjectName(u"tab_4")
+        self.gridLayout_8 = QGridLayout(self.tab_4)
+        self.gridLayout_8.setObjectName(u"gridLayout_8")
+        self.graph = PlotWidget(self.tab_4)
+        self.graph.setObjectName(u"graph")
+
+        self.gridLayout_8.addWidget(self.graph, 0, 0, 1, 1)
+
         self.box.addTab(self.tab_4, "")
 
         self.gridLayout.addWidget(self.box, 0, 0, 1, 1)
@@ -234,7 +256,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
 
-        self.box.setCurrentIndex(0)
+        self.box.setCurrentIndex(1)
 
 
         QMetaObject.connectSlotsByName(MainWindow)
@@ -242,6 +264,19 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainWindow", None))
+        self.groupBox_4.setTitle(QCoreApplication.translate("MainWindow", u"Generacja", None))
+        self.label_2.setText(QCoreApplication.translate("MainWindow", u"Rozk\u0142ad:", None))
+        self.label_3.setText(QCoreApplication.translate("MainWindow", u"\u015arednia:", None))
+        self.generation_btn.setText(QCoreApplication.translate("MainWindow", u"Generuj", None))
+        self.sort_btn.setText(QCoreApplication.translate("MainWindow", u"Sortuj", None))
+        self.label_4.setText(QCoreApplication.translate("MainWindow", u"Liczba obiekt\u00f3w:", None))
+        self.label_5.setText(QCoreApplication.translate("MainWindow", u"Kryterium:", None))
+        self.distribution_select.setItemText(0, QCoreApplication.translate("MainWindow", u"Eksponencjalny", None))
+        self.distribution_select.setItemText(1, QCoreApplication.translate("MainWindow", u"Jednostajny", None))
+        self.distribution_select.setItemText(2, QCoreApplication.translate("MainWindow", u"Gaussa", None))
+        self.distribution_select.setItemText(3, QCoreApplication.translate("MainWindow", u"Poissona", None))
+
+        self.label_6.setText(QCoreApplication.translate("MainWindow", u"Odchylenie:", None))
         self.groupBox.setTitle(QCoreApplication.translate("MainWindow", u"Edytor kryteri\u00f3w", None))
         self.addCrit_btn.setText(QCoreApplication.translate("MainWindow", u"Dodaj", None))
         self.deleteCrit_btn.setText(QCoreApplication.translate("MainWindow", u"Usu\u0144", None))
@@ -255,20 +290,10 @@ class Ui_MainWindow(object):
         self.algorithm_select.setItemText(1, QCoreApplication.translate("MainWindow", u"Naiwny z filtracj\u0105", None))
         self.algorithm_select.setItemText(2, QCoreApplication.translate("MainWindow", u"Oparty o punkt idealny", None))
 
-        self.groupBox_4.setTitle(QCoreApplication.translate("MainWindow", u"Generacja", None))
-        self.label_2.setText(QCoreApplication.translate("MainWindow", u"Rozk\u0142ad:", None))
-        self.label_3.setText(QCoreApplication.translate("MainWindow", u"\u015arednia:", None))
-        self.generation_btn.setText(QCoreApplication.translate("MainWindow", u"Generuj", None))
-        self.sort_btn.setText(QCoreApplication.translate("MainWindow", u"Sortuj", None))
-        self.label_4.setText(QCoreApplication.translate("MainWindow", u"Liczba obiekt\u00f3w:", None))
-        self.label_5.setText(QCoreApplication.translate("MainWindow", u"Kryterium:", None))
-        self.distribution_select.setItemText(0, QCoreApplication.translate("MainWindow", u"Eksponencjalny", None))
-        self.distribution_select.setItemText(1, QCoreApplication.translate("MainWindow", u"Gaussa", None))
-        self.distribution_select.setItemText(2, QCoreApplication.translate("MainWindow", u"Poissona", None))
-
         self.groupBox_2.setTitle(QCoreApplication.translate("MainWindow", u"Edytor warto\u015bci", None))
         self.addVal_btn.setText(QCoreApplication.translate("MainWindow", u"Dodaj", None))
         self.deleteVal_btn.setText(QCoreApplication.translate("MainWindow", u"Usu\u0144", None))
+        self.load_btn.setText(QCoreApplication.translate("MainWindow", u"Wczytaj z pliku", None))
         self.box.setTabText(self.box.indexOf(self.tab_3), QCoreApplication.translate("MainWindow", u"Panel", None))
         self.box.setTabText(self.box.indexOf(self.tab_4), QCoreApplication.translate("MainWindow", u"Wyniki", None))
     # retranslateUi

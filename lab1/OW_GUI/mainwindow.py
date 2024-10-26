@@ -1,8 +1,9 @@
 # This Python file uses the following encoding: utf-8
+import os
 import sys
 
 from PySide6 import QtWidgets
-from PySide6.QtWidgets import QApplication, QMainWindow, QTableWidgetItem
+from PySide6.QtWidgets import QApplication, QMainWindow, QTableWidgetItem, QHeaderView, QFileDialog
 
 # Important:
 # You need to run the following command to generate the ui_form.py file
@@ -38,6 +39,8 @@ class MainWindow(QMainWindow):
 
         self.ui.generation_btn.clicked.connect(self.generate)
 
+        self.ui.load_btn.clicked.connect(self.getFileName)
+
     def run_algorithm(self):
         algo = self.ui.algorithm_select.currentText()
 
@@ -58,8 +61,6 @@ class MainWindow(QMainWindow):
         self.ui.criteriaTable.setRowCount(self.critNum+1)
         self.ui.criteriaTable.setItem(self.critNum, 0, QTableWidgetItem(f"Kryterium {self.critNum+1}"))
         self.ui.criteriaTable.setCellWidget(self.critNum, 1, comboBox)
-
-
 
     def delete_criterium(self,):
         if self.r is not None:
@@ -106,9 +107,25 @@ class MainWindow(QMainWindow):
             self.ui.valuesTable.setRowCount(len(d))
             self.ui.valuesTable.setColumnCount(len(data))
             self.ui.valuesTable.setHorizontalHeaderLabels(data)
-            for i in range(self.critNum):
+            for i in range(len(data)):
                 for j in range(n):
                     self.ui.valuesTable.setItem(j, i, QTableWidgetItem(str(d[j])))
+
+        self.ui.valuesTable.resizeColumnsToContents()
+
+    def getFileName(self):
+        response = QFileDialog.getOpenFileName(
+            self, 'Select a data file', os.getcwd(), "Excel files (*.xlsx *.csv )"
+        )
+        print(response)
+        # if str(response[0]):
+        #     # self.ui.file_name.setText(str(response[0]))
+        #     # self.fileName = self.ui.file_name.text()
+        #     if self.fileName != '':
+        #         pass
+
+
+
 
 
 if __name__ == "__main__":
