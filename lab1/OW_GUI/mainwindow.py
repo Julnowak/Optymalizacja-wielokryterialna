@@ -40,16 +40,49 @@ class MainWindow(QMainWindow):
         self.ui.generation_btn.clicked.connect(self.generate)
 
         self.ui.load_btn.clicked.connect(self.getFileName)
+        self.ui.start_btn.clicked.connect(self.run_algorithm)
+        self.ui.sort_btn.clicked.connect(self.sort)
 
     def run_algorithm(self):
+        l = []
         algo = self.ui.algorithm_select.currentText()
+        for row in range(self.ui.criteriaTable.rowCount()):
+            it = self.ui.criteriaTable.cellWidget(row, 1)
+            text = it.currentText() if it is not None else ""
+            l.append(text)
+        print(l)
+
+        points = []
+        for i in range(self.ui.valuesTable.rowCount()):
+            points.append([])
+            for j in range(self.ui.valuesTable.columnCount()):
+                points[i].append(float(self.ui.valuesTable.item(i,j).text()))
+                print(self.ui.valuesTable.item(i,j).text())
+
+        print(points)
 
         if algo == "Naiwny bez filtracji":
-            wynik = Algorytm1.bez_filtracji()
+            wynik = Algorytm1.bez_filtracji(points,l)
         elif algo == "Naiwny z filtracją":
-            wynik = Algorytm2.algorytm_z_filtracja()
+            wynik = Algorytm2.algorytm_z_filtracja(points,l)
         elif algo == "Oparty o punkt idealny":
-            wynik = Algorytm3.punkt_idealny()
+            wynik = Algorytm3.punkt_idealny(points,l)
+
+    def sort(self):
+        points = []
+        for i in range(self.ui.valuesTable.rowCount()):
+            points.append([])
+            for j in range(self.ui.valuesTable.columnCount()):
+                points[i].append(float(self.ui.valuesTable.item(i, j).text()))
+
+        xi = 0
+        yi = 0
+        for x in sorted(points):
+            for y in x:
+                self.ui.valuesTable.setItem(xi,yi,QTableWidgetItem(str(y)))
+                yi += 1
+            yi = 0
+            xi += 1
 
     def add_criterium(self):
         self.critNum += 1
@@ -81,6 +114,7 @@ class MainWindow(QMainWindow):
         data = []
         d = []
         n = self.ui.point_num.value()
+
         if self.ui.distribution_select.currentText() == "Eksponencjalny":
             d = np.random.exponential(1, n)
         elif self.ui.distribution_select.currentText() == "Jednostajny":
@@ -94,8 +128,7 @@ class MainWindow(QMainWindow):
             it = self.ui.criteriaTable.item(row, 0)
             text = it.text() if it is not None else ""
             data.append(text)
-        print(data)
-        print(d)
+
         if len(data) == 1:
             self.ui.valuesTable.setColumnCount(len(data))
             self.ui.valuesTable.setRowCount(len(d))
@@ -108,6 +141,14 @@ class MainWindow(QMainWindow):
             self.ui.valuesTable.setColumnCount(len(data))
             self.ui.valuesTable.setHorizontalHeaderLabels(data)
             for i in range(len(data)):
+                if self.ui.distribution_select.currentText() == "Eksponencjalny":
+                    d = np.random.exponential(1, n)
+                elif self.ui.distribution_select.currentText() == "Jednostajny":
+                    d = np.random.uniform(0, 2, n)
+                elif self.ui.distribution_select.currentText() == "Gaussa":
+                    d = np.random.normal(1, 1, n)
+                elif self.ui.distribution_select.currentText() == "Poissona":
+                    d = np.random.poisson(2, n)
                 for j in range(n):
                     self.ui.valuesTable.setItem(j, i, QTableWidgetItem(str(d[j])))
 
@@ -123,9 +164,6 @@ class MainWindow(QMainWindow):
         #     # self.fileName = self.ui.file_name.text()
         #     if self.fileName != '':
         #         pass
-
-
-
 
 
 if __name__ == "__main__":
