@@ -33,7 +33,6 @@ class MainWindow(QMainWindow):
 
         self.ui.criteriaTable.setItem(0, 0, QTableWidgetItem("Kryterium 1"))
         self.ui.criteriaTable.setCellWidget(0, 1, comboBox)
-        self.ui.criteriaTable.cellClicked.connect(self.getClickedCell)
 
         self.ui.deleteCrit_btn.clicked.connect(self.delete_criterium)
         self.ui.addCrit_btn.clicked.connect(self.add_criterium)
@@ -43,6 +42,9 @@ class MainWindow(QMainWindow):
         self.ui.load_btn.clicked.connect(self.getFileName)
         self.ui.start_btn.clicked.connect(self.run_algorithm)
         self.ui.sort_btn.clicked.connect(self.sort)
+
+        self.ui.deleteVal_btn.clicked.connect(self.delete_value)
+
 
     def run_algorithm(self):
         l = []
@@ -96,19 +98,27 @@ class MainWindow(QMainWindow):
         self.critNum += 1
 
     def delete_criterium(self,):
-        if self.r is not None:
-            self.ui.criteriaTable.removeRow(self.r)
-            self.critNum -= 1
-            self.r = None
-
-    def getClickedCell(self, row, column):
-        self.r = row
+        rows = self.ui.criteriaTable.selectionModel().selectedRows()
+        print(rows)
+        for index in sorted(rows):
+            self.ui.criteriaTable.removeRow(index.row())
+        self.critNum -= len(rows)
 
     def add_value(self,):
         pass
 
     def delete_value(self,):
-        pass
+        rows = self.ui.valuesTable.selectionModel().selectedRows()
+        print(rows)
+        for index in sorted(rows):
+            self.ui.valuesTable.removeRow(index.row())
+
+        cols = self.ui.valuesTable.selectionModel().selectedColumns()
+        print(cols)
+        for index in sorted(cols):
+            self.ui.valuesTable.removeColumn(index.column())
+            self.ui.criteriaTable.removeRow(index.column())
+        self.critNum -= len(cols)
 
     def generate(self):
         data = []
