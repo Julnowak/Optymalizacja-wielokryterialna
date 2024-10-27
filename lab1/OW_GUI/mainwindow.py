@@ -12,6 +12,7 @@ from PySide6.QtWidgets import QApplication, QMainWindow, QTableWidgetItem, QHead
 from ui_form import Ui_MainWindow
 from Algorithms import Algorytm1, Algorytm2, Algorytm3
 import numpy as np
+import pandas as pd
 
 
 class MainWindow(QMainWindow):
@@ -24,14 +25,14 @@ class MainWindow(QMainWindow):
         self.ui.criteriaTable.setColumnCount(2)
         self.ui.criteriaTable.setHorizontalHeaderLabels(["Nazwa", "Kierunek"])
 
-        self.critNum = 0
+        self.critNum = 1
         self.r = None
         comboBox = QtWidgets.QComboBox()
         comboBox.addItem("Min")
         comboBox.addItem("Max")
 
-        self.ui.criteriaTable.setItem(self.critNum, 0, QTableWidgetItem("Kryterium 1"))
-        self.ui.criteriaTable.setCellWidget(self.critNum, 1, comboBox)
+        self.ui.criteriaTable.setItem(0, 0, QTableWidgetItem("Kryterium 1"))
+        self.ui.criteriaTable.setCellWidget(0, 1, comboBox)
         self.ui.criteriaTable.cellClicked.connect(self.getClickedCell)
 
         self.ui.deleteCrit_btn.clicked.connect(self.delete_criterium)
@@ -85,8 +86,6 @@ class MainWindow(QMainWindow):
             xi += 1
 
     def add_criterium(self):
-        self.critNum += 1
-
         comboBox = QtWidgets.QComboBox()
         comboBox.addItem("Min")
         comboBox.addItem("Max")
@@ -94,6 +93,7 @@ class MainWindow(QMainWindow):
         self.ui.criteriaTable.setRowCount(self.critNum+1)
         self.ui.criteriaTable.setItem(self.critNum, 0, QTableWidgetItem(f"Kryterium {self.critNum+1}"))
         self.ui.criteriaTable.setCellWidget(self.critNum, 1, comboBox)
+        self.critNum += 1
 
     def delete_criterium(self,):
         if self.r is not None:
@@ -155,10 +155,49 @@ class MainWindow(QMainWindow):
         self.ui.valuesTable.resizeColumnsToContents()
 
     def getFileName(self):
-        response = QFileDialog.getOpenFileName(
-            self, 'Select a data file', os.getcwd(), "Excel files (*.xlsx *.csv )"
-        )
-        print(response)
+        try:
+            response = QFileDialog.getOpenFileName(
+                self, 'Select a data file', os.getcwd(), "Excel files (*.xlsx *.csv )"
+            )
+            print(response)
+
+            df = pd.read_excel(response[0])
+
+            xi = 0
+            yi = 0
+
+            self.critNum = df.shape[1]
+
+            lc = []
+            if self.critNum == 1:
+                comboBox = QtWidgets.QComboBox()
+                comboBox.addItem("Min")
+                comboBox.addItem("Max")
+                self.ui.criteriaTable.setRowCount(self.critNum)
+                lc.append("Kryterium 1")
+                self.ui.criteriaTable.setItem(0, 0, QTableWidgetItem(f"Kryterium {1}"))
+                self.ui.criteriaTable.setCellWidget(0, 1, comboBox)
+            else:
+                self.ui.criteriaTable.setRowCount(self.critNum)
+                for i in range(self.critNum):
+                    comboBox = QtWidgets.QComboBox()
+                    comboBox.addItem("Min")
+                    comboBox.addItem("Max")
+                    lc.append(f"Kryterium {i + 1}")
+                    self.ui.criteriaTable.setItem(i, 0, QTableWidgetItem(f"Kryterium {i + 1}"))
+                    self.ui.criteriaTable.setCellWidget(i, 1, comboBox)
+
+            self.ui.valuesTable.setRowCount(df.shape[0])
+            self.ui.valuesTable.setColumnCount(df.shape[1])
+            self.ui.valuesTable.setHorizontalHeaderLabels(lc)
+            for i in df.values:
+                for j in i:
+                    self.ui.valuesTable.setItem(xi, yi, QTableWidgetItem(str(j)))
+                    yi += 1
+                yi = 0
+                xi += 1
+        except:
+            pass
         # if str(response[0]):
         #     # self.ui.file_name.setText(str(response[0]))
         #     # self.fileName = self.ui.file_name.text()
