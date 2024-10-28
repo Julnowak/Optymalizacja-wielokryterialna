@@ -1,6 +1,22 @@
 from typing import List
 from math import sqrt
-from main import is_point1_dominating_point2
+
+
+def is_point1_dominating_point2(
+    point1: List[float], point2: List[float], directions: List[str]
+):
+    result: List[bool] = []
+    for i in range(len(directions)):
+        if directions[i] == "Min":
+            result.append(point1[i] <= point2[i])
+        elif directions[i] == "Max":
+            result.append(point1[i] >= point2[i])
+
+    if all(result):
+        # print(f'Punkt {point1} dominuje punkt {point2}')
+        return True
+    else:
+        return False
 
 
 def find_optimum_according_to_directions(X: List[List[float]], directions):
