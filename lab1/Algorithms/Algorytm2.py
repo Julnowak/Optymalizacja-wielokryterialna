@@ -3,7 +3,7 @@ from typing import List
 
 
 def is_point1_dominating_point2(
-    point1: List[int], point2: List[int], directions: List[str]
+    point1: List[float], point2: List[float], directions: List[str]
 ):
     result: List[bool] = []
     for i in range(len(directions)):
@@ -26,6 +26,7 @@ def algorytm_z_filtracja(X_new, directions: List[str]):
     if not len(directions) == len(X[0]):
         print("Liczba kierunków optymalizacji nie zgadza się z liczbą parametrów")
     else:
+        k = len(directions)
         P = []
         zdominowane = []
         i = 0
@@ -75,8 +76,8 @@ def algorytm_z_filtracja(X_new, directions: List[str]):
                         nieprownywalne.append(kolejny_elem)
 
                     j += 1
-                    por_num += 2
-                    all_por += 2
+                    por_num += k
+                    all_por += k
                     print(f"Liczba porównań: {por_num}")
                     print("Elementy usunięte:", zdominowane)
                     print("Punkty nieporównywalne:", nieprownywalne)
@@ -97,7 +98,7 @@ def algorytm_z_filtracja(X_new, directions: List[str]):
             print(f"\n{i+1}F iteracja\n")
             if not (len(nieprownywalne) == 1 and kolejny_elem in nieprownywalne):
                 for x in nieprownywalne:
-                    all_por += 2
+                    all_por += k
                     print(x)
                     for x1, x2 in zip(x, Y):
                         print(x1,x2)

@@ -3,8 +3,8 @@ from math import sqrt
 from main import is_point1_dominating_point2
 
 
-def find_optimum_according_to_directions(X: List[List[int]], directions):
-    result: List[int] = []
+def find_optimum_according_to_directions(X: List[List[float]], directions):
+    result: List[float] = []
 
     for i in range(len(directions)):
         if directions[i] == "min":
@@ -26,6 +26,7 @@ def punkt_idealny(X_in: List[List], directions: List[str]):
         print("Liczba kierunków optymalizacji nie zgadza się z liczbą parametrów")
     else:
         P = []
+        k = len(directions)
         xmin = find_optimum_according_to_directions(X=X, directions=directions)
 
         d = [calculate_distance(xmin, point) for point in X]
@@ -43,7 +44,7 @@ def punkt_idealny(X_in: List[List], directions: List[str]):
                 M -= 1
             dominated_points = []
             for p in X:
-                all_por += 2
+                all_por += k
                 if is_point1_dominating_point2(
                     point1=current_point, point2=p, directions=directions
                 ):

@@ -2,7 +2,7 @@ from typing import List
 
 
 def is_point1_dominating_point2(
-    point1: List[int], point2: List[int], directions: List[str]
+    point1: List[float], point2: List[float], directions: List[str]
 ):
     result: List[bool] = []
     for i in range(len(directions)):
@@ -27,6 +27,7 @@ def bez_filtracji(X_in: List[List], directions: List[str]):
     else:
         P = []
         zdominowane = []
+        k = len(directions)
         i = 0
         while len(X):
             print(f"\n=== Iteracja {i + 1} ===")
@@ -63,8 +64,8 @@ def bez_filtracji(X_in: List[List], directions: List[str]):
                         nieprownywalne.append(kolejny_elem)
 
                     j += 1
-                    por_num += 2
-                    all_por += 2
+                    por_num += k
+                    all_por += k
                     print(f"Liczba porównań: {por_num}")
                     print("Elementy usunięte:", zdominowane)
                     print("Punkty nieporównywalne:", nieprownywalne)
