@@ -69,7 +69,8 @@ def punkt_idealny(X_in: List[List], directions: List[str]):
                 X.remove(dp)
                 M -= 1
             m += 1
-        P.append(X[0])
+        if X:
+            P.append(X[0])
 
         unikalne_P = []
         [unikalne_P.append(p) for p in P if p not in unikalne_P]
