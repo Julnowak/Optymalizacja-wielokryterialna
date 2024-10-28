@@ -86,6 +86,7 @@ def bez_filtracji(X_in: List[List], directions: List[str]):
 
         print(f"Zdominowane: {zdominowane}")
         unikalne_P = []
+        print(f"Liczba porównań: {all_por}")
         [unikalne_P.append(p) for p in P if p not in unikalne_P]
         return unikalne_P  # Zwróć unikalne punkty jako listę
 
@@ -93,19 +94,17 @@ def bez_filtracji(X_in: List[List], directions: List[str]):
 # Press the green button in the gutter to run the script.
 if __name__ == "__main__":
     X = [
-        [5, 5],
-        [3, 6],
+        [2, 1],
+        [6, 2],
+        [1, 0],
         [4, 4],
-        [5, 3],
-        [3, 3],
-        [1, 8],
-        [3, 4],
-        [4, 5],
-        [3, 10],
-        [6, 6],
-        [4, 1],
-        [3, 5],
+        [4, 0],
+        [5, 0],
+        [4, 2],
+        [1, 2],
+        [2, 2],
+        [2, 1]
     ]
 
-    P = bez_filtracji(X_in=X, directions=["min", "min"])
+    P = bez_filtracji(X_in=X, directions=["min", "max"])
     print("Punkty niezdominowane (bez filtracji):", P)

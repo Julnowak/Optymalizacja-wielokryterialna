@@ -99,12 +99,13 @@ def algorytm_z_filtracja(X_new, directions: List[str]):
             if not (len(nieprownywalne) == 1 and kolejny_elem in nieprownywalne):
                 for x in nieprownywalne:
                     all_por += k
-                    print(x)
-                    for x1, x2 in zip(x, Y):
-                        print(x1,x2)
-                        if not x1 >= x2:
-                            new += [x]
-                print(new)
+                    # print(x)
+                    if not is_point1_dominating_point2(point1=Y, point2=x, directions=directions):
+                    # for x1, x2 in zip(x, Y):
+                    #     # print(x1,x2)
+                    #     if not x1 >= x2:
+                        new += [x]
+                # print(new)
                 print("num:", all_por)
                 X = new
 
