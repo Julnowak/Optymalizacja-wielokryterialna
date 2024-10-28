@@ -80,6 +80,7 @@ class Ui_MainWindow(object):
         self.point_num = QSpinBox(self.groupBox_4)
         self.point_num.setObjectName(u"point_num")
         self.point_num.setMinimum(1)
+        self.point_num.setMaximum(999999999)
 
         self.gridLayout_5.addWidget(self.point_num, 2, 3, 1, 1)
 
@@ -205,25 +206,30 @@ class Ui_MainWindow(object):
         self.groupBox_2.setObjectName(u"groupBox_2")
         self.gridLayout_7 = QGridLayout(self.groupBox_2)
         self.gridLayout_7.setObjectName(u"gridLayout_7")
-        self.valuesTable = QTableWidget(self.groupBox_2)
-        self.valuesTable.setObjectName(u"valuesTable")
-
-        self.gridLayout_7.addWidget(self.valuesTable, 0, 0, 1, 3)
-
         self.addVal_btn = QPushButton(self.groupBox_2)
         self.addVal_btn.setObjectName(u"addVal_btn")
 
         self.gridLayout_7.addWidget(self.addVal_btn, 1, 0, 1, 1)
+
+        self.load_btn = QPushButton(self.groupBox_2)
+        self.load_btn.setObjectName(u"load_btn")
+
+        self.gridLayout_7.addWidget(self.load_btn, 1, 1, 1, 1)
 
         self.deleteVal_btn = QPushButton(self.groupBox_2)
         self.deleteVal_btn.setObjectName(u"deleteVal_btn")
 
         self.gridLayout_7.addWidget(self.deleteVal_btn, 1, 2, 1, 1)
 
-        self.load_btn = QPushButton(self.groupBox_2)
-        self.load_btn.setObjectName(u"load_btn")
+        self.save_btn = QPushButton(self.groupBox_2)
+        self.save_btn.setObjectName(u"save_btn")
 
-        self.gridLayout_7.addWidget(self.load_btn, 1, 1, 1, 1)
+        self.gridLayout_7.addWidget(self.save_btn, 1, 3, 1, 1)
+
+        self.valuesTable = QTableWidget(self.groupBox_2)
+        self.valuesTable.setObjectName(u"valuesTable")
+
+        self.gridLayout_7.addWidget(self.valuesTable, 0, 0, 1, 4)
 
 
         self.gridLayout_2.addWidget(self.groupBox_2, 0, 1, 2, 2)
@@ -292,8 +298,9 @@ class Ui_MainWindow(object):
 
         self.groupBox_2.setTitle(QCoreApplication.translate("MainWindow", u"Edytor warto\u015bci", None))
         self.addVal_btn.setText(QCoreApplication.translate("MainWindow", u"Dodaj", None))
-        self.deleteVal_btn.setText(QCoreApplication.translate("MainWindow", u"Usu\u0144", None))
         self.load_btn.setText(QCoreApplication.translate("MainWindow", u"Wczytaj z pliku", None))
+        self.deleteVal_btn.setText(QCoreApplication.translate("MainWindow", u"Usu\u0144", None))
+        self.save_btn.setText(QCoreApplication.translate("MainWindow", u"Zapisz", None))
         self.box.setTabText(self.box.indexOf(self.tab_3), QCoreApplication.translate("MainWindow", u"Panel", None))
         self.box.setTabText(self.box.indexOf(self.tab_4), QCoreApplication.translate("MainWindow", u"Wyniki", None))
     # retranslateUi

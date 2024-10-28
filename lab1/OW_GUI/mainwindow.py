@@ -71,6 +71,8 @@ class MainWindow(QMainWindow):
         elif algo == "Oparty o punkt idealny":
             wynik = Algorytm3.punkt_idealny(points,l)
 
+        print(wynik)
+
     def sort(self):
         points = []
         for i in range(self.ui.valuesTable.rowCount()):
@@ -163,6 +165,7 @@ class MainWindow(QMainWindow):
                     self.ui.valuesTable.setItem(j, i, QTableWidgetItem(str(d[j])))
 
         self.ui.valuesTable.resizeColumnsToContents()
+        # self.ui.graph.
 
     def getFileName(self):
         try:
