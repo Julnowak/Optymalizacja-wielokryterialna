@@ -8,9 +8,9 @@ def is_point1_dominating_point2(
     result: List[bool] = []
     for i in range(len(directions)):
         if directions[i] == "min":
-            result.append(all(x1 <= x2 for x1, x2 in zip(point1, point2)))
+            result.append(point1[i] <= point2[i])
         elif directions[i] == "max":
-            result.append(all(x1 >= x2 for x1, x2 in zip(point1, point2)))
+            result.append(point1[i] >= point2[i])
 
     if all(result):
         # print(f'Punkt {point1} dominuje punkt {point2}')
