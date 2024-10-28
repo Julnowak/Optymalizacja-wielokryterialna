@@ -100,6 +100,9 @@
                 <property name="minimum">
                  <number>1</number>
                 </property>
+                <property name="maximum">
+                 <number>999999999</number>
+                </property>
                </widget>
               </item>
               <item row="3" column="0">
@@ -303,13 +306,17 @@
               <string>Edytor wartości</string>
              </property>
              <layout class="QGridLayout" name="gridLayout_7">
-              <item row="0" column="0" colspan="3">
-               <widget class="QTableWidget" name="valuesTable"/>
-              </item>
               <item row="1" column="0">
                <widget class="QPushButton" name="addVal_btn">
                 <property name="text">
                  <string>Dodaj</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QPushButton" name="load_btn">
+                <property name="text">
+                 <string>Wczytaj z pliku</string>
                 </property>
                </widget>
               </item>
@@ -320,12 +327,15 @@
                 </property>
                </widget>
               </item>
-              <item row="1" column="1">
-               <widget class="QPushButton" name="load_btn">
+              <item row="1" column="3">
+               <widget class="QPushButton" name="save_btn">
                 <property name="text">
-                 <string>Wczytaj z pliku</string>
+                 <string>Zapisz</string>
                 </property>
                </widget>
+              </item>
+              <item row="0" column="0" colspan="4">
+               <widget class="QTableWidget" name="valuesTable"/>
               </item>
              </layout>
             </widget>
