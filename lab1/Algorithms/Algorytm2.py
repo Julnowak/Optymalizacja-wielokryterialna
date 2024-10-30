@@ -21,6 +21,7 @@ def is_point1_dominating_point2(
 
 def algorytm_z_filtracja(X_new, directions: List[str]):
     X = X_new.copy()
+    zdominowane = []
 
     all_por = 0
     if not len(directions) == len(X[0]):
@@ -124,7 +125,7 @@ def algorytm_z_filtracja(X_new, directions: List[str]):
     [unikalne_P.append(p) for p in P if p not in unikalne_P]
     print("Wszystkie porównania: ", all_por)
     print(f"Niezdominowane: {unikalne_P}")
-    return unikalne_P  # Zwróć unikalne punkty jako listę
+    return unikalne_P, zdominowane, all_por  # Zwróć unikalne punkty jako listę
 
 
 if __name__ == "__main__":

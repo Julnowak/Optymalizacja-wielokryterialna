@@ -49,6 +49,7 @@ def punkt_idealny(X_in: List[List], directions: List[str]):
         J = sorted(range(len(d)), key=lambda i: d[i])
 
         D = [d[i] for i in J]
+        dominated_points = []
         m = 0
         M = len(X)
         all_por = 0
@@ -75,7 +76,7 @@ def punkt_idealny(X_in: List[List], directions: List[str]):
         unikalne_P = []
         [unikalne_P.append(p) for p in P if p not in unikalne_P]
         print(f"Ilość porównań: {all_por}")
-        return unikalne_P  # Zwróć unikalne punkty jako listę
+        return unikalne_P, dominated_points, all_por  # Zwróć unikalne punkty jako listę
 
 
 if __name__ == "__main__":

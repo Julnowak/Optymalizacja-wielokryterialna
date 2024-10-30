@@ -1,6 +1,7 @@
 # This Python file uses the following encoding: utf-8
 import os
 import sys
+import time
 
 from PySide6 import QtWidgets
 from PySide6.QtWidgets import QApplication, QMainWindow, QTableWidgetItem, QHeaderView, QFileDialog
@@ -44,7 +45,8 @@ class MainWindow(QMainWindow):
         self.ui.sort_btn.clicked.connect(self.sort)
 
         self.ui.deleteVal_btn.clicked.connect(self.delete_value)
-
+        self.ui.save_btn.clicked.connect(self.save)
+        self.counter = 1
 
     def run_algorithm(self):
         l = []
@@ -64,14 +66,18 @@ class MainWindow(QMainWindow):
 
         print(points)
 
+        niezdom, zdom, iter = [], [], 0
+        start = time.perf_counter_ns()
         if algo == "Naiwny bez filtracji":
-            wynik = Algorytm1.bez_filtracji(points,l)
+            niezdom, zdom, iter = Algorytm1.bez_filtracji(points,l)
         elif algo == "Naiwny z filtracją":
-            wynik = Algorytm2.algorytm_z_filtracja(points,l)
+            niezdom, zdom, iter = Algorytm2.algorytm_z_filtracja(points,l)
         elif algo == "Oparty o punkt idealny":
-            wynik = Algorytm3.punkt_idealny(points,l)
-
-        print(wynik)
+            niezdom, zdom, iter = Algorytm3.punkt_idealny(points,l)
+        end = time.perf_counter_ns()
+        print("Czas", end-start)
+        print(niezdom, zdom, iter)
+        self.update_graph(points, niezdom, zdom, iter)
 
     def sort(self):
         points = []
@@ -122,6 +128,28 @@ class MainWindow(QMainWindow):
             self.ui.criteriaTable.removeRow(index.column())
         self.critNum -= len(cols)
 
+    def save(self):
+        points = []
+        data = []
+
+        print(os.getcwd())
+        for row in range(self.ui.criteriaTable.rowCount()):
+            it = self.ui.criteriaTable.item(row, 0)
+            direction = self.ui.criteriaTable.cellWidget(row, 1)
+            print(direction)
+            text = it.text() if it is not None else ""
+            text += "_" + direction
+            data.append(text)
+
+        for i in range(self.ui.valuesTable.rowCount()):
+            points.append([])
+            for j in range(self.ui.valuesTable.columnCount()):
+                points[i].append(float(self.ui.valuesTable.item(i,j).text()))
+        df = pd.DataFrame(columns=data, data=np.array(points))
+        df.to_excel(f"../Wyniki/punkty_{self.counter}.xlsx")
+        self.counter += 1
+
+
     def generate(self):
         data = []
         d = []
@@ -165,7 +193,29 @@ class MainWindow(QMainWindow):
                     self.ui.valuesTable.setItem(j, i, QTableWidgetItem(str(d[j])))
 
         self.ui.valuesTable.resizeColumnsToContents()
-        # self.ui.graph.
+
+    def update_graph(self, pts, nz, z, it):
+        new_pte = np.array(pts)
+        new_z = np.array(z)
+        new_nz = np.array(nz)
+        print(new_pte)
+        x = new_pte[:, 0]
+        y = new_pte[:, 1]
+        self.ui.graph.canvas.axes.clear()
+        self.ui.graph.show()
+        self.ui.graph.canvas.axes.scatter(x, y, c="b", label="ddddddddd")
+        self.ui.graph.canvas.axes.scatter(new_nz[:, 0], new_nz[:, 1], c="r", label= "Niezdominowane")
+        self.ui.graph.canvas.axes.scatter(new_z[:, 0], new_z[:, 1], c="k", label= "Zdominowane")
+        self.ui.graph.canvas.axes.legend()
+        self.ui.graph.canvas.axes.set_title('t')
+        self.ui.graph.canvas.axes.set_xlabel("Kryterium 1")
+        self.ui.graph.canvas.axes.set_ylabel("Kryterium 2")
+        self.ui.graph.canvas.axes.figure.tight_layout()
+        self.ui.graph.canvas.draw()
+
+    def hide_graph(self):
+        self.ui.graph.canvas.axes.clear()
+        self.ui.graph.hide()
 
     def getFileName(self):
         try:

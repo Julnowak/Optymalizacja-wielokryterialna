@@ -88,7 +88,7 @@ def bez_filtracji(X_in: List[List], directions: List[str]):
         unikalne_P = []
         print(f"Liczba porównań: {all_por}")
         [unikalne_P.append(p) for p in P if p not in unikalne_P]
-        return unikalne_P  # Zwróć unikalne punkty jako listę
+        return unikalne_P, zdominowane, all_por  # Zwróć unikalne punkty jako listę
 
 
 # Press the green button in the gutter to run the script.
