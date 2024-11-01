@@ -69,7 +69,7 @@
                </widget>
               </item>
               <item row="1" column="0">
-               <widget class="QLabel" name="label_3">
+               <widget class="QLabel" name="lab1">
                 <property name="maximumSize">
                  <size>
                   <width>16777215</width>
@@ -81,20 +81,6 @@
                 </property>
                </widget>
               </item>
-              <item row="2" column="0">
-               <widget class="QSpinBox" name="mean_num">
-                <property name="minimum">
-                 <number>-99</number>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="1" colspan="2">
-               <widget class="QSpinBox" name="odch_num">
-                <property name="minimum">
-                 <number>-99</number>
-                </property>
-               </widget>
-              </item>
               <item row="2" column="3">
                <widget class="QSpinBox" name="point_num">
                 <property name="minimum">
@@ -102,6 +88,9 @@
                 </property>
                 <property name="maximum">
                  <number>999999999</number>
+                </property>
+                <property name="value">
+                 <number>10</number>
                 </property>
                </widget>
               </item>
@@ -171,9 +160,29 @@
                </widget>
               </item>
               <item row="1" column="1" colspan="2">
-               <widget class="QLabel" name="label_6">
+               <widget class="QLabel" name="lab2">
                 <property name="text">
                  <string>Odchylenie:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1" colspan="2">
+               <widget class="QDoubleSpinBox" name="odch_num">
+                <property name="singleStep">
+                 <double>0.010000000000000</double>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="QDoubleSpinBox" name="mean_num">
+                <property name="minimum">
+                 <double>-99999999999999997168788049560464200849936328366177157906432.000000000000000</double>
+                </property>
+                <property name="maximum">
+                 <double>999999999999999993220948674361627976461708441944064.000000000000000</double>
+                </property>
+                <property name="singleStep">
+                 <double>0.010000000000000</double>
                 </property>
                </widget>
               </item>

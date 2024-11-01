@@ -46,6 +46,7 @@ class MainWindow(QMainWindow):
 
         self.ui.deleteVal_btn.clicked.connect(self.delete_value)
         self.ui.save_btn.clicked.connect(self.save)
+        self.ui.criterium_num.setMaximum(1)
         self.counter = 1
 
     def run_algorithm(self):
@@ -64,7 +65,7 @@ class MainWindow(QMainWindow):
                 points[i].append(float(self.ui.valuesTable.item(i,j).text()))
                 print(self.ui.valuesTable.item(i,j).text())
 
-        print(points)
+        # print(points)
 
         niezdom, zdom, iter = [], [], 0
         start = time.perf_counter_ns()
@@ -86,9 +87,12 @@ class MainWindow(QMainWindow):
             for j in range(self.ui.valuesTable.columnCount()):
                 points[i].append(float(self.ui.valuesTable.item(i, j).text()))
 
+        crit_sort = self.ui.criterium_num.value()
+        new_p = sorted(points, key=lambda x: (x[crit_sort-1]))
+
         xi = 0
         yi = 0
-        for x in sorted(points):
+        for x in new_p:
             for y in x:
                 self.ui.valuesTable.setItem(xi,yi,QTableWidgetItem(str(y)))
                 yi += 1
@@ -96,6 +100,7 @@ class MainWindow(QMainWindow):
             xi += 1
 
     def add_criterium(self):
+        self.ui.criterium_num.setMinimum(1)
         comboBox = QtWidgets.QComboBox()
         comboBox.addItem("Min")
         comboBox.addItem("Max")
@@ -104,6 +109,7 @@ class MainWindow(QMainWindow):
         self.ui.criteriaTable.setItem(self.critNum, 0, QTableWidgetItem(f"Kryterium {self.critNum+1}"))
         self.ui.criteriaTable.setCellWidget(self.critNum, 1, comboBox)
         self.critNum += 1
+        self.ui.criterium_num.setMaximum(self.critNum)
 
     def delete_criterium(self,):
         rows = self.ui.criteriaTable.selectionModel().selectedRows()
@@ -111,6 +117,9 @@ class MainWindow(QMainWindow):
         for index in sorted(rows):
             self.ui.criteriaTable.removeRow(index.row())
         self.critNum -= len(rows)
+        self.ui.criterium_num.setMaximum(self.critNum)
+        if self.critNum == 0:
+            self.ui.criterium_num.setMaximum(0)
 
     def add_value(self,):
         pass
@@ -148,7 +157,6 @@ class MainWindow(QMainWindow):
         df = pd.DataFrame(columns=data, data=np.array(points))
         df.to_excel(f"../Wyniki/punkty_{self.counter}.xlsx")
         self.counter += 1
-
 
     def generate(self):
         data = []
@@ -203,9 +211,10 @@ class MainWindow(QMainWindow):
         y = new_pte[:, 1]
         self.ui.graph.canvas.axes.clear()
         self.ui.graph.show()
+
         self.ui.graph.canvas.axes.scatter(x, y, c="b", label="ddddddddd")
-        self.ui.graph.canvas.axes.scatter(new_nz[:, 0], new_nz[:, 1], c="r", label= "Niezdominowane")
-        self.ui.graph.canvas.axes.scatter(new_z[:, 0], new_z[:, 1], c="k", label= "Zdominowane")
+        self.ui.graph.canvas.axes.scatter(new_z[:, 0], new_z[:, 1], c="k", label="Zdominowane")
+        self.ui.graph.canvas.axes.scatter(new_nz[:, 0], new_nz[:, 1], c="r", label="Niezdominowane")
         self.ui.graph.canvas.axes.legend()
         self.ui.graph.canvas.axes.set_title('t')
         self.ui.graph.canvas.axes.set_xlabel("Kryterium 1")
