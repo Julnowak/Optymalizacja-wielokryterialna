@@ -15,11 +15,12 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QComboBox, QDoubleSpinBox, QFrame,
-    QGridLayout, QGroupBox, QHeaderView, QLabel,
-    QLayout, QMainWindow, QMenuBar, QPushButton,
-    QSizePolicy, QSpinBox, QStatusBar, QTabWidget,
-    QTableWidget, QTableWidgetItem, QWidget)
+from PySide6.QtWidgets import (QAbstractScrollArea, QApplication, QComboBox, QDoubleSpinBox,
+    QFrame, QGridLayout, QGroupBox, QHeaderView,
+    QLabel, QLayout, QMainWindow, QMenuBar,
+    QPushButton, QSizePolicy, QSpacerItem, QSpinBox,
+    QStatusBar, QTabWidget, QTableWidget, QTableWidgetItem,
+    QWidget)
 
 from plotwidget import PlotWidget
 
@@ -169,30 +170,34 @@ class Ui_MainWindow(object):
         self.groupBox_3.setMaximumSize(QSize(16777215, 140))
         self.gridLayout_3 = QGridLayout(self.groupBox_3)
         self.gridLayout_3.setObjectName(u"gridLayout_3")
+        self.benchmark_btn = QPushButton(self.groupBox_3)
+        self.benchmark_btn.setObjectName(u"benchmark_btn")
+
+        self.gridLayout_3.addWidget(self.benchmark_btn, 2, 5, 1, 1)
+
         self.animation_btn = QPushButton(self.groupBox_3)
         self.animation_btn.setObjectName(u"animation_btn")
 
-        self.gridLayout_3.addWidget(self.animation_btn, 2, 0, 1, 2)
+        self.gridLayout_3.addWidget(self.animation_btn, 2, 4, 1, 1)
+
+        self.start_btn = QPushButton(self.groupBox_3)
+        self.start_btn.setObjectName(u"start_btn")
+
+        self.gridLayout_3.addWidget(self.start_btn, 2, 6, 1, 2)
+
+        self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.gridLayout_3.addItem(self.horizontalSpacer, 2, 0, 1, 3)
 
         self.label = QLabel(self.groupBox_3)
         self.label.setObjectName(u"label")
 
         self.gridLayout_3.addWidget(self.label, 0, 0, 1, 1)
 
-        self.start_btn = QPushButton(self.groupBox_3)
-        self.start_btn.setObjectName(u"start_btn")
-
-        self.gridLayout_3.addWidget(self.start_btn, 2, 4, 1, 2)
-
         self.stop_btn = QPushButton(self.groupBox_3)
         self.stop_btn.setObjectName(u"stop_btn")
 
-        self.gridLayout_3.addWidget(self.stop_btn, 2, 2, 1, 1)
-
-        self.benchmark_btn = QPushButton(self.groupBox_3)
-        self.benchmark_btn.setObjectName(u"benchmark_btn")
-
-        self.gridLayout_3.addWidget(self.benchmark_btn, 2, 3, 1, 1)
+        self.gridLayout_3.addWidget(self.stop_btn, 2, 3, 1, 1)
 
         self.algorithm_select = QComboBox(self.groupBox_3)
         self.algorithm_select.addItem("")
@@ -200,7 +205,7 @@ class Ui_MainWindow(object):
         self.algorithm_select.addItem("")
         self.algorithm_select.setObjectName(u"algorithm_select")
 
-        self.gridLayout_3.addWidget(self.algorithm_select, 0, 1, 1, 2)
+        self.gridLayout_3.addWidget(self.algorithm_select, 0, 1, 1, 3)
 
 
         self.gridLayout_2.addWidget(self.groupBox_3, 2, 1, 1, 2)
@@ -209,30 +214,35 @@ class Ui_MainWindow(object):
         self.groupBox_2.setObjectName(u"groupBox_2")
         self.gridLayout_7 = QGridLayout(self.groupBox_2)
         self.gridLayout_7.setObjectName(u"gridLayout_7")
-        self.addVal_btn = QPushButton(self.groupBox_2)
-        self.addVal_btn.setObjectName(u"addVal_btn")
-
-        self.gridLayout_7.addWidget(self.addVal_btn, 1, 0, 1, 1)
-
         self.load_btn = QPushButton(self.groupBox_2)
         self.load_btn.setObjectName(u"load_btn")
 
         self.gridLayout_7.addWidget(self.load_btn, 1, 1, 1, 1)
-
-        self.deleteVal_btn = QPushButton(self.groupBox_2)
-        self.deleteVal_btn.setObjectName(u"deleteVal_btn")
-
-        self.gridLayout_7.addWidget(self.deleteVal_btn, 1, 2, 1, 1)
 
         self.save_btn = QPushButton(self.groupBox_2)
         self.save_btn.setObjectName(u"save_btn")
 
         self.gridLayout_7.addWidget(self.save_btn, 1, 3, 1, 1)
 
+        self.addVal_btn = QPushButton(self.groupBox_2)
+        self.addVal_btn.setObjectName(u"addVal_btn")
+
+        self.gridLayout_7.addWidget(self.addVal_btn, 1, 0, 1, 1)
+
+        self.deleteVal_btn = QPushButton(self.groupBox_2)
+        self.deleteVal_btn.setObjectName(u"deleteVal_btn")
+
+        self.gridLayout_7.addWidget(self.deleteVal_btn, 1, 2, 1, 1)
+
+        self.info_lab = QLabel(self.groupBox_2)
+        self.info_lab.setObjectName(u"info_lab")
+
+        self.gridLayout_7.addWidget(self.info_lab, 1, 4, 1, 1)
+
         self.valuesTable = QTableWidget(self.groupBox_2)
         self.valuesTable.setObjectName(u"valuesTable")
 
-        self.gridLayout_7.addWidget(self.valuesTable, 0, 0, 1, 4)
+        self.gridLayout_7.addWidget(self.valuesTable, 0, 0, 1, 5)
 
 
         self.gridLayout_2.addWidget(self.groupBox_2, 0, 1, 2, 2)
@@ -251,6 +261,47 @@ class Ui_MainWindow(object):
         self.gridLayout_8.addWidget(self.graph, 0, 0, 1, 1)
 
         self.box.addTab(self.tab_4, "")
+        self.tab = QWidget()
+        self.tab.setObjectName(u"tab")
+        self.gridLayout_9 = QGridLayout(self.tab)
+        self.gridLayout_9.setObjectName(u"gridLayout_9")
+        self.benchmark_table = QTableWidget(self.tab)
+        if (self.benchmark_table.columnCount() < 2):
+            self.benchmark_table.setColumnCount(2)
+        __qtablewidgetitem = QTableWidgetItem()
+        self.benchmark_table.setHorizontalHeaderItem(0, __qtablewidgetitem)
+        __qtablewidgetitem1 = QTableWidgetItem()
+        self.benchmark_table.setHorizontalHeaderItem(1, __qtablewidgetitem1)
+        if (self.benchmark_table.rowCount() < 3):
+            self.benchmark_table.setRowCount(3)
+        __qtablewidgetitem2 = QTableWidgetItem()
+        self.benchmark_table.setVerticalHeaderItem(0, __qtablewidgetitem2)
+        __qtablewidgetitem3 = QTableWidgetItem()
+        self.benchmark_table.setVerticalHeaderItem(1, __qtablewidgetitem3)
+        __qtablewidgetitem4 = QTableWidgetItem()
+        self.benchmark_table.setVerticalHeaderItem(2, __qtablewidgetitem4)
+        __qtablewidgetitem5 = QTableWidgetItem()
+        __qtablewidgetitem5.setTextAlignment(Qt.AlignCenter);
+        self.benchmark_table.setItem(0, 0, __qtablewidgetitem5)
+        self.benchmark_table.setObjectName(u"benchmark_table")
+        self.benchmark_table.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents)
+        self.benchmark_table.setAlternatingRowColors(True)
+        self.benchmark_table.horizontalHeader().setCascadingSectionResizes(False)
+        self.benchmark_table.horizontalHeader().setMinimumSectionSize(100)
+        self.benchmark_table.horizontalHeader().setDefaultSectionSize(500)
+        self.benchmark_table.horizontalHeader().setProperty("showSortIndicator", False)
+        self.benchmark_table.horizontalHeader().setStretchLastSection(True)
+        self.benchmark_table.verticalHeader().setMinimumSectionSize(100)
+        self.benchmark_table.verticalHeader().setDefaultSectionSize(150)
+        self.benchmark_table.verticalHeader().setProperty("showSortIndicator", True)
+        self.benchmark_table.verticalHeader().setStretchLastSection(True)
+
+        self.gridLayout_9.addWidget(self.benchmark_table, 0, 0, 1, 1)
+
+        self.box.addTab(self.tab, "")
+        self.tab_2 = QWidget()
+        self.tab_2.setObjectName(u"tab_2")
+        self.box.addTab(self.tab_2, "")
 
         self.gridLayout.addWidget(self.box, 0, 0, 1, 1)
 
@@ -265,7 +316,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
 
-        self.box.setCurrentIndex(0)
+        self.box.setCurrentIndex(2)
 
 
         QMetaObject.connectSlotsByName(MainWindow)
@@ -290,21 +341,39 @@ class Ui_MainWindow(object):
         self.addCrit_btn.setText(QCoreApplication.translate("MainWindow", u"Dodaj", None))
         self.deleteCrit_btn.setText(QCoreApplication.translate("MainWindow", u"Usu\u0144", None))
         self.groupBox_3.setTitle(QCoreApplication.translate("MainWindow", u"Akcje", None))
-        self.animation_btn.setText(QCoreApplication.translate("MainWindow", u"Renderuj animacj\u0119", None))
-        self.label.setText(QCoreApplication.translate("MainWindow", u"Algorytm:", None))
-        self.start_btn.setText(QCoreApplication.translate("MainWindow", u"Rozwi\u0105\u017c", None))
-        self.stop_btn.setText(QCoreApplication.translate("MainWindow", u"Przerwij", None))
         self.benchmark_btn.setText(QCoreApplication.translate("MainWindow", u"Benchmark", None))
+        self.animation_btn.setText(QCoreApplication.translate("MainWindow", u"Renderuj animacj\u0119", None))
+        self.start_btn.setText(QCoreApplication.translate("MainWindow", u"Rozwi\u0105\u017c", None))
+        self.label.setText(QCoreApplication.translate("MainWindow", u"Algorytm:", None))
+        self.stop_btn.setText(QCoreApplication.translate("MainWindow", u"Przerwij", None))
         self.algorithm_select.setItemText(0, QCoreApplication.translate("MainWindow", u"Naiwny bez filtracji", None))
         self.algorithm_select.setItemText(1, QCoreApplication.translate("MainWindow", u"Naiwny z filtracj\u0105", None))
         self.algorithm_select.setItemText(2, QCoreApplication.translate("MainWindow", u"Oparty o punkt idealny", None))
 
         self.groupBox_2.setTitle(QCoreApplication.translate("MainWindow", u"Edytor warto\u015bci", None))
-        self.addVal_btn.setText(QCoreApplication.translate("MainWindow", u"Dodaj", None))
         self.load_btn.setText(QCoreApplication.translate("MainWindow", u"Wczytaj z pliku", None))
-        self.deleteVal_btn.setText(QCoreApplication.translate("MainWindow", u"Usu\u0144", None))
         self.save_btn.setText(QCoreApplication.translate("MainWindow", u"Zapisz", None))
+        self.addVal_btn.setText(QCoreApplication.translate("MainWindow", u"Dodaj", None))
+        self.deleteVal_btn.setText(QCoreApplication.translate("MainWindow", u"Usu\u0144", None))
+        self.info_lab.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
         self.box.setTabText(self.box.indexOf(self.tab_3), QCoreApplication.translate("MainWindow", u"Panel", None))
-        self.box.setTabText(self.box.indexOf(self.tab_4), QCoreApplication.translate("MainWindow", u"Wyniki", None))
+        self.box.setTabText(self.box.indexOf(self.tab_4), QCoreApplication.translate("MainWindow", u"Wykres", None))
+        ___qtablewidgetitem = self.benchmark_table.horizontalHeaderItem(0)
+        ___qtablewidgetitem.setText(QCoreApplication.translate("MainWindow", u"Czas wykonywania (ms)", None));
+        ___qtablewidgetitem1 = self.benchmark_table.horizontalHeaderItem(1)
+        ___qtablewidgetitem1.setText(QCoreApplication.translate("MainWindow", u"Ilo\u015b\u0107 por\u00f3wna\u0144", None));
+        ___qtablewidgetitem2 = self.benchmark_table.verticalHeaderItem(0)
+        ___qtablewidgetitem2.setText(QCoreApplication.translate("MainWindow", u"Naiwny bez filtracji", None));
+        ___qtablewidgetitem3 = self.benchmark_table.verticalHeaderItem(1)
+        ___qtablewidgetitem3.setText(QCoreApplication.translate("MainWindow", u"Naiwny z filtracj\u0105", None));
+        ___qtablewidgetitem4 = self.benchmark_table.verticalHeaderItem(2)
+        ___qtablewidgetitem4.setText(QCoreApplication.translate("MainWindow", u"Opwrty o punkt idealny", None));
+
+        __sortingEnabled = self.benchmark_table.isSortingEnabled()
+        self.benchmark_table.setSortingEnabled(False)
+        self.benchmark_table.setSortingEnabled(__sortingEnabled)
+
+        self.box.setTabText(self.box.indexOf(self.tab), QCoreApplication.translate("MainWindow", u"Benchmark", None))
+        self.box.setTabText(self.box.indexOf(self.tab_2), QCoreApplication.translate("MainWindow", u"Wyniki", None))
     # retranslateUi
 

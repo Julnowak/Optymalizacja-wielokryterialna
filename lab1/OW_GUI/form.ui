@@ -18,7 +18,7 @@
     <item row="0" column="0">
      <widget class="QTabWidget" name="box">
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="tab_3">
        <attribute name="title">
@@ -252,12 +252,39 @@
               <string>Akcje</string>
              </property>
              <layout class="QGridLayout" name="gridLayout_3">
-              <item row="2" column="0" colspan="2">
+              <item row="2" column="5">
+               <widget class="QPushButton" name="benchmark_btn">
+                <property name="text">
+                 <string>Benchmark</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="4">
                <widget class="QPushButton" name="animation_btn">
                 <property name="text">
                  <string>Renderuj animację</string>
                 </property>
                </widget>
+              </item>
+              <item row="2" column="6" colspan="2">
+               <widget class="QPushButton" name="start_btn">
+                <property name="text">
+                 <string>Rozwiąż</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0" colspan="3">
+               <spacer name="horizontalSpacer">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
               </item>
               <item row="0" column="0">
                <widget class="QLabel" name="label">
@@ -266,28 +293,14 @@
                 </property>
                </widget>
               </item>
-              <item row="2" column="4" colspan="2">
-               <widget class="QPushButton" name="start_btn">
-                <property name="text">
-                 <string>Rozwiąż</string>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="2">
+              <item row="2" column="3">
                <widget class="QPushButton" name="stop_btn">
                 <property name="text">
                  <string>Przerwij</string>
                 </property>
                </widget>
               </item>
-              <item row="2" column="3">
-               <widget class="QPushButton" name="benchmark_btn">
-                <property name="text">
-                 <string>Benchmark</string>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="1" colspan="2">
+              <item row="0" column="1" colspan="3">
                <widget class="QComboBox" name="algorithm_select">
                 <item>
                  <property name="text">
@@ -315,24 +328,10 @@
               <string>Edytor wartości</string>
              </property>
              <layout class="QGridLayout" name="gridLayout_7">
-              <item row="1" column="0">
-               <widget class="QPushButton" name="addVal_btn">
-                <property name="text">
-                 <string>Dodaj</string>
-                </property>
-               </widget>
-              </item>
               <item row="1" column="1">
                <widget class="QPushButton" name="load_btn">
                 <property name="text">
                  <string>Wczytaj z pliku</string>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="2">
-               <widget class="QPushButton" name="deleteVal_btn">
-                <property name="text">
-                 <string>Usuń</string>
                 </property>
                </widget>
               </item>
@@ -343,7 +342,28 @@
                 </property>
                </widget>
               </item>
-              <item row="0" column="0" colspan="4">
+              <item row="1" column="0">
+               <widget class="QPushButton" name="addVal_btn">
+                <property name="text">
+                 <string>Dodaj</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="2">
+               <widget class="QPushButton" name="deleteVal_btn">
+                <property name="text">
+                 <string>Usuń</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="4">
+               <widget class="QLabel" name="info_lab">
+                <property name="text">
+                 <string>TextLabel</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0" colspan="5">
                <widget class="QTableWidget" name="valuesTable"/>
               </item>
              </layout>
@@ -356,13 +376,92 @@
       </widget>
       <widget class="QWidget" name="tab_4">
        <attribute name="title">
-        <string>Wyniki</string>
+        <string>Wykres</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_8">
         <item row="0" column="0">
          <widget class="PlotWidget" name="graph"/>
         </item>
        </layout>
+      </widget>
+      <widget class="QWidget" name="tab">
+       <attribute name="title">
+        <string>Benchmark</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout_9">
+        <item row="0" column="0">
+         <widget class="QTableWidget" name="benchmark_table">
+          <property name="sizeAdjustPolicy">
+           <enum>QAbstractScrollArea::AdjustToContents</enum>
+          </property>
+          <property name="alternatingRowColors">
+           <bool>true</bool>
+          </property>
+          <attribute name="horizontalHeaderCascadingSectionResizes">
+           <bool>false</bool>
+          </attribute>
+          <attribute name="horizontalHeaderMinimumSectionSize">
+           <number>100</number>
+          </attribute>
+          <attribute name="horizontalHeaderDefaultSectionSize">
+           <number>500</number>
+          </attribute>
+          <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
+           <bool>false</bool>
+          </attribute>
+          <attribute name="horizontalHeaderStretchLastSection">
+           <bool>true</bool>
+          </attribute>
+          <attribute name="verticalHeaderMinimumSectionSize">
+           <number>100</number>
+          </attribute>
+          <attribute name="verticalHeaderDefaultSectionSize">
+           <number>150</number>
+          </attribute>
+          <attribute name="verticalHeaderShowSortIndicator" stdset="0">
+           <bool>true</bool>
+          </attribute>
+          <attribute name="verticalHeaderStretchLastSection">
+           <bool>true</bool>
+          </attribute>
+          <row>
+           <property name="text">
+            <string>Naiwny bez filtracji</string>
+           </property>
+          </row>
+          <row>
+           <property name="text">
+            <string>Naiwny z filtracją</string>
+           </property>
+          </row>
+          <row>
+           <property name="text">
+            <string>Opwrty o punkt idealny</string>
+           </property>
+          </row>
+          <column>
+           <property name="text">
+            <string>Czas wykonywania (ms)</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Ilość porównań</string>
+           </property>
+          </column>
+          <item row="0" column="0">
+           <property name="textAlignment">
+            <set>AlignCenter</set>
+           </property>
+          </item>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tab_2">
+       <attribute name="title">
+        <string>Wyniki</string>
+       </attribute>
       </widget>
      </widget>
     </item>

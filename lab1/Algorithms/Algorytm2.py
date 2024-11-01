@@ -19,7 +19,7 @@ def is_point1_dominating_point2(
         return False
 
 
-def algorytm_z_filtracja(X_new, directions: List[str]):
+def algorytm_z_filtracja(X_new, directions: List[str], flag: bool = False):
     X = X_new.copy()
     zdominowane = []
 
@@ -41,6 +41,8 @@ def algorytm_z_filtracja(X_new, directions: List[str]):
             n = len(aktywna_lista)
             if len(X) != 1:
                 while j < n:
+                    if flag:
+                        return None, None, None
                     por_num = 0
                     aktywna_lista = [elem for elem in X if elem not in nieprownywalne]
                     kolejny_elem = aktywna_lista[1].copy()
