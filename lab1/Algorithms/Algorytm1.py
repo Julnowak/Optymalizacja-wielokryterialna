@@ -41,27 +41,28 @@ def bez_filtracji(X_in: List[List], directions: List[str]):
                 while j < n:
                     por_num = 0
                     aktywna_lista = [elem for elem in X if elem not in nieprownywalne]
-                    kolejny_elem = aktywna_lista[1].copy()
-                    print(f"\n--- Iteracja {i+1}, {j} ---")
-                    print(f"Element aktywny: {Y}")
-                    print(f"Kolejny element: {kolejny_elem}")
-                    if is_point1_dominating_point2(
-                        point1=Y, point2=kolejny_elem, directions=directions
-                    ):
-                        # Y dominuje X(j), usuwamy X(j)
-                        zdominowane.append(kolejny_elem)
-                        X.remove(kolejny_elem)
-                    elif is_point1_dominating_point2(
-                        point1=kolejny_elem, point2=Y, directions=directions
-                    ):
-                        # X(j) dominuje Y, aktualizujemy Y
-                        zdominowane.append(Y)
-                        aktywna_lista.remove(Y), X.remove(Y)
-                        Y = kolejny_elem
-                        fl = 1  # Zmiana flaga na 1
-                    else:
-                        print(f"Element nieporównywalny: {kolejny_elem}")
-                        nieprownywalne.append(kolejny_elem)
+                    if len(aktywna_lista) > 1:
+                        kolejny_elem = aktywna_lista[1].copy()
+                        print(f"\n--- Iteracja {i+1}, {j} ---")
+                        print(f"Element aktywny: {Y}")
+                        print(f"Kolejny element: {kolejny_elem}")
+                        if is_point1_dominating_point2(
+                            point1=Y, point2=kolejny_elem, directions=directions
+                        ):
+                            # Y dominuje X(j), usuwamy X(j)
+                            zdominowane.append(kolejny_elem)
+                            X.remove(kolejny_elem)
+                        elif is_point1_dominating_point2(
+                            point1=kolejny_elem, point2=Y, directions=directions
+                        ):
+                            # X(j) dominuje Y, aktualizujemy Y
+                            zdominowane.append(Y)
+                            aktywna_lista.remove(Y), X.remove(Y)
+                            Y = kolejny_elem
+                            fl = 1  # Zmiana flaga na 1
+                        else:
+                            print(f"Element nieporównywalny: {kolejny_elem}")
+                            nieprownywalne.append(kolejny_elem)
 
                     j += 1
                     por_num += k
@@ -94,17 +95,30 @@ def bez_filtracji(X_in: List[List], directions: List[str]):
 # Press the green button in the gutter to run the script.
 if __name__ == "__main__":
     X = [
-        [2, 1],
-        [6, 2],
-        [1, 0],
-        [4, 4],
-        [4, 0],
-        [5, 0],
-        [4, 2],
-        [1, 2],
+        [3, 3],
+        [2, 0],
+        [0, 5],
+        [2, 0],
         [2, 2],
-        [2, 1]
+        [4, 1],
+        [0, 1],
+        [1, 4],
+        [2, 1],
+        [5, 3],
+        [3, 3],
+        [2, 3],
+        [0, 2],
+        [2, 1],
+        [1, 2],
+        [0, 1],
+        [0, 1],
+        [1, 1],
+        [1, 1],
+        [6, 1],
+        [2, 2],
+        [2, 1],
+        [1, 2],
     ]
 
-    P = bez_filtracji(X_in=X, directions=["min", "max"])
+    P = bez_filtracji(X_in=X, directions=["Min", "Max"])
     print("Punkty niezdominowane (bez filtracji):", P)
