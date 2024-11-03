@@ -105,10 +105,8 @@ def algorytm_z_filtracja(X_new, directions: List[str], flag: bool = False):
                     all_por += k
                     # print(x)
                     if not is_point1_dominating_point2(point1=Y, point2=x, directions=directions):
-                    # for x1, x2 in zip(x, Y):
-                    #     # print(x1,x2)
-                    #     if not x1 >= x2:
                         new += [x]
+                        zdominowane += [x]
                 # print(new)
                 print("num:", all_por)
                 X = new
@@ -147,5 +145,5 @@ if __name__ == "__main__":
         [3, 5],
     ]
 
-    P = algorytm_z_filtracja(X, directions=["min", "min"])
+    P, zd, i = algorytm_z_filtracja(X, directions=["Min", "Min"])
     print("Punkty niezdominowane (z filtracją):", P)

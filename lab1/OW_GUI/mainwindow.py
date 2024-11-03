@@ -12,7 +12,7 @@ from PySide6.QtWidgets import QApplication, QMainWindow, QTableWidgetItem, QHead
 #     pyside6-uic form.ui -o ui_form.py, or
 #     pyside2-uic form.ui -o ui_form.py
 from ui_form import Ui_MainWindow
-from Algorithms import Algorytm1, Algorytm2, Algorytm3
+from Algorithms import Algorytm1, Algorytm2, Algorytm3, Algorytm3_new
 import numpy as np
 import pandas as pd
 
@@ -118,11 +118,14 @@ class MainWindow(QMainWindow):
         niezdom, zdom, iter = [], [], 0
         start = time.perf_counter_ns()
         if algo == "Naiwny bez filtracji":
+            print("RONFSFS")
+            print(points)
+            print(l)
             niezdom, zdom, iter = Algorytm1.bez_filtracji(points, l, self.flag)
         elif algo == "Naiwny z filtracją":
             niezdom, zdom, iter = Algorytm2.algorytm_z_filtracja(points, l, self.flag)
         elif algo == "Oparty o punkt idealny":
-            niezdom, zdom, iter = Algorytm3.punkt_idealny(points, l, self.flag)
+            niezdom, zdom, iter = Algorytm3_new.punkt_idealny(points, l, self.flag)
 
         self.flag = False
         end = time.perf_counter_ns()
@@ -143,7 +146,6 @@ class MainWindow(QMainWindow):
 
     def run_benchmark_thread(self):
         l = []
-        algo = self.ui.algorithm_select.currentText()
         for row in range(self.ui.criteriaTable.rowCount()):
             it = self.ui.criteriaTable.cellWidget(row, 1)
             text = it.currentText() if it is not None else ""
@@ -154,7 +156,6 @@ class MainWindow(QMainWindow):
             points.append([])
             for j in range(self.ui.valuesTable.columnCount()):
                 points[i].append(float(self.ui.valuesTable.item(i, j).text()))
-
 
         start_bf = time.perf_counter_ns()
         niezdom_bf, zdom_bf, iter_bf = Algorytm1.bez_filtracji(points, l, self.flag)
@@ -167,7 +168,7 @@ class MainWindow(QMainWindow):
         time_zf = end_zf - start_zf
 
         start_pi = time.perf_counter_ns()
-        niezdom_pi, zdom_pi, iter_pi = Algorytm3.punkt_idealny(points, l, self.flag)
+        niezdom_pi, zdom_pi, iter_pi = Algorytm3_new.punkt_idealny(points, l, self.flag)
         end_pi = time.perf_counter_ns()
         time_pi = end_pi - start_pi
 
@@ -329,9 +330,17 @@ class MainWindow(QMainWindow):
             # Domyślny wykres 2D
             x = new_pte[:, 0]
             y = new_pte[:, 1]
+            print(new_z)
+            print(new_nz)
             self.ui.graph.canvas.axes.scatter(x, y, c="b", label="ddddddddd")
-            self.ui.graph.canvas.axes.scatter(new_z[:, 0], new_z[:, 1], c="k", label="Zdominowane")
-            self.ui.graph.canvas.axes.scatter(new_nz[:, 0], new_nz[:, 1], c="r", label="Niezdominowane")
+            try:
+                self.ui.graph.canvas.axes.scatter(new_z[:, 0], new_z[:, 1], c="k", label="Zdominowane")
+            except:
+                pass
+            try:
+                self.ui.graph.canvas.axes.scatter(new_nz[:, 0], new_nz[:, 1], c="r", label="Niezdominowane")
+            except:
+                pass
             self.ui.graph.canvas.axes.set_ylabel("Kryterium 2")
 
         else:
@@ -366,7 +375,7 @@ class MainWindow(QMainWindow):
             )
 
             # self.ui.info_lab.setText("Wczytano: " + str(response[0]))
-            df = pd.read_excel(response[0])
+            df = pd.read_excel(response[0], header=None)
             print(df)
             self.critNum = df.shape[1]
 
