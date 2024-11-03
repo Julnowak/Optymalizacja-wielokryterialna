@@ -59,19 +59,20 @@ def punkt_idealny(X_in: List[List], directions: List[str], flag: bool = False):
                 P.append(current_point)
                 X.remove(current_point)
                 M -= 1
-            dominated_points = []
+
             for p in X:
-                # if flag:
-                #     return None, None, None
                 all_por += k
                 if is_point1_dominating_point2(
                     point1=current_point, point2=p, directions=directions
                 ):
                     dominated_points.append(p)
+
             for dp in dominated_points:
-                # if flag:
-                #     return None, None, None
-                X.remove(dp)
+
+                try:
+                    X.remove(dp)
+                except:
+                    pass
                 M -= 1
             m += 1
         if X:
@@ -79,7 +80,6 @@ def punkt_idealny(X_in: List[List], directions: List[str], flag: bool = False):
 
         unikalne_P = []
         [unikalne_P.append(p) for p in P if p not in unikalne_P]
-        print(f"Ilość porównań: {all_por}")
         return unikalne_P, dominated_points, all_por  # Zwróć unikalne punkty jako listę
 
 
@@ -99,5 +99,5 @@ if __name__ == "__main__":
         [3, 5],
     ]
 
-    P = punkt_idealny(X_in=X, directions=["Min", "Min"])
+    P, r, i = punkt_idealny(X_in=X, directions=["Min", "Min"])
     print("Punkty niezdominowane (punkt idealny):", P)

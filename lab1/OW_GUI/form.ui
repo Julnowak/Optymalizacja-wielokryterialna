@@ -18,7 +18,7 @@
     <item row="0" column="0">
      <widget class="QTabWidget" name="box">
       <property name="currentIndex">
-       <number>2</number>
+       <number>3</number>
       </property>
       <widget class="QWidget" name="tab_3">
        <attribute name="title">
@@ -382,6 +382,94 @@
         <item row="0" column="0">
          <widget class="PlotWidget" name="graph"/>
         </item>
+        <item row="0" column="1">
+         <widget class="QGroupBox" name="groupBox_5">
+          <property name="maximumSize">
+           <size>
+            <width>150</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="title">
+           <string>Dane do algorytmu</string>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_10">
+           <item row="2" column="3">
+            <widget class="QLabel" name="label_6">
+             <property name="text">
+              <string>Czas wykonania [ms]</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="3">
+            <widget class="QLabel" name="label_7">
+             <property name="text">
+              <string>Ilość punktów niezdominowanych [%]</string>
+             </property>
+             <property name="wordWrap">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="3">
+            <widget class="QLineEdit" name="czas_line">
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="8" column="3">
+            <widget class="QLabel" name="label_8">
+             <property name="text">
+              <string>Wykres</string>
+             </property>
+            </widget>
+           </item>
+           <item row="9" column="3">
+            <widget class="QLineEdit" name="plot_line">
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="3">
+            <widget class="QLineEdit" name="por_line">
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="3">
+            <widget class="QLineEdit" name="nzd_line">
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="3">
+            <widget class="QLabel" name="label_3">
+             <property name="text">
+              <string>Liczba porównań</string>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="3">
+            <widget class="QLabel" name="label_9">
+             <property name="text">
+              <string>Wymiar</string>
+             </property>
+            </widget>
+           </item>
+           <item row="7" column="3">
+            <widget class="QLineEdit" name="wym_line">
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
        </layout>
       </widget>
       <widget class="QWidget" name="tab">
@@ -450,6 +538,49 @@
            </property>
           </column>
           <item row="0" column="0">
+           <property name="text">
+            <string/>
+           </property>
+           <property name="textAlignment">
+            <set>AlignCenter</set>
+           </property>
+          </item>
+          <item row="0" column="1">
+           <property name="text">
+            <string/>
+           </property>
+           <property name="textAlignment">
+            <set>AlignCenter</set>
+           </property>
+          </item>
+          <item row="1" column="0">
+           <property name="text">
+            <string/>
+           </property>
+           <property name="textAlignment">
+            <set>AlignCenter</set>
+           </property>
+          </item>
+          <item row="1" column="1">
+           <property name="text">
+            <string/>
+           </property>
+           <property name="textAlignment">
+            <set>AlignCenter</set>
+           </property>
+          </item>
+          <item row="2" column="0">
+           <property name="text">
+            <string/>
+           </property>
+           <property name="textAlignment">
+            <set>AlignCenter</set>
+           </property>
+          </item>
+          <item row="2" column="1">
+           <property name="text">
+            <string/>
+           </property>
            <property name="textAlignment">
             <set>AlignCenter</set>
            </property>
@@ -462,6 +593,14 @@
        <attribute name="title">
         <string>Wyniki</string>
        </attribute>
+       <layout class="QGridLayout" name="gridLayout_11">
+        <item row="0" column="0">
+         <widget class="PlotWidget" name="regresja"/>
+        </item>
+        <item row="0" column="1">
+         <widget class="PlotWidget" name="regresja_2"/>
+        </item>
+       </layout>
       </widget>
      </widget>
     </item>

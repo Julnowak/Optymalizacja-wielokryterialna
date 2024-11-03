@@ -12,7 +12,6 @@ def is_point1_dominating_point2(
             result.append(point1[i] >= point2[i])
 
     if all(result):
-        # print(f'Punkt {point1} dominuje punkt {point2}')
         return True
     else:
         return False
@@ -30,9 +29,6 @@ def bez_filtracji(X_in: List[List], directions: List[str], flag: bool = False):
         k = len(directions)
         i = 0
         while len(X):
-            if flag:
-                return None, None, None
-            print(f"\n=== Iteracja {i + 1} ===")
             aktywna_lista = X.copy()
             Y = aktywna_lista[0]
             fl = 0
@@ -45,9 +41,6 @@ def bez_filtracji(X_in: List[List], directions: List[str], flag: bool = False):
                     aktywna_lista = [elem for elem in X if elem not in nieprownywalne]
                     if len(aktywna_lista) > 1:
                         kolejny_elem = aktywna_lista[1].copy()
-                        print(f"\n--- Iteracja {i+1}, {j} ---")
-                        print(f"Element aktywny: {Y}")
-                        print(f"Kolejny element: {kolejny_elem}")
                         if is_point1_dominating_point2(
                             point1=Y, point2=kolejny_elem, directions=directions
                         ):
@@ -63,20 +56,11 @@ def bez_filtracji(X_in: List[List], directions: List[str], flag: bool = False):
                             Y = kolejny_elem
                             fl = 1  # Zmiana flaga na 1
                         else:
-                            print(f"Element nieporównywalny: {kolejny_elem}")
                             nieprownywalne.append(kolejny_elem)
 
                     j += 1
                     por_num += k
                     all_por += k
-                    print(f"Liczba porównań: {por_num}")
-                    print("Elementy usunięte:", zdominowane)
-                    print("Punkty nieporównywalne:", nieprownywalne)
-                    print(
-                        "Pozostałe do sprawdzenia: ",
-                        [elem for elem in X if elem not in nieprownywalne][1:],
-                    )
-                    print("Punkty niezdominowane: ", P)
 
             # Dodajemy Y do listy punktów niezdominowanych
             P += [Y]
@@ -87,9 +71,7 @@ def bez_filtracji(X_in: List[List], directions: List[str], flag: bool = False):
 
             i += 1
 
-        print(f"Zdominowane: {zdominowane}")
         unikalne_P = []
-        print(f"Liczba porównań: {all_por}")
         [unikalne_P.append(p) for p in P if p not in unikalne_P]
         return unikalne_P, zdominowane, all_por  # Zwróć unikalne punkty jako listę
 

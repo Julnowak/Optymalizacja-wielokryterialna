@@ -47,10 +47,6 @@ def algorytm_z_filtracja(X_new, directions: List[str], flag: bool = False):
                     aktywna_lista = [elem for elem in X if elem not in nieprownywalne]
                     if len(aktywna_lista) > 1:
                         kolejny_elem = aktywna_lista[1].copy()
-                        print(f"\n--- Iteracja {i + 1}, {j} ---")
-                        print(f"Element aktywny: {Y}")
-                        print(f"Kolejny element: {kolejny_elem}")
-
                         try:
                             left.remove(Y)
                         except:
@@ -82,24 +78,12 @@ def algorytm_z_filtracja(X_new, directions: List[str], flag: bool = False):
                     j += 1
                     por_num += k
                     all_por += k
-                    print(f"Liczba porównań: {por_num}")
-                    print("Elementy usunięte:", zdominowane)
-                    print("Punkty nieporównywalne:", nieprownywalne)
-                    print("Pozostałe do sprawdzenia: ", left)
-                    print("Punkty niezdominowane: ", P)
             # Dodajemy Y do listy punktów niezdominowanych
             P += [Y]
 
-            print(f"X:{X}")
-            print(f"AL:{aktywna_lista}")
-            print(f"Left:{left}")
-            print(f"Left:{nieprownywalne}")
-            # X = [x for x in X if not all(x1 >= x2 for x1, x2 in zip(x, Y))]
             new = []
 
             aktywna_lista.remove(Y), X.remove(Y)
-            print(f"AL:{aktywna_lista}")
-            print(f"\n{i+1}F iteracja\n")
             if not (len(nieprownywalne) == 1 and kolejny_elem in nieprownywalne):
                 for x in nieprownywalne:
                     all_por += k
@@ -108,25 +92,18 @@ def algorytm_z_filtracja(X_new, directions: List[str], flag: bool = False):
                         new += [x]
                     else:
                         zdominowane += [x]
-                # print(new)
-                print("num:", all_por)
                 X = new
 
-            print(f"Pozostałe elementy X: {X}")
 
             # Jeśli pozostał jeden element, dodajemy go do listy P
             if len(X) == 1:
                 P.append(X[0])
-                print(f"Dodano ostatni element do P: {X[0]}")
                 break
             i += 1
 
-    print(f"Zdominowane: {zdominowane}")
 
     unikalne_P = []
     [unikalne_P.append(p) for p in P if p not in unikalne_P]
-    print("Wszystkie porównania: ", all_por)
-    print(f"Niezdominowane: {unikalne_P}")
     return unikalne_P, zdominowane, all_por  # Zwróć unikalne punkty jako listę
 
 

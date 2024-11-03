@@ -17,10 +17,10 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QAbstractScrollArea, QApplication, QComboBox, QDoubleSpinBox,
     QFrame, QGridLayout, QGroupBox, QHeaderView,
-    QLabel, QLayout, QMainWindow, QMenuBar,
-    QPushButton, QSizePolicy, QSpacerItem, QSpinBox,
-    QStatusBar, QTabWidget, QTableWidget, QTableWidgetItem,
-    QWidget)
+    QLabel, QLayout, QLineEdit, QMainWindow,
+    QMenuBar, QPushButton, QSizePolicy, QSpacerItem,
+    QSpinBox, QStatusBar, QTabWidget, QTableWidget,
+    QTableWidgetItem, QWidget)
 
 from plotwidget import PlotWidget
 
@@ -260,6 +260,70 @@ class Ui_MainWindow(object):
 
         self.gridLayout_8.addWidget(self.graph, 0, 0, 1, 1)
 
+        self.groupBox_5 = QGroupBox(self.tab_4)
+        self.groupBox_5.setObjectName(u"groupBox_5")
+        self.groupBox_5.setMaximumSize(QSize(150, 16777215))
+        self.gridLayout_10 = QGridLayout(self.groupBox_5)
+        self.gridLayout_10.setObjectName(u"gridLayout_10")
+        self.label_6 = QLabel(self.groupBox_5)
+        self.label_6.setObjectName(u"label_6")
+
+        self.gridLayout_10.addWidget(self.label_6, 2, 3, 1, 1)
+
+        self.label_7 = QLabel(self.groupBox_5)
+        self.label_7.setObjectName(u"label_7")
+        self.label_7.setWordWrap(True)
+
+        self.gridLayout_10.addWidget(self.label_7, 4, 3, 1, 1)
+
+        self.czas_line = QLineEdit(self.groupBox_5)
+        self.czas_line.setObjectName(u"czas_line")
+        self.czas_line.setReadOnly(True)
+
+        self.gridLayout_10.addWidget(self.czas_line, 3, 3, 1, 1)
+
+        self.label_8 = QLabel(self.groupBox_5)
+        self.label_8.setObjectName(u"label_8")
+
+        self.gridLayout_10.addWidget(self.label_8, 8, 3, 1, 1)
+
+        self.plot_line = QLineEdit(self.groupBox_5)
+        self.plot_line.setObjectName(u"plot_line")
+        self.plot_line.setReadOnly(True)
+
+        self.gridLayout_10.addWidget(self.plot_line, 9, 3, 1, 1)
+
+        self.por_line = QLineEdit(self.groupBox_5)
+        self.por_line.setObjectName(u"por_line")
+        self.por_line.setReadOnly(True)
+
+        self.gridLayout_10.addWidget(self.por_line, 1, 3, 1, 1)
+
+        self.nzd_line = QLineEdit(self.groupBox_5)
+        self.nzd_line.setObjectName(u"nzd_line")
+        self.nzd_line.setReadOnly(True)
+
+        self.gridLayout_10.addWidget(self.nzd_line, 5, 3, 1, 1)
+
+        self.label_3 = QLabel(self.groupBox_5)
+        self.label_3.setObjectName(u"label_3")
+
+        self.gridLayout_10.addWidget(self.label_3, 0, 3, 1, 1)
+
+        self.label_9 = QLabel(self.groupBox_5)
+        self.label_9.setObjectName(u"label_9")
+
+        self.gridLayout_10.addWidget(self.label_9, 6, 3, 1, 1)
+
+        self.wym_line = QLineEdit(self.groupBox_5)
+        self.wym_line.setObjectName(u"wym_line")
+        self.wym_line.setReadOnly(True)
+
+        self.gridLayout_10.addWidget(self.wym_line, 7, 3, 1, 1)
+
+
+        self.gridLayout_8.addWidget(self.groupBox_5, 0, 1, 1, 1)
+
         self.box.addTab(self.tab_4, "")
         self.tab = QWidget()
         self.tab.setObjectName(u"tab")
@@ -283,6 +347,21 @@ class Ui_MainWindow(object):
         __qtablewidgetitem5 = QTableWidgetItem()
         __qtablewidgetitem5.setTextAlignment(Qt.AlignCenter);
         self.benchmark_table.setItem(0, 0, __qtablewidgetitem5)
+        __qtablewidgetitem6 = QTableWidgetItem()
+        __qtablewidgetitem6.setTextAlignment(Qt.AlignCenter);
+        self.benchmark_table.setItem(0, 1, __qtablewidgetitem6)
+        __qtablewidgetitem7 = QTableWidgetItem()
+        __qtablewidgetitem7.setTextAlignment(Qt.AlignCenter);
+        self.benchmark_table.setItem(1, 0, __qtablewidgetitem7)
+        __qtablewidgetitem8 = QTableWidgetItem()
+        __qtablewidgetitem8.setTextAlignment(Qt.AlignCenter);
+        self.benchmark_table.setItem(1, 1, __qtablewidgetitem8)
+        __qtablewidgetitem9 = QTableWidgetItem()
+        __qtablewidgetitem9.setTextAlignment(Qt.AlignCenter);
+        self.benchmark_table.setItem(2, 0, __qtablewidgetitem9)
+        __qtablewidgetitem10 = QTableWidgetItem()
+        __qtablewidgetitem10.setTextAlignment(Qt.AlignCenter);
+        self.benchmark_table.setItem(2, 1, __qtablewidgetitem10)
         self.benchmark_table.setObjectName(u"benchmark_table")
         self.benchmark_table.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents)
         self.benchmark_table.setAlternatingRowColors(True)
@@ -301,6 +380,18 @@ class Ui_MainWindow(object):
         self.box.addTab(self.tab, "")
         self.tab_2 = QWidget()
         self.tab_2.setObjectName(u"tab_2")
+        self.gridLayout_11 = QGridLayout(self.tab_2)
+        self.gridLayout_11.setObjectName(u"gridLayout_11")
+        self.regresja = PlotWidget(self.tab_2)
+        self.regresja.setObjectName(u"regresja")
+
+        self.gridLayout_11.addWidget(self.regresja, 0, 0, 1, 1)
+
+        self.regresja_2 = PlotWidget(self.tab_2)
+        self.regresja_2.setObjectName(u"regresja_2")
+
+        self.gridLayout_11.addWidget(self.regresja_2, 0, 1, 1, 1)
+
         self.box.addTab(self.tab_2, "")
 
         self.gridLayout.addWidget(self.box, 0, 0, 1, 1)
@@ -316,7 +407,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
 
-        self.box.setCurrentIndex(2)
+        self.box.setCurrentIndex(3)
 
 
         QMetaObject.connectSlotsByName(MainWindow)
@@ -357,6 +448,12 @@ class Ui_MainWindow(object):
         self.deleteVal_btn.setText(QCoreApplication.translate("MainWindow", u"Usu\u0144", None))
         self.info_lab.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
         self.box.setTabText(self.box.indexOf(self.tab_3), QCoreApplication.translate("MainWindow", u"Panel", None))
+        self.groupBox_5.setTitle(QCoreApplication.translate("MainWindow", u"Dane do algorytmu", None))
+        self.label_6.setText(QCoreApplication.translate("MainWindow", u"Czas wykonania [ms]", None))
+        self.label_7.setText(QCoreApplication.translate("MainWindow", u"Ilo\u015b\u0107 punkt\u00f3w niezdominowanych [%]", None))
+        self.label_8.setText(QCoreApplication.translate("MainWindow", u"Wykres", None))
+        self.label_3.setText(QCoreApplication.translate("MainWindow", u"Liczba por\u00f3wna\u0144", None))
+        self.label_9.setText(QCoreApplication.translate("MainWindow", u"Wymiar", None))
         self.box.setTabText(self.box.indexOf(self.tab_4), QCoreApplication.translate("MainWindow", u"Wykres", None))
         ___qtablewidgetitem = self.benchmark_table.horizontalHeaderItem(0)
         ___qtablewidgetitem.setText(QCoreApplication.translate("MainWindow", u"Czas wykonywania (ms)", None));
