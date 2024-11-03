@@ -43,38 +43,39 @@ def algorytm_z_filtracja(X_new, directions: List[str]):
                 while j < n:
                     por_num = 0
                     aktywna_lista = [elem for elem in X if elem not in nieprownywalne]
-                    kolejny_elem = aktywna_lista[1].copy()
-                    print(f"\n--- Iteracja {i + 1}, {j} ---")
-                    print(f"Element aktywny: {Y}")
-                    print(f"Kolejny element: {kolejny_elem}")
+                    if len(aktywna_lista) > 1:
+                        kolejny_elem = aktywna_lista[1].copy()
+                        print(f"\n--- Iteracja {i + 1}, {j} ---")
+                        print(f"Element aktywny: {Y}")
+                        print(f"Kolejny element: {kolejny_elem}")
 
-                    try:
-                        left.remove(Y)
-                    except:
-                        pass
+                        try:
+                            left.remove(Y)
+                        except:
+                            pass
 
-                    try:
-                        left.remove(kolejny_elem)
-                    except:
-                        pass
+                        try:
+                            left.remove(kolejny_elem)
+                        except:
+                            pass
 
-                    if is_point1_dominating_point2(
-                            point1=Y, point2=kolejny_elem, directions=directions
-                    ):
-                        # Y dominuje X(j), usuwamy X(j)
-                        zdominowane.append(kolejny_elem)
-                        X.remove(kolejny_elem)
-                        # print(f"Usunięto element: {kolejny_elem}")
-                    elif is_point1_dominating_point2(
-                            point1=kolejny_elem, point2=Y, directions=directions
-                    ):
+                        if is_point1_dominating_point2(
+                                point1=Y, point2=kolejny_elem, directions=directions
+                        ):
+                            # Y dominuje X(j), usuwamy X(j)
+                            zdominowane.append(kolejny_elem)
+                            X.remove(kolejny_elem)
+                            # print(f"Usunięto element: {kolejny_elem}")
+                        elif is_point1_dominating_point2(
+                                point1=kolejny_elem, point2=Y, directions=directions
+                        ):
 
-                        zdominowane.append(Y)
-                        aktywna_lista.remove(Y), X.remove(Y)
-                        Y = kolejny_elem
-                    else:
-                        # print(f"Element nieporównywalny: {kolejny_elem}")
-                        nieprownywalne.append(kolejny_elem)
+                            zdominowane.append(Y)
+                            aktywna_lista.remove(Y), X.remove(Y)
+                            Y = kolejny_elem
+                        else:
+                            # print(f"Element nieporównywalny: {kolejny_elem}")
+                            nieprownywalne.append(kolejny_elem)
 
                     j += 1
                     por_num += k
