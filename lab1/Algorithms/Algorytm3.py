@@ -23,15 +23,15 @@ def find_optimum_according_to_directions(X: List[List[float]], directions):
     result: List[float] = []
 
     for i in range(len(directions)):
-        if directions[i] == "min":
+        if directions[i] == "Min":
             result.append(min([x[i] for x in X]))
-        elif directions[i] == "max":
+        elif directions[i] == "Max":
             result.append(max([x[i] for x in X]))
 
     return result
 
 
-def calculate_distance(x: List[int], y: List[int]):
+def calculate_distance(x: List[float], y: List[float]):
     return sqrt(sum((a - b) ** 2 for a, b in zip(x, y)))
 
 
@@ -61,16 +61,16 @@ def punkt_idealny(X_in: List[List], directions: List[str], flag: bool = False):
                 M -= 1
             dominated_points = []
             for p in X:
-                if flag:
-                    return None, None, None
+                # if flag:
+                #     return None, None, None
                 all_por += k
                 if is_point1_dominating_point2(
                     point1=current_point, point2=p, directions=directions
                 ):
                     dominated_points.append(p)
             for dp in dominated_points:
-                if flag:
-                    return None, None, None
+                # if flag:
+                #     return None, None, None
                 X.remove(dp)
                 M -= 1
             m += 1
