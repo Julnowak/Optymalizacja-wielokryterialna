@@ -18,7 +18,7 @@ def is_point1_dominating_point2(
         return False
 
 
-def bez_filtracji(X_in: List[List], directions: List[str]):
+def bez_filtracji(X_in: List[List], directions: List[str], flag: bool = False):
     X = X_in.copy()
 
     all_por = 0
@@ -30,6 +30,8 @@ def bez_filtracji(X_in: List[List], directions: List[str]):
         k = len(directions)
         i = 0
         while len(X):
+            if flag:
+                return None, None, None
             print(f"\n=== Iteracja {i + 1} ===")
             aktywna_lista = X.copy()
             Y = aktywna_lista[0]

@@ -35,7 +35,7 @@ def calculate_distance(x: List[int], y: List[int]):
     return sqrt(sum((a - b) ** 2 for a, b in zip(x, y)))
 
 
-def punkt_idealny(X_in: List[List], directions: List[str]):
+def punkt_idealny(X_in: List[List], directions: List[str], flag: bool = False):
     X = X_in.copy()
 
     if not len(directions) == len(X[0]):
@@ -61,12 +61,16 @@ def punkt_idealny(X_in: List[List], directions: List[str]):
                 M -= 1
             dominated_points = []
             for p in X:
+                if flag:
+                    return None, None, None
                 all_por += k
                 if is_point1_dominating_point2(
                     point1=current_point, point2=p, directions=directions
                 ):
                     dominated_points.append(p)
             for dp in dominated_points:
+                if flag:
+                    return None, None, None
                 X.remove(dp)
                 M -= 1
             m += 1
