@@ -106,6 +106,7 @@ def algorytm_z_filtracja(X_new, directions: List[str], flag: bool = False):
                     # print(x)
                     if not is_point1_dominating_point2(point1=Y, point2=x, directions=directions):
                         new += [x]
+                    else:
                         zdominowane += [x]
                 # print(new)
                 print("num:", all_por)
