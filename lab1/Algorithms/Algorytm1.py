@@ -111,5 +111,5 @@ if __name__ == "__main__":
         [3, 5],
     ]
 
-    P = bez_filtracji(X_in=X, directions=["Min", "Max"])
+    P,r,t = bez_filtracji(X_in=X, directions=["Min", "Min"])
     print("Punkty niezdominowane (bez filtracji):", P)
