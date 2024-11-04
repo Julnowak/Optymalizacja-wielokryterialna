@@ -60,9 +60,8 @@ class MainWindow(QMainWindow):
         self.ui.mean_num.setValue(1)
         self.ui.benchmark_btn.setEnabled(False)
         self.ui.start_btn.setEnabled(False)
-        self.ui.animation_btn.setEnabled(False)
         self.flag = False
-        self.ui.stop_btn.clicked.connect(self.change_flag)
+
         self.ui.addVal_btn.clicked.connect(self.add_value)
         self.ui.benchmark_btn.clicked.connect(self.run_benchmark)
         self.thread = threading.Thread()
@@ -71,6 +70,7 @@ class MainWindow(QMainWindow):
         self.counter_wyn = 0
         self.d_crit_nzd_proc = dict()
         self.d_crit_nzd = dict()
+        self.ff = False
 
     def change_flag(self):
         self.flag = True
@@ -138,6 +138,7 @@ class MainWindow(QMainWindow):
 
         self.flag = False
         self.event.clear()
+
 
         end = time.perf_counter_ns()
         print("time: " + str(end-start))
@@ -294,7 +295,11 @@ class MainWindow(QMainWindow):
                 points[i].append(float(self.ui.valuesTable.item(i, j).text()))
 
         crit_sort = self.ui.criterium_num.value()
-        new_p = sorted(points, key=lambda x: (x[crit_sort-1]))
+        dir = self.ui.criteriaTable.cellWidget(crit_sort-1, 1).currentText()
+        if dir == "Min":
+            new_p = sorted(points, key=lambda x: (x[crit_sort-1]))
+        else:
+            new_p = sorted(points, key=lambda x: (x[crit_sort - 1]), reverse=True)
 
         xi = 0
         yi = 0
@@ -317,15 +322,16 @@ class MainWindow(QMainWindow):
         self.critNum += 1
         self.ui.criterium_num.setMaximum(self.critNum)
 
-        self.ui.valuesTable.insertColumn(self.ui.valuesTable.columnCount())
-        lc = []
-        for i in range(self.critNum):
-            lc.append(f"Kryterium {i+1}")
+        if self.ff:
+            self.ui.valuesTable.insertColumn(self.ui.valuesTable.columnCount())
+            lc = []
+            for i in range(self.critNum):
+                lc.append(f"Kryterium {i+1}")
 
-        self.ui.valuesTable.setHorizontalHeaderLabels(lc)
-        for x in range(-1, self.ui.valuesTable.rowCount()+1):
-            print(x,self.critNum)
-            self.ui.valuesTable.setItem(x, self.critNum-1, QTableWidgetItem(str(0)))
+            self.ui.valuesTable.setHorizontalHeaderLabels(lc)
+            for x in range(-1, self.ui.valuesTable.rowCount()+1):
+                print(x,self.critNum)
+                self.ui.valuesTable.setItem(x, self.critNum-1, QTableWidgetItem(str(0)))
 
     def delete_criterium(self,):
         rows = self.ui.criteriaTable.selectionModel().selectedRows()
@@ -340,7 +346,6 @@ class MainWindow(QMainWindow):
     def add_value(self,):
         self.ui.benchmark_btn.setEnabled(True)
         self.ui.start_btn.setEnabled(True)
-        self.ui.animation_btn.setEnabled(True)
         self.ui.valuesTable.insertRow(self.ui.valuesTable.rowCount())
 
     def delete_value(self,):
@@ -369,8 +374,8 @@ class MainWindow(QMainWindow):
             points.append([])
             for j in range(self.ui.valuesTable.columnCount()):
                 points[i].append(float(self.ui.valuesTable.item(i,j).text()))
-        df = pd.DataFrame(columns=data, data=np.array(points))
-        df.to_excel(f"../Punkty/punkty_{self.counter}.xlsx", index=False)
+        df = pd.DataFrame(data=np.array(points))
+        df.to_excel(f"../Punkty/punkty_{self.counter}.xlsx", index=False, header=False)
         self.counter += 1
         self.ui.info_lab.setText("Punkty zapisano!")
 
@@ -411,9 +416,9 @@ class MainWindow(QMainWindow):
     def generate(self):
         self.ui.benchmark_btn.setEnabled(True)
         self.ui.start_btn.setEnabled(True)
-        self.ui.animation_btn.setEnabled(True)
         data = []
         d = []
+        self.ff = True
         n = self.ui.point_num.value()
 
         if self.ui.distribution_select.currentText() == "Eksponencjalny":
@@ -577,7 +582,7 @@ class MainWindow(QMainWindow):
                 xi += 1
             self.ui.benchmark_btn.setEnabled(True)
             self.ui.start_btn.setEnabled(True)
-            self.ui.animation_btn.setEnabled(True)
+
         except:
             pass
 
