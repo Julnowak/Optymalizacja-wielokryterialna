@@ -1,0 +1,191 @@
+<MenuScreen>:
+    GridLayout:
+        id: main_layout
+        canvas:
+            Color:
+                rgba: 1, 1, 1, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        rows: 2
+        cols: 2
+        BoxLayout:
+            canvas:
+                Color:
+                    rgba: 0, 0, 0, 1
+                Line:
+                    rectangle: self.x, self.y, self.width, self.height
+                    width: 2
+            orientation: "vertical"
+            padding: 10
+            size_hint_y: main_layout.height * 0.7
+            GridLayout:
+                id: criteria_layout
+                rows: 1
+                cols: 8
+                Button:
+                    text: "Dodaj"
+                    on_press: root.add_criteria()
+                    size_hint_x: criteria_layout.width * 0.1
+                Label:
+                    text: "Nazwa"
+                    color: "black"
+                    size_hint_x: criteria_layout.width * 0.3
+                Label:
+                    text: "Kierunek"
+                    color: "black"
+                    size_hint_x: criteria_layout.width * 0.1
+                Label:
+                    text: ""
+                    color: "black"
+                    size_hint_x: criteria_layout.width * 0.1
+                Label:
+                    text: ""
+                    color: "black"
+                    size_hint_x: criteria_layout.width * 0.1
+                Label:
+                    text: "Ref1"
+                    color: "black"
+                    size_hint_x: criteria_layout.width * 0.1
+                Label:
+                    text: "Ref2"
+                    color: "black"
+                    size_hint_x: criteria_layout.width * 0.1
+                Label:
+                    text: "Waga"
+                    color: "black"
+                    size_hint_x: criteria_layout.width * 0.1
+        GridLayout:
+            canvas:
+                Color:
+                    rgba: 0, 0, 0, 1
+                Line:
+                    rectangle: self.x, self.y, self.width, self.height
+                    width: 2
+            padding: 10
+            size_hint_y: main_layout.height * 0.7
+            rows: 3
+            cols: 1
+            GridLayout:
+                id: points_header_layout
+                rows: 1
+                cols: 0
+            GridLayout:
+                id: points_layout
+                rows: 1
+                cols: 0
+            GridLayout:
+                rows: 1
+                cols: 3
+                Button:
+                    text: "Dodaj"
+                Button:
+                    text: "Usuń"
+                Button:
+                    text: "Zapisz"
+                    on_press: root.write_to_file()
+        BoxLayout:
+            canvas:
+                Color:
+                    rgba: 0, 0, 0, 1
+                Line:
+                    rectangle: self.x, self.y, self.width, self.height
+                    width: 2
+            id: generation
+            orientation: "vertical"
+            padding: 10
+            size_hint_y: main_layout.height * 0.3
+            GridLayout:
+                rows: 5
+                cols: 1
+                GridLayout:
+                    id: choose_distribution_1
+                    rows: 1
+                    cols: 6
+                    size_hint_y: generation.height * 0.1
+                    Label:
+                        text: "Rozkład"
+                        color: "black"
+                GridLayout:
+                    id: choose_distribution_2
+                    rows: 1
+                    cols: 6
+                    size_hint_y: generation.height * 0.1
+                    Label:
+                        text: ""
+                        color: "black"
+                GridLayout:
+                    rows: 1
+                    cols: 3
+                    size_hint_y: generation.height * 0.1
+                    Label:
+                        text: "Średnia"
+                        color: "black"
+                    Label:
+                        text: "Odchylenie"
+                        color: "black"
+                    Label:
+                        text: "Liczba obiektów"
+                        color: "black"
+                GridLayout:
+                    rows: 1
+                    cols: 3
+                    size_hint_y: generation.height * 0.2
+                    TextInput:
+                        id: par1
+                    TextInput:
+                        id: par2
+                    TextInput:
+                        id: n_points
+                GridLayout:
+                    rows: 1
+                    cols: 2
+                    size_hint_y: generation.height * 0.5
+                    Button:
+                        id: generate_points
+                        text: "Generuj"
+                        on_press: root.generate_points()
+                    Button:
+                        id: sort_points
+                        text: "Sortuj"
+                        on_press: root.sort_points()
+        BoxLayout:
+            canvas:
+                Color:
+                    rgba: 0, 0, 0, 1
+                Line:
+                    rectangle: self.x, self.y, self.width, self.height
+                    width: 2
+            orientation: "vertical"
+            padding: 10
+            size_hint_y: main_layout.height * 0.3
+            GridLayout:
+                rows: 3
+                cols: 1
+                GridLayout:
+                    id: choose_algorithm_1
+                    rows: 1
+                    cols: 4
+                    Label:
+                        text: "Algorytm"
+                        color: "black"
+                GridLayout:
+                    id: choose_algorithm_2
+                    rows: 1
+                    cols: 4
+                    Label:
+                        text: ""
+                        color: "black"
+                GridLayout:
+                    rows: 1
+                    cols: 4
+                    Button:
+                        text: "Renderuj animację"
+                        on_press: root.render_animation()
+                    Button:
+                        text: "Przerwij"
+                    Button:
+                        text: "Benchmark"
+                    Button:
+                        text: "Rozwiąż"
+                        on_press: root.solve()
