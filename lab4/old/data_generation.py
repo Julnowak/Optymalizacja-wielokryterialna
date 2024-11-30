@@ -19,6 +19,7 @@ def generate_points_beta(a, b, number_of_points, number_of_parameters):
 def generate_points_gamma(shape, scale, number_of_points, number_of_parameters):
     return np.random.gamma(shape, scale, (number_of_points, number_of_parameters))
 
+
 def generate_points_uniform(low, high, number_of_points, number_of_parameters):
     return np.random.uniform(low, high, (number_of_points, number_of_parameters))
 

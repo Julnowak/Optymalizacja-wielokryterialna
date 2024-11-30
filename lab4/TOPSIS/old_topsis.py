@@ -1,15 +1,19 @@
 from typing import List, Tuple
 import numpy as np
 
+
 def f1(x):
     return 2 * x + 5
+
 
 def f2(x):
     return x * x - 3
 
+
 def discrete_values(number_of_samples, min, max, function_lst):
     arg = np.linspace(min, max, number_of_samples)
     return [[function_lst[i](a) for i in range(len(function_lst))] for a in arg]
+
 
 def get_minimum(x1, x2):
     min_x1 = [0 if x1[i] <= x2[i] else 1 for i in range(len(x1))]
@@ -20,6 +24,7 @@ def get_minimum(x1, x2):
         return x2
     else:
         return None
+
 
 def alg2(X):
     P = []

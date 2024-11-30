@@ -1,13 +1,12 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-import matplotlib.pyplot as plt
 from data_generation import *
 from write_to_file import *
 from plot_results import *
-from topsis import *
-from UTA import *
-from RSM import *
+from TOPSIS.old_topsis import *
+from UTA_BIS.UTA_STAR import *
+from RSM.RSM_old import *
 
 from kivy.app import App
 from kivy.lang import Builder
@@ -16,12 +15,10 @@ from kivy.uix.label import Label
 from kivy.uix.button import Button
 from kivy.uix.togglebutton import ToggleButton
 from kivy.uix.textinput import TextInput
-from kivy.uix.dropdown import DropDown
 from kivy.uix.checkbox import CheckBox
 import time
 
-from typing import List, Tuple, Union
-
+from typing import List, Tuple
 
 POINT = List[float]
 POINTS = List[POINT]
