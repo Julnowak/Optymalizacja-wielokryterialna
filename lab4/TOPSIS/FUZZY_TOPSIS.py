@@ -54,18 +54,6 @@ def fuzzy_topsis(alternatives, criteria, weights):
     # Calculate closeness coefficient
     closeness = [dist_anti / (dist_anti + dist_ideal) for dist_anti, dist_ideal in zip(distances_anti_ideal, distances_ideal)]
 
-
-    # print("\nIdealny punkt:")
-    # print(ideal)
-    # print("\nAntyidealny punkt:")
-    # print(anti_ideal)
-    # print("\nOdległości do idealnego:")
-    # print(distances_ideal)
-    # print("\nOdległości do antyidealnego:")
-    # print(distances_anti_ideal)
-    # print("\nBliskość:")
-    # print(closeness)
-
     # Return ranking
     return np.argsort(closeness)[::-1], {
         "normalized": normalized,
@@ -74,6 +62,41 @@ def fuzzy_topsis(alternatives, criteria, weights):
         "distances_anti_ideal": distances_anti_ideal,
         "closeness": closeness,
     }
+
+
+def visualize_fuzzy_topsis(alternatives, closeness, title="Fuzzy TOPSIS Ranking"):
+    """
+    Visualize Fuzzy TOPSIS results in 3D.
+    :param alternatives: Original alternatives, represented as arrays of triangular fuzzy numbers.
+    :param closeness: Closeness coefficients of the alternatives.
+    :param title: Title of the plot.
+    """
+    # Extract middle points (m values) for visualization
+    middle_points = [[(l[1]) for l in alt] for alt in alternatives]
+    middle_points = np.array(middle_points)
+
+    # Sort by closeness coefficients (for coloring)
+    ranking_order = np.argsort(closeness)[::-1]
+    colors = plt.cm.viridis(np.linspace(0, 1, len(alternatives)))[ranking_order]
+
+    # 3D scatter plot
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+
+    for i, (point, color) in enumerate(zip(middle_points, colors)):
+        ax.scatter(
+            point[0], point[1], point[2],
+            color=color,
+            label=f"Alternative {i + 1} (Rank: {ranking_order.tolist().index(i) + 1})"
+        )
+
+    ax.set_title(title)
+    ax.set_xlabel("Criterion 1 (Middle Points)")
+    ax.set_ylabel("Criterion 2 (Middle Points)")
+    ax.set_zlabel("Criterion 3 (Middle Points)")
+    ax.legend()
+    plt.show()
+
 
 
 # Fuzzy triangular numbers: (l, m, u)
@@ -108,14 +131,17 @@ ranking_discrete, details_discrete = fuzzy_topsis(alternatives_discrete, criteri
 print("\nDiscrete Case Ranking:", ranking_discrete)
 print("Details (Discrete):", details_discrete)
 
+# # Wizualizacja danych dyskretnych
+# visualize_fuzzy_topsis(alternatives_discrete, details_discrete['closeness'], title="Discrete Alternatives")
+
 alternatives_discrete = [
-    [(1, 1, 1), (1, 1, 1), (1, 1, 1)],
-    [(2, 2, 2), (2, 2, 2), (2, 2, 2)],
-    [(3, 3, 3), (3, 3, 3), (3, 3, 3)],
-    [(32, 42, 52), (22, 32, 42), (12, 22, 32)],
+    [(1, 2, 3), (1, 2, 3), (1, 2, 3)],
+    [(2, 3, 4), (2, 3, 4), (2, 3, 4)],
+    [(3, 4, 5), (3, 4, 5), (3, 4, 5)],
+    [(4, 5, 6), (4, 5, 6), (4, 5, 6)],
 ]
 
-criteria_discrete = ['cost', 'cost', 'cost']
+criteria_discrete = ['benefit', 'benefit', 'benefit']
 weights_discrete = [(0.3, 0.6, 0.1), (0.2, 0.5, 0.3), (0.1, 0.8, 0.1), (0.5, 0.2, 0.3)]
 
 ranking_discrete, details_discrete = fuzzy_topsis(alternatives_discrete, criteria_discrete, weights_discrete)
@@ -124,27 +150,22 @@ print("\nDiscrete Case Ranking:", ranking_discrete)
 print("Details (Discrete):", details_discrete)
 
 
+# Wizualizacja danych dyskretnych
+visualize_fuzzy_topsis(alternatives_discrete, details_discrete['closeness'], title="Discrete Alternatives")
 
-# Przetwarzanie danych: wybieramy środkowy punkt w każdej liście
-x = [item[0][1] for item in alternatives_discrete]
-y = [item[1][1] for item in alternatives_discrete]
-z = [item[2][1] for item in alternatives_discrete]
+alternatives_discrete = [
+    [(1, 2, 3), (1, 2, 3), (1, 2, 3), (1, 2, 3)],
+    [(2, 3, 4), (2, 3, 4), (2, 3, 4), (2, 3, 4)],
+    [(3, 4, 5), (3, 4, 5), (3, 4, 5), (3, 4, 5)],
+    [(4, 5, 6), (4, 5, 6), (4, 5, 6), (4, 5, 6)],
+]
 
-# Tworzenie wykresu 3D
-fig = plt.figure(figsize=(10, 7))
-ax = fig.add_subplot(111, projection='3d')
+# Im większy współczynnik , tym lepsza alternatywa.
+criteria_discrete = ['benefit', 'benefit', 'benefit']
+weights_discrete = [(0.3, 0.6, 0.1), (0.2, 0.5, 0.3), (0.1, 0.8, 0.1), (0.5, 0.2, 0.3)]
 
-x = [item[0][1] for item in alternatives_discrete]
-y = [item[1][1] for item in alternatives_discrete]
-z = [item[2][1] for item in alternatives_discrete]
+ranking_discrete, details_discrete = fuzzy_topsis(alternatives_discrete, criteria_discrete, weights_discrete)
 
-ax.scatter(x, y, z, color='red')
+print("\nDiscrete Case Ranking:", ranking_discrete)
+print("Details (Discrete):", details_discrete)
 
-# Dodanie etykiet
-ax.set_xlabel("X Axis")
-ax.set_ylabel("Y Axis")
-ax.set_zlabel("Z Axis")
-ax.legend()
-
-# Wyświetlenie wykresu
-plt.show()
