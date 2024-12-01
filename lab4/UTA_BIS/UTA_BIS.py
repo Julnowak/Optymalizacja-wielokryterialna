@@ -85,7 +85,16 @@ if __name__ == "__main__":
         [2, 0.00476, 0.0327],
         [1, 0.11461, 33.8748]
     ])
-    minmax = [True, False, True]  # Maksymalizacja dla kryteriów 1 i 3, minimalizacja dla kryterium 2
+
+    A = np.array([
+        [12, 12, 12],
+        [7, 8, 7],
+        [6, 7, 6],
+        [5, 6, 5],
+        [4, 5, 4],
+        [3, 4, 3]
+    ])
+    minmax = [False, False, False]  # Maksymalizacja dla kryteriów 1 i 3, minimalizacja dla kryterium 2
     criteria = ["Liquidity", "Beta", "Return"]
     weights = [0.4, 0.3, 0.3]  # Wagi kryteriów
 
