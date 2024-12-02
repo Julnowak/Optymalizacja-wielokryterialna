@@ -1,6 +1,10 @@
 from typing import List, Tuple
 import numpy as np
 from math import sqrt
+import matplotlib.pyplot as plt
+import matplotlib
+
+matplotlib.use("TkAgg")
 
 
 def is_point1_dominating_point2(
@@ -111,16 +115,61 @@ def rsm_continuous(
     return scores
 
 
+def visualize(data, utilities, criterion1=0, criterion2=1, criterion3=2):
+    """
+    Wizualizuje punkty danych w przestrzeni trzech wybranych kryteriów.
+    """
+    fig = plt.figure(figsize=(10, 8))
+    ax = fig.add_subplot(111, projection="3d")  # Dodanie wykresu 3D
+
+    # Wykres punktów
+    sc = ax.scatter(
+        [row[criterion1] for row in data],
+        [row[criterion2] for row in data],
+        [row[criterion3] for row in data],
+        c=utilities,
+        cmap="viridis",
+        edgecolor="k",
+        s=100,
+    )
+
+    # Dodanie skali kolorów
+    plt.colorbar(sc, label="Użyteczność")
+
+    # Opis osi
+    ax.set_xlabel(f"Kryterium {criterion1 + 1}")
+    ax.set_ylabel(f"Kryterium {criterion2 + 1}")
+    ax.set_zlabel(f"Kryterium {criterion3 + 1}")
+    ax.set_title("Wizualizacja punktów danych w przestrzeni trzech kryteriów")
+
+    fig.show()
+    plt.show()
+
+
 # Przykład wariantu ciągłego
 if __name__ == "__main__":
     # Dla przestrzeni 3D (dyskretne)
-    A_3d = [[2, 3, 4], [-1, 1, 2], [1, 3, 4], [1, 1, 2], [2, 2, 4], [0, 0, 0]]  # Punkty odniesienia (3D)
+    A_3d = [
+        [2, 3, 4],
+        [-1, 1, 2],
+        [1, 3, 4],
+        [1, 1, 2],
+        [2, 2, 4],
+        [0, 0, 0],
+    ]  # Punkty odniesienia (3D)
     B_3d = [[3, 4, 5], [5, 1, 2], [1, 2, 3], [3, 3, 4]]  # Punkty dopuszczalne (3D)
 
     # Obliczanie punktów i ich odległości
     discrete_results_3d = rsm_discrete(
-        reference_points=A_3d, decision_points=B_3d, min_max_criterial=["min", "min", "min"]
+        reference_points=A_3d,
+        decision_points=B_3d,
+        min_max_criterial=["min", "min", "min"],
     )
+    data, utilities = zip(*discrete_results_3d)
+    data = list(data)
+    utilities = list(utilities)
+
+    visualize(data=data, utilities=utilities)
 
     print("Punkty w wariancie dyskretnym (posortowane według odległości):")
     for point, score in discrete_results_3d:
@@ -134,18 +183,38 @@ if __name__ == "__main__":
         num_samples=5,
         bounds=bounds_continuous_3d,
         reference_points=A_3d_cont,
-        min_max_criterial=["min", "min", "min"]
+        min_max_criterial=["min", "min", "min"],
     )
+
+    data2, utilities2 = zip(*continuous_results_3d)
+    data2 = list(data2)
+    utilities2 = list(utilities2)
+
+    visualize(data=data2, utilities=utilities2)
+
     print("\nPunkty w wariancie ciągłym (posortowane według odległości):")
     for point, score in continuous_results_3d:
         print(f"Point: {np.round(point, 4)}, Score: {score:.4f}")
 
-    A_4d = [[2, 3, 4, 5], [-1, 1, 2, 3], [1, 3, 4, 5], [1, 1, 2, 2], [2, 2, 4, 5],
-            [0, 0, 0, 0]]  # Punkty odniesienia (4D)
-    B_4d = [[3, 4, 5, 6], [5, 1, 2, 3], [1, 2, 3, 4], [3, 3, 4, 5]]  # Punkty dopuszczalne (4D)
+    A_4d = [
+        [2, 3, 4, 5],
+        [-1, 1, 2, 3],
+        [1, 3, 4, 5],
+        [1, 1, 2, 2],
+        [2, 2, 4, 5],
+        [0, 0, 0, 0],
+    ]  # Punkty odniesienia (4D)
+    B_4d = [
+        [3, 4, 5, 6],
+        [5, 1, 2, 3],
+        [1, 2, 3, 4],
+        [3, 3, 4, 5],
+    ]  # Punkty dopuszczalne (4D)
 
     discrete_results_4d = rsm_discrete(
-        reference_points=A_4d, decision_points=B_4d, min_max_criterial=["min", "min", "min", "min"]
+        reference_points=A_4d,
+        decision_points=B_4d,
+        min_max_criterial=["min", "min", "min", "min"],
     )
 
     print("Punkty w wariancie dyskretnym (4D):")
@@ -153,12 +222,19 @@ if __name__ == "__main__":
         print(f"Point: {np.round(point, 4)}, Score: {score:.4f}")
 
     # Dla przestrzeni 4D (ciągłe)
-    bounds_continuous_4d = [(0, 10), (5, 15), (1, 5), (0, 10)]  # Granice dla przestrzeni 4D
+    bounds_continuous_4d = [
+        (0, 10),
+        (5, 15),
+        (1, 5),
+        (0, 10),
+    ]  # Granice dla przestrzeni 4D
     A_4d_cont = [[0, 0, 0, 0], [5, 5, 5, 5]]  # Punkty odniesienia (4D)
 
     continuous_results_4d = rsm_continuous(
-        num_samples=5, bounds=bounds_continuous_4d, reference_points=A_4d_cont,
-        min_max_criterial=["min", "min", "min", "min"]
+        num_samples=5,
+        bounds=bounds_continuous_4d,
+        reference_points=A_4d_cont,
+        min_max_criterial=["min", "min", "min", "min"],
     )
 
     print("\nPunkty w wariancie ciągłym (4D):")
