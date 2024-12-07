@@ -1,8 +1,10 @@
 from typing import List, Tuple
 import numpy as np
 from math import sqrt
-import matplotlib.pyplot as plt
 import matplotlib
+from numpy._typing import NDArray
+
+from UTA_BIS.UTA_DIS import visualize
 
 matplotlib.use("TkAgg")
 
@@ -28,7 +30,7 @@ def distance(x: List[float], y: List[float]):
 
 
 def zdominowane(
-    decision_matrix: List[List[float]], min_max_criterial: List["str"]
+    decision_matrix: List[List[float]], min_max_criterial: List[bool]
 ) -> Tuple[List[List[float]], List[List[float]]]:
     lstnzd = []
     lstzd = []
@@ -41,44 +43,44 @@ def zdominowane(
             # Sprawdzenie czy j dominuje i
             temp = [
                 decision_matrix[i][k] >= decision_matrix[j][k]
-                if min_max_criterial[k] == "min"
+                if min_max_criterial[k]
                 else decision_matrix[i][k] <= decision_matrix[j][k]
                 for k in range(len(min_max_criterial))
             ]
             if all(temp):  # Jeśli wszystkie elementy są True
-                # is_dominated = True
                 lstzd.append(decision_matrix[i])
                 break
-        # if not is_dominated:
         else:
             lstnzd.append(decision_matrix[i])
-
-    # Elementy zdominowane to te, które nie są w lstnzd
-    # lstzd = [row for row in decision_matrix if row not in lstnzd]
-
     return lstnzd, lstzd
 
 
 def rsm_discrete(
-    reference_points: List[List[float]],
-    decision_points: List[List[float]],
-    min_max_criterial: List[str],
-):
+    reference_points: NDArray[float],
+    decision_points: NDArray[float],
+    min_max: List[bool],
+    classes,
+) -> List[Tuple[List, float]]:
     """
     Reference Set Method (RSM) w wariancie dyskretnym.
     :param reference_points: punkty referencyjne w przestrzeni kryteriów.
     :param decision_points: punkty decyzyjne
-    :param min_max_criterial: lista kryteriów
+    :param min_max: Lista True (maksymalizacja) lub False (minimalizacja) dla każdego kryterium.
+    :param classes:
     :return: Zbiór punktów z obliczonymi odległościami do punktu referencyjnego.
     """
-    R_plus, R_minus = zdominowane(reference_points, min_max_criterial)
+    reference_points_list = reference_points.tolist()
+    decision_points_list = decision_points.tolist()
+    R_plus, R_minus = zdominowane(reference_points_list, min_max)
 
     scores = []
-    for point in decision_points:
+    for point in decision_points_list:
         d_plus = min([distance(point, r_plus) for r_plus in R_plus])
         d_minus = min([distance(point, r_minus) for r_minus in R_minus])
 
         scores.append((point, d_minus - d_plus))
+
+    scores.sort(key=lambda x: x[1], reverse=True)
 
     return scores
 
@@ -86,21 +88,24 @@ def rsm_discrete(
 def rsm_continuous(
     num_samples: int,
     bounds: List[Tuple[float, float]],
-    reference_points: List[List[float]],
-    min_max_criterial: List[str],
-):
+    reference_points: NDArray[float],
+    min_max: List[bool],
+    classes,
+) -> List[Tuple[List, float]]:
     """
     Reference Set Method (RSM) w wariancie ciągłym.
-    :param min_max_criterial: lista kryteriów
     :param num_samples: liczba próbek.
     :param bounds: lista krotek (min, max) dla każdego kryterium.
+    :param min_max: Lista True (maksymalizacja) lub False (minimalizacja) dla każdego kryterium.
     :param reference_points: punkt referencyjny w przestrzeni kryteriów.
     :return: Zbiór punktów z obliczonymi odległościami do punktu referencyjnego.
+    :param classes:
     """
+    reference_points_list = reference_points.tolist()
     samples = [np.linspace(b[0], b[1], num_samples) for b in bounds]
     samples_mesh = np.array(np.meshgrid(*samples)).T.reshape(-1, len(bounds)).tolist()
 
-    R_plus, R_minus = zdominowane(reference_points, min_max_criterial)
+    R_plus, R_minus = zdominowane(reference_points_list, min_max)
 
     # Obliczanie odległości punktów od referencyjnych
     scores = []
@@ -115,59 +120,33 @@ def rsm_continuous(
     return scores
 
 
-def visualize(data, utilities, criterion1=0, criterion2=1, criterion3=2):
-    """
-    Wizualizuje punkty danych w przestrzeni trzech wybranych kryteriów.
-    """
-    fig = plt.figure(figsize=(10, 8))
-    ax = fig.add_subplot(111, projection="3d")  # Dodanie wykresu 3D
-
-    # Wykres punktów
-    sc = ax.scatter(
-        [row[criterion1] for row in data],
-        [row[criterion2] for row in data],
-        [row[criterion3] for row in data],
-        c=utilities,
-        cmap="viridis",
-        edgecolor="k",
-        s=100,
-    )
-
-    # Dodanie skali kolorów
-    plt.colorbar(sc, label="Użyteczność")
-
-    # Opis osi
-    ax.set_xlabel(f"Kryterium {criterion1 + 1}")
-    ax.set_ylabel(f"Kryterium {criterion2 + 1}")
-    ax.set_zlabel(f"Kryterium {criterion3 + 1}")
-    ax.set_title("Wizualizacja punktów danych w przestrzeni trzech kryteriów")
-
-    fig.show()
-    plt.show()
-
-
 # Przykład wariantu ciągłego
 if __name__ == "__main__":
     # Dla przestrzeni 3D (dyskretne)
-    A_3d = [
-        [2, 3, 4],
-        [-1, 1, 2],
-        [1, 3, 4],
-        [1, 1, 2],
-        [2, 2, 4],
-        [0, 0, 0],
-    ]  # Punkty odniesienia (3D)
-    B_3d = [[3, 4, 5], [5, 1, 2], [1, 2, 3], [3, 3, 4]]  # Punkty dopuszczalne (3D)
+    A_3d = np.array(
+        [
+            [2, 3, 4],
+            [-1, 1, 2],
+            [1, 3, 4],
+            [1, 1, 2],
+            [2, 2, 4],
+            [0, 0, 0],
+        ]
+    )  # Punkty odniesienia (3D)
+    B_3d = np.array(
+        [[3, 4, 5], [5, 1, 2], [1, 2, 3], [3, 3, 4]]
+    )  # Punkty dopuszczalne (3D)
 
     # Obliczanie punktów i ich odległości
     discrete_results_3d = rsm_discrete(
         reference_points=A_3d,
         decision_points=B_3d,
-        min_max_criterial=["min", "min", "min"],
+        min_max=[False, False, False],
+        classes=0,
     )
     data, utilities = zip(*discrete_results_3d)
-    data = list(data)
-    utilities = list(utilities)
+    data = np.array(data)
+    utilities = np.array(utilities)
 
     visualize(data=data, utilities=utilities)
 
@@ -177,66 +156,69 @@ if __name__ == "__main__":
 
     # Dla przestrzeni 3D (ciągłe)
     bounds_continuous_3d = [(0, 10), (5, 15), (1, 5)]  # Granice dla przestrzeni 3D
-    A_3d_cont = [[0, 0, 0], [5, 5, 5]]  # Punkty odniesienia (3D)
+    A_3d_cont = np.array([[0, 0, 0], [5, 5, 5]])  # Punkty odniesienia (3D)
 
     continuous_results_3d = rsm_continuous(
         num_samples=5,
         bounds=bounds_continuous_3d,
         reference_points=A_3d_cont,
-        min_max_criterial=["min", "min", "min"],
+        min_max=[False, False, False],
+        classes=0,
     )
 
     data2, utilities2 = zip(*continuous_results_3d)
-    data2 = list(data2)
+    data2 = np.array(data2)
     utilities2 = list(utilities2)
 
     visualize(data=data2, utilities=utilities2)
 
     print("\nPunkty w wariancie ciągłym (posortowane według odległości):")
-    for point, score in continuous_results_3d:
+    for point, score in continuous_results_3d[:10]:
         print(f"Point: {np.round(point, 4)}, Score: {score:.4f}")
 
-    A_4d = [
-        [2, 3, 4, 5],
-        [-1, 1, 2, 3],
-        [1, 3, 4, 5],
-        [1, 1, 2, 2],
-        [2, 2, 4, 5],
-        [0, 0, 0, 0],
-    ]  # Punkty odniesienia (4D)
-    B_4d = [
-        [3, 4, 5, 6],
-        [5, 1, 2, 3],
-        [1, 2, 3, 4],
-        [3, 3, 4, 5],
-    ]  # Punkty dopuszczalne (4D)
-
-    discrete_results_4d = rsm_discrete(
-        reference_points=A_4d,
-        decision_points=B_4d,
-        min_max_criterial=["min", "min", "min", "min"],
-    )
-
-    print("Punkty w wariancie dyskretnym (4D):")
-    for point, score in discrete_results_4d:
-        print(f"Point: {np.round(point, 4)}, Score: {score:.4f}")
-
-    # Dla przestrzeni 4D (ciągłe)
-    bounds_continuous_4d = [
-        (0, 10),
-        (5, 15),
-        (1, 5),
-        (0, 10),
-    ]  # Granice dla przestrzeni 4D
-    A_4d_cont = [[0, 0, 0, 0], [5, 5, 5, 5]]  # Punkty odniesienia (4D)
-
-    continuous_results_4d = rsm_continuous(
-        num_samples=5,
-        bounds=bounds_continuous_4d,
-        reference_points=A_4d_cont,
-        min_max_criterial=["min", "min", "min", "min"],
-    )
-
-    print("\nPunkty w wariancie ciągłym (4D):")
-    for point, score in continuous_results_4d:
-        print(f"Point: {np.round(point, 4)}, Score: {score:.4f}")
+    # A_4d = np.array([
+    #     [2, 3, 4, 5],
+    #     [-1, 1, 2, 3],
+    #     [1, 3, 4, 5],
+    #     [1, 1, 2, 2],
+    #     [2, 2, 4, 5],
+    #     [0, 0, 0, 0],
+    # ])  # Punkty odniesienia (4D)
+    # B_4d = np.array([
+    #     [3, 4, 5, 6],
+    #     [5, 1, 2, 3],
+    #     [1, 2, 3, 4],
+    #     [3, 3, 4, 5],
+    # ])  # Punkty dopuszczalne (4D)
+    #
+    # discrete_results_4d = rsm_discrete(
+    #     reference_points=A_4d,
+    #     decision_points=B_4d,
+    #     min_max=[False, False, False, False],
+    #     classes=0
+    # )
+    #
+    # print("Punkty w wariancie dyskretnym (4D):")
+    # for point, score in discrete_results_4d:
+    #     print(f"Point: {np.round(point, 4)}, Score: {score:.4f}")
+    #
+    # # Dla przestrzeni 4D (ciągłe)
+    # bounds_continuous_4d = [
+    #     (0, 10),
+    #     (5, 15),
+    #     (1, 5),
+    #     (0, 10),
+    # ]  # Granice dla przestrzeni 4D
+    # A_4d_cont = np.array([[0, 0, 0, 0], [5, 5, 5, 5]])  # Punkty odniesienia (4D)
+    #
+    # continuous_results_4d = rsm_continuous(
+    #     num_samples=5,
+    #     bounds=bounds_continuous_4d,
+    #     reference_points=A_4d_cont,
+    #     min_max=[False, False, False, False],
+    #     classes=0
+    # )
+    #
+    # print("\nPunkty w wariancie ciągłym (4D):")
+    # for point, score in continuous_results_4d:
+    #     print(f"Point: {np.round(point, 4)}, Score: {score:.4f}")
