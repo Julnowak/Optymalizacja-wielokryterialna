@@ -29,7 +29,8 @@ def normalize_alternative(
                 norm_val = 0
         else:
             if asp != sq:
-                norm_val = (asp - x) / (asp - sq)
+                # Poprawiona formuła dla minimalizacji:
+                norm_val = (sq - x) / (sq - asp)
             else:
                 norm_val = 0
         norm_val = max(0, min(norm_val, 1))
