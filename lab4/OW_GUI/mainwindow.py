@@ -4,7 +4,7 @@ import sys
 
 import numpy as np
 import pandas as pd
-from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog
+from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QMessageBox, QTableWidgetItem
 
 # Important:
 # You need to run the following command to generate the ui_form.py file
@@ -22,6 +22,8 @@ class MainWindow(QMainWindow):
         super().__init__(parent)
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+
+        self.critNum = 0
 
         self.ui.load_btn.clicked.connect(self.getFileName)
         self.ui.graph.show()
@@ -113,46 +115,83 @@ class MainWindow(QMainWindow):
             response = QFileDialog.getOpenFileName(
                 self, 'Select a data file', os.getcwd(), "Excel files (*.xlsx *.csv )"
             )
-
             # self.ui.info_lab.setText("Wczytano plik!")
-            df = pd.read_excel(response[0], header=None)
-            # self.critNum = df.shape[1]
-            #
-            # lc = []
-            # if self.critNum == 1:
-            #     comboBox = QtWidgets.QComboBox()
-            #     comboBox.addItem("Min")
-            #     comboBox.addItem("Max")
-            #     self.ui.criteriaTable.setRowCount(self.critNum)
-            #     lc.append("Kryterium 1")
-            #     self.ui.criteriaTable.setItem(0, 0, QTableWidgetItem(f"Kryterium {1}"))
-            #     self.ui.criteriaTable.setCellWidget(0, 1, comboBox)
-            # else:
-            #     self.ui.criteriaTable.setRowCount(self.critNum)
-            #     for i in range(self.critNum):
-            #         comboBox = QtWidgets.QComboBox()
-            #         comboBox.addItem("Min")
-            #         comboBox.addItem("Max")
-            #         lc.append(f"Kryterium {i + 1}")
-            #         self.ui.criteriaTable.setItem(i, 0, QTableWidgetItem(f"Kryterium {i + 1}"))
-            #         self.ui.criteriaTable.setCellWidget(i, 1, comboBox)
-            #
-            # self.ui.valuesTable.setRowCount(df.shape[0])
-            # self.ui.valuesTable.setColumnCount(df.shape[1])
-            # self.ui.valuesTable.setHorizontalHeaderLabels(lc)
-            # xi = 0
-            # yi = 0
-            # for i in df.values:
-            #     for j in i:
-            #         self.ui.valuesTable.setItem(xi, yi, QTableWidgetItem(str(j)))
-            #         yi += 1
-            #     yi = 0
-            #     xi += 1
-            # self.ui.benchmark_btn.setEnabled(True)
-            # self.ui.start_btn.setEnabled(True)
+            df = pd.read_excel(response[0], header=0, sheet_name="Arkusz1")
+            print(df)
+            self.critNum = df.shape[1]
+            print(self.critNum)
+            lc = list(df.columns.values)
+            if self.critNum == 1:
+                self.ui.alternatives_table.setRowCount(df.shape[0])
+                self.ui.alternatives_table.setColumnCount(self.critNum)
+                for i in range(df.shape[0]):
+                    print(df["Nazwa alternatywy"][i])
+                    self.ui.alternatives_table.setItem(i, 0, QTableWidgetItem(str(df["Nr alternatywy"][i])))
+                    self.ui.alternatives_table.setItem(i, 1, QTableWidgetItem(df["Nazwa alternatywy"][i]))
+                    for j in range(len(lc)):
+                        if j == 0 or j == 1:
+                            pass
+                        else:
+                            self.ui.alternatives_table.setItem(i, j, QTableWidgetItem(str(df[f"Kryterium {j - 1}"][i])))
+            else:
+                self.ui.alternatives_table.setRowCount(df.shape[0])
+                self.ui.alternatives_table.setColumnCount(self.critNum)
+                for i in range(df.shape[0]):
+                    print(df["Nazwa alternatywy"][i])
+                    self.ui.alternatives_table.setItem(i, 0, QTableWidgetItem(str(df["Nr alternatywy"][i])))
+                    self.ui.alternatives_table.setItem(i, 1, QTableWidgetItem(df["Nazwa alternatywy"][i]))
+                    for j in range(len(lc)):
+                        if j == 0 or j == 1:
+                            pass
+                        else:
+                            self.ui.alternatives_table.setItem(i, j, QTableWidgetItem(str(df[f"Kryterium {j - 1}"][i])))
 
+            print(lc)
+            self.ui.alternatives_table.setHorizontalHeaderLabels(lc)
+
+
+
+            df2 = pd.read_excel(response[0], header=0, sheet_name="Arkusz2")
+            print(df2)
+            lc2 = list(df2.columns.values)
+            if df2.shape[1] == 1:
+                self.ui.class_table.setRowCount(df2.shape[0])
+                self.ui.class_table.setColumnCount(df2.shape[1])
+                self.ui.class_table.setItem(0, 0, QTableWidgetItem(df2["Nr klasy"][0]))
+                # self.ui.criteriaTable.setCellWidget(0, 1, comboBox)
+            else:
+                self.ui.class_table.setRowCount(df2.shape[0])
+                self.ui.class_table.setColumnCount(df2.shape[1])
+                for i in range(df2.shape[0]):
+                    self.ui.class_table.setItem(i, 0, QTableWidgetItem(str(df2["Nr klasy"][i])))
+                    for j in range(len(lc2)):
+                        if j == 0:
+                            pass
+                        else:
+                            self.ui.class_table.setItem(i, j, QTableWidgetItem(str(df2[str(lc2[j])][i])))
+
+            print(lc2)
+            self.ui.class_table.setHorizontalHeaderLabels(lc2)
+
+
+
+            msg = QMessageBox()
+            msg.setText("Poprawnie załadowano dane z arkusza.")
+            msg.setWindowTitle("Sukces")
+            msg.setIcon(QMessageBox.Information)
+            button = msg.exec()
+            if button == QMessageBox.Ok:
+                print("OK!")
         except:
-            pass
+            msg = QMessageBox()
+            msg.setText("W trakcie ładowania arkusza wystąpił błąd!")
+            msg.setWindowTitle("Błąd!")
+            msg.setIcon(QMessageBox.Critical)
+            button = msg.exec()
+            if button == QMessageBox.Ok:
+                print("OK!")
+
+
 
     def startAlgo(self):
         if self.ui.criterium_select.currentText() == "FUZZY TOPSIS":

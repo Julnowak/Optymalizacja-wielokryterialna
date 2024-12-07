@@ -26,7 +26,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(800, 600)
+        MainWindow.resize(842, 600)
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.gridLayout = QGridLayout(self.centralwidget)
@@ -100,6 +100,7 @@ class Ui_MainWindow(object):
         self.label_3 = QLabel(self.centralwidget)
         self.label_3.setObjectName(u"label_3")
         self.label_3.setAlignment(Qt.AlignCenter)
+        self.label_3.setWordWrap(True)
 
         self.gridLayout.addWidget(self.label_3, 3, 0, 1, 3)
 
@@ -109,21 +110,16 @@ class Ui_MainWindow(object):
         self.gridLayout.addWidget(self.graph, 4, 3, 1, 3)
 
         self.alternatives_table = QTableWidget(self.centralwidget)
-        if (self.alternatives_table.columnCount() < 2):
-            self.alternatives_table.setColumnCount(2)
-        __qtablewidgetitem4 = QTableWidgetItem()
-        self.alternatives_table.setHorizontalHeaderItem(0, __qtablewidgetitem4)
-        __qtablewidgetitem5 = QTableWidgetItem()
-        self.alternatives_table.setHorizontalHeaderItem(1, __qtablewidgetitem5)
         self.alternatives_table.setObjectName(u"alternatives_table")
         self.alternatives_table.setMinimumSize(QSize(0, 200))
+        self.alternatives_table.verticalHeader().setHighlightSections(True)
 
         self.gridLayout.addWidget(self.alternatives_table, 2, 0, 1, 3)
 
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 800, 21))
+        self.menubar.setGeometry(QRect(0, 0, 842, 21))
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QStatusBar(MainWindow)
         self.statusbar.setObjectName(u"statusbar")
@@ -154,9 +150,5 @@ class Ui_MainWindow(object):
         ___qtablewidgetitem3 = self.ranking_table.horizontalHeaderItem(1)
         ___qtablewidgetitem3.setText(QCoreApplication.translate("MainWindow", u"Ranking", None));
         self.label_3.setText(QCoreApplication.translate("MainWindow", u"Stworzony ranking", None))
-        ___qtablewidgetitem4 = self.alternatives_table.horizontalHeaderItem(0)
-        ___qtablewidgetitem4.setText(QCoreApplication.translate("MainWindow", u"Kryterium", None));
-        ___qtablewidgetitem5 = self.alternatives_table.horizontalHeaderItem(1)
-        ___qtablewidgetitem5.setText(QCoreApplication.translate("MainWindow", u"Waga", None));
     # retranslateUi
 

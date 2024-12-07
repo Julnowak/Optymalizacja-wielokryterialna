@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
+    <width>842</width>
     <height>600</height>
    </rect>
   </property>
@@ -171,6 +171,9 @@
       <property name="alignment">
        <set>Qt::AlignCenter</set>
       </property>
+      <property name="wordWrap">
+       <bool>true</bool>
+      </property>
      </widget>
     </item>
     <item row="4" column="3" colspan="3">
@@ -184,16 +187,9 @@
         <height>200</height>
        </size>
       </property>
-      <column>
-       <property name="text">
-        <string>Kryterium</string>
-       </property>
-      </column>
-      <column>
-       <property name="text">
-        <string>Waga</string>
-       </property>
-      </column>
+      <attribute name="verticalHeaderHighlightSections">
+       <bool>true</bool>
+      </attribute>
      </widget>
     </item>
    </layout>
@@ -203,7 +199,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
+     <width>842</width>
      <height>21</height>
     </rect>
    </property>
