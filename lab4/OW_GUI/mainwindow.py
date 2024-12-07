@@ -10,6 +10,10 @@ from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog
 # You need to run the following command to generate the ui_form.py file
 #     pyside6-uic form.ui -o ui_form.py, or
 #     pyside2-uic form.ui -o ui_form.py
+from RSM.RSM_new import rsm_discrete
+from SP_CS.SP_CS import sp_cs_continuous
+from TOPSIS.FUZZY_TOPSIS import fuzzy_topsis
+from UTA_BIS.UTA_DIS import UTA_DIS
 from ui_form import Ui_MainWindow
 
 
@@ -21,6 +25,8 @@ class MainWindow(QMainWindow):
 
         self.ui.load_btn.clicked.connect(self.getFileName)
         self.ui.graph.show()
+
+        self.ui.start_btn.clicked.connect(self.startAlgo)
 
     def update_graph(self, pts, nz, z, it, title, tim):
         new_pte = np.array(pts)
@@ -147,6 +153,103 @@ class MainWindow(QMainWindow):
 
         except:
             pass
+
+    def startAlgo(self):
+        if self.ui.criterium_select.currentText() == "FUZZY TOPSIS":
+            alternatives_discrete = [
+                [(1, 2, 3), (1, 2, 3), (1, 2, 3)],
+                [(2, 3, 4), (2, 3, 4), (2, 3, 4)],
+                [(3, 4, 5), (3, 4, 5), (3, 4, 5)],
+                [(4, 5, 6), (4, 5, 6), (4, 5, 6)],
+            ]
+
+            criteria_discrete = ['benefit', 'benefit', 'benefit']
+            weights_discrete = [(0.3, 0.6, 0.1), (0.2, 0.5, 0.3), (0.1, 0.8, 0.1), (0.5, 0.2, 0.3)]
+
+            ranking_discrete, details_discrete = fuzzy_topsis(alternatives_discrete, criteria_discrete,
+                                                              weights_discrete)
+
+            print("\nDiscrete Case Ranking:", ranking_discrete)
+            print("Details (Discrete):", details_discrete)
+
+        elif self.ui.criterium_select.currentText() == "RSM":
+            A_3d = [
+                [2, 3, 4],
+                [-1, 1, 2],
+                [1, 3, 4],
+                [1, 1, 2],
+                [2, 2, 4],
+                [0, 0, 0],
+            ]  # Punkty odniesienia (3D)
+            B_3d = [[3, 4, 5], [5, 1, 2], [1, 2, 3], [3, 3, 4]]  # Punkty dopuszczalne (3D)
+
+            # Obliczanie punktów i ich odległości
+            discrete_results_3d = rsm_discrete(
+                reference_points=A_3d,
+                decision_points=B_3d,
+                min_max_criterial=["min", "min", "min"],
+            )
+            data, utilities = zip(*discrete_results_3d)
+            data = list(data)
+            utilities = list(utilities)
+
+            print("Punkty w wariancie dyskretnym (posortowane według odległości):")
+            for point, score in discrete_results_3d:
+                print(f"Point: {np.round(point, 4)}, Score: {score:.4f}")
+
+        elif self.ui.criterium_select.currentText() == "SP CS":
+            print("\n=== Case 3: All Criteria Maximized ===")
+            status_quo_continuous = [0, 0]
+            aspiration_continuous = [1, 1]
+            bounds = [(0, 1), (0, 1)]  # U⊂R²
+            minmax_continuous_case1 = [True, True]  # Both criteria maximized
+
+            # Determine dynamic status quo and aspiration for continuous variant
+            # Assuming the continuous alternatives are generated within the bounds
+            # For demonstration, we use fixed aspiration and status quo
+
+            results_continuous_case1, alternatives_continuous_case1 = sp_cs_continuous(
+                bounds,
+                status_quo_continuous,
+                aspiration_continuous,
+                minmax_continuous_case1,
+                metric='euclidean',
+                num_samples=1000,
+                num_t_samples=100,
+                debug=False
+            )
+
+            print("\nTop 5 alternatives in continuous variant (sorted by S(u)):")
+            for alt, Su, t_star in results_continuous_case1[:5]:
+                print(f"Alternative: {np.round(alt, 4)}, S(u): {Su:.4f}, t*: {t_star:.4f}")
+
+        elif self.ui.criterium_select.currentText() == "UTA DIS":
+            A = np.array([
+                [12, 0.01024, 24.0646],
+                [1, 0.00026, 62.1609],
+                [4, 0.02004, 24.1212],
+                [1, -0.27064, 23.2374],
+                [2, 0.00476, 0.0327],
+                [1, 0.11461, 33.8748]
+            ])
+
+            # Maksymalizacja dla 1. i 3. kryterium, minimalizacja dla 2.
+            minmax = [True, False, True]
+
+            # Wagi kryteriów
+            weights = [0.4, 0.3, 0.3]
+
+            # Progi definiujące kategorie
+            thresholds = [0.3, 0.5, 0.7]
+
+            # Klasyfikacja alternatyw do kategorii
+            categories, total_utilities = UTA_DIS(A, minmax, weights, thresholds)
+            print("\nCałkowite użyteczności alternatyw:")
+            print(total_utilities)
+            print("\nPrzypisane kategorie:")
+            print(categories)
+
+
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     widget = MainWindow()

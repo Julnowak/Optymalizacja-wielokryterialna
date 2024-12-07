@@ -98,74 +98,74 @@ def visualize_fuzzy_topsis(alternatives, closeness, title="Fuzzy TOPSIS Ranking"
     plt.show()
 
 
+if __name__ == "__main__":
+    # Fuzzy triangular numbers: (l, m, u)
+    # Example for continuous case with U⊂R^4 and N=4
+    alternatives_continuous = [
+        [(1, 3, 5), (2, 4, 6), (3, 5, 7), (1, 2, 3)],
+        [(2, 4, 6), (1, 3, 5), (2, 4, 6), (2, 3, 4)],
+        [(3, 5, 7), (3, 5, 7), (1, 3, 5), (2, 4, 6)],
+        [(1, 2, 3), (2, 3, 4), (3, 5, 7), (3, 5, 7)],
+    ]
 
-# Fuzzy triangular numbers: (l, m, u)
-# Example for continuous case with U⊂R^4 and N=4
-alternatives_continuous = [
-    [(1, 3, 5), (2, 4, 6), (3, 5, 7), (1, 2, 3)],
-    [(2, 4, 6), (1, 3, 5), (2, 4, 6), (2, 3, 4)],
-    [(3, 5, 7), (3, 5, 7), (1, 3, 5), (2, 4, 6)],
-    [(1, 2, 3), (2, 3, 4), (3, 5, 7), (3, 5, 7)],
-]
+    criteria_continuous = ['benefit', 'cost', 'benefit', 'cost']
+    weights_continuous = [(0.2, 0.5, 0.8), (0.3, 0.6, 0.9), (0.4, 0.7, 1.0), (0.1, 0.4, 0.7)]
 
-criteria_continuous = ['benefit', 'cost', 'benefit', 'cost']
-weights_continuous = [(0.2, 0.5, 0.8), (0.3, 0.6, 0.9), (0.4, 0.7, 1.0), (0.1, 0.4, 0.7)]
+    ranking_continuous, details_continuous = fuzzy_topsis(alternatives_continuous, criteria_continuous, weights_continuous)
 
-ranking_continuous, details_continuous = fuzzy_topsis(alternatives_continuous, criteria_continuous, weights_continuous)
+    print("Continuous Case Ranking:", ranking_continuous)
+    print("Details (Continuous):", details_continuous)
 
-print("Continuous Case Ranking:", ranking_continuous)
-print("Details (Continuous):", details_continuous)
+    # Example for discrete case with N=3 and N=4
+    alternatives_discrete = [
+        [(1, 2, 3), (3, 4, 5), (2, 3, 4)],
+        [(2, 3, 4), (1, 2, 3), (3, 4, 5)],
+        [(3, 4, 5), (2, 3, 4), (1, 2, 3)],
+    ]
 
-# Example for discrete case with N=3 and N=4
-alternatives_discrete = [
-    [(1, 2, 3), (3, 4, 5), (2, 3, 4)],
-    [(2, 3, 4), (1, 2, 3), (3, 4, 5)],
-    [(3, 4, 5), (2, 3, 4), (1, 2, 3)],
-]
+    criteria_discrete = ['benefit', 'cost', 'benefit']
+    weights_discrete = [(0.3, 0.6, 0.9), (0.2, 0.5, 0.8), (0.5, 0.8, 1.0)]
 
-criteria_discrete = ['benefit', 'cost', 'benefit']
-weights_discrete = [(0.3, 0.6, 0.9), (0.2, 0.5, 0.8), (0.5, 0.8, 1.0)]
+    ranking_discrete, details_discrete = fuzzy_topsis(alternatives_discrete, criteria_discrete, weights_discrete)
 
-ranking_discrete, details_discrete = fuzzy_topsis(alternatives_discrete, criteria_discrete, weights_discrete)
+    print("\nDiscrete Case Ranking:", ranking_discrete)
+    print("Details (Discrete):", details_discrete)
 
-print("\nDiscrete Case Ranking:", ranking_discrete)
-print("Details (Discrete):", details_discrete)
+    # # Wizualizacja danych dyskretnych
+    # visualize_fuzzy_topsis(alternatives_discrete, details_discrete['closeness'], title="Discrete Alternatives")
 
-# # Wizualizacja danych dyskretnych
-# visualize_fuzzy_topsis(alternatives_discrete, details_discrete['closeness'], title="Discrete Alternatives")
+    alternatives_discrete = [
+        [(1, 2, 3), (1, 2, 3), (1, 2, 3)],
+        [(2, 3, 4), (2, 3, 4), (2, 3, 4)],
+        [(3, 4, 5), (3, 4, 5), (3, 4, 5)],
+        [(4, 5, 6), (4, 5, 6), (4, 5, 6)],
+    ]
 
-alternatives_discrete = [
-    [(1, 2, 3), (1, 2, 3), (1, 2, 3)],
-    [(2, 3, 4), (2, 3, 4), (2, 3, 4)],
-    [(3, 4, 5), (3, 4, 5), (3, 4, 5)],
-    [(4, 5, 6), (4, 5, 6), (4, 5, 6)],
-]
+    criteria_discrete = ['benefit', 'benefit', 'benefit']
+    weights_discrete = [(0.3, 0.6, 0.1), (0.2, 0.5, 0.3), (0.1, 0.8, 0.1), (0.5, 0.2, 0.3)]
 
-criteria_discrete = ['benefit', 'benefit', 'benefit']
-weights_discrete = [(0.3, 0.6, 0.1), (0.2, 0.5, 0.3), (0.1, 0.8, 0.1), (0.5, 0.2, 0.3)]
+    ranking_discrete, details_discrete = fuzzy_topsis(alternatives_discrete, criteria_discrete, weights_discrete)
 
-ranking_discrete, details_discrete = fuzzy_topsis(alternatives_discrete, criteria_discrete, weights_discrete)
-
-print("\nDiscrete Case Ranking:", ranking_discrete)
-print("Details (Discrete):", details_discrete)
+    print("\nDiscrete Case Ranking:", ranking_discrete)
+    print("Details (Discrete):", details_discrete)
 
 
-# Wizualizacja danych dyskretnych
-visualize_fuzzy_topsis(alternatives_discrete, details_discrete['closeness'], title="Discrete Alternatives")
+    # Wizualizacja danych dyskretnych
+    visualize_fuzzy_topsis(alternatives_discrete, details_discrete['closeness'], title="Discrete Alternatives")
 
-alternatives_discrete = [
-    [(1, 2, 3), (1, 2, 3), (1, 2, 3), (1, 2, 3)],
-    [(2, 3, 4), (2, 3, 4), (2, 3, 4), (2, 3, 4)],
-    [(3, 4, 5), (3, 4, 5), (3, 4, 5), (3, 4, 5)],
-    [(4, 5, 6), (4, 5, 6), (4, 5, 6), (4, 5, 6)],
-]
+    alternatives_discrete = [
+        [(1, 2, 3), (1, 2, 3), (1, 2, 3), (1, 2, 3)],
+        [(2, 3, 4), (2, 3, 4), (2, 3, 4), (2, 3, 4)],
+        [(3, 4, 5), (3, 4, 5), (3, 4, 5), (3, 4, 5)],
+        [(4, 5, 6), (4, 5, 6), (4, 5, 6), (4, 5, 6)],
+    ]
 
-# Im większy współczynnik , tym lepsza alternatywa.
-criteria_discrete = ['benefit', 'benefit', 'benefit']
-weights_discrete = [(0.3, 0.6, 0.1), (0.2, 0.5, 0.3), (0.1, 0.8, 0.1), (0.5, 0.2, 0.3)]
+    # Im większy współczynnik , tym lepsza alternatywa.
+    criteria_discrete = ['benefit', 'benefit', 'benefit']
+    weights_discrete = [(0.3, 0.6, 0.1), (0.2, 0.5, 0.3), (0.1, 0.8, 0.1), (0.5, 0.2, 0.3)]
 
-ranking_discrete, details_discrete = fuzzy_topsis(alternatives_discrete, criteria_discrete, weights_discrete)
+    ranking_discrete, details_discrete = fuzzy_topsis(alternatives_discrete, criteria_discrete, weights_discrete)
 
-print("\nDiscrete Case Ranking:", ranking_discrete)
-print("Details (Discrete):", details_discrete)
+    print("\nDiscrete Case Ranking:", ranking_discrete)
+    print("Details (Discrete):", details_discrete)
 
