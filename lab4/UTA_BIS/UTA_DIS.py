@@ -122,26 +122,26 @@ def visualize(data, utilities, criterion1=0, criterion2=1, criterion3=2):
 # Przykład użycia
 if __name__ == "__main__":
     # Macierz alternatyw (wartości dla 3 kryteriów)
-    A = np.array([
-        [12, 0.01024, 24.0646],
-        [1, 0.00026, 62.1609],
-        [4, 0.02004, 24.1212],
-        [1, -0.27064, 23.2374],
-        [2, 0.00476, 0.0327],
-        [1, 0.11461, 33.8748]
-    ])
-
     # A = np.array([
-    #     [12, 12, 12],
-    #     [7, 8, 7],
-    #     [6, 7, 6],
-    #     [5, 6, 5],
-    #     [4, 5, 4],
-    #     [3, 4, 3]
+    #     [12, 0.01024, 24.0646],
+    #     [1, 0.00026, 62.1609],
+    #     [4, 0.02004, 24.1212],
+    #     [1, -0.27064, 23.2374],
+    #     [2, 0.00476, 0.0327],
+    #     [1, 0.11461, 33.8748]
     # ])
 
+    A = np.array([
+        [12, 12, 12],
+        [7, 8, 7],
+        [6, 7, 6],
+        [5, 6, 5],
+        [4, 5, 4],
+        [3, 4, 3]
+    ])
+
     # Maksymalizacja dla 1. i 3. kryterium, minimalizacja dla 2.
-    minmax = [True, False, True]
+    minmax = [False, False, False]
 
     # Wagi kryteriów
     weights = [0.4, 0.3, 0.3]
@@ -152,6 +152,11 @@ if __name__ == "__main__":
     # Klasyfikacja alternatyw do kategorii
     categories, total_utilities = UTA_DIS(A, minmax, weights, thresholds)
     print("\nCałkowite użyteczności alternatyw:")
+    ranking = dict()
+    for num, x in enumerate(total_utilities):
+        ranking[num+1] = float(x)
+
+    print(ranking)
     print(total_utilities)
     print("\nPrzypisane kategorie:")
     print(categories)
