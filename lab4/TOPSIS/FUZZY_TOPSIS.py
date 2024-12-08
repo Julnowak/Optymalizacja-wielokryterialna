@@ -24,10 +24,10 @@ def fuzzy_topsis(alternatives, criteria, weights):
     anti_ideal = []
     for j in range(num_criteria):
         col = [alt[j] for alt in alternatives]
-        if criteria[j] == 'benefit':
+        if criteria[j] is True:
             ideal.append([max(c[0] for c in col), max(c[1] for c in col), max(c[2] for c in col)])
             anti_ideal.append([min(c[0] for c in col), min(c[1] for c in col), min(c[2] for c in col)])
-        elif criteria[j] == 'cost':
+        elif criteria[j] is False:
             ideal.append([min(c[0] for c in col), min(c[1] for c in col), min(c[2] for c in col)])
             anti_ideal.append([max(c[0] for c in col), max(c[1] for c in col), max(c[2] for c in col)])
 
@@ -108,7 +108,7 @@ if __name__ == "__main__":
         [(1, 2, 3), (2, 3, 4), (3, 5, 7), (3, 5, 7)],
     ]
 
-    criteria_continuous = ['benefit', 'cost', 'benefit', 'cost']
+    criteria_continuous = [True, False, True, False,]
     weights_continuous = [(0.2, 0.5, 0.8), (0.3, 0.6, 0.9), (0.4, 0.7, 1.0), (0.1, 0.4, 0.7)]
 
     ranking_continuous, details_continuous = fuzzy_topsis(alternatives_continuous, criteria_continuous, weights_continuous)
@@ -123,7 +123,7 @@ if __name__ == "__main__":
         [(3, 4, 5), (2, 3, 4), (1, 2, 3)],
     ]
 
-    criteria_discrete = ['benefit', 'cost', 'benefit']
+    criteria_discrete = [False, False, False]
     weights_discrete = [(0.3, 0.6, 0.9), (0.2, 0.5, 0.8), (0.5, 0.8, 1.0)]
 
     ranking_discrete, details_discrete = fuzzy_topsis(alternatives_discrete, criteria_discrete, weights_discrete)
@@ -141,7 +141,7 @@ if __name__ == "__main__":
         [(4, 5, 6), (4, 5, 6), (4, 5, 6)],
     ]
 
-    criteria_discrete = ['benefit', 'benefit', 'benefit']
+    criteria_discrete = [False, False, False]
     weights_discrete = [(0.3, 0.6, 0.1), (0.2, 0.5, 0.3), (0.1, 0.8, 0.1), (0.5, 0.2, 0.3)]
 
     ranking_discrete, details_discrete = fuzzy_topsis(alternatives_discrete, criteria_discrete, weights_discrete)
@@ -161,7 +161,7 @@ if __name__ == "__main__":
     ]
 
     # Im większy współczynnik , tym lepsza alternatywa.
-    criteria_discrete = ['benefit', 'benefit', 'benefit']
+    criteria_discrete = [False, False, False]
     weights_discrete = [(0.3, 0.6, 0.1), (0.2, 0.5, 0.3), (0.1, 0.8, 0.1), (0.5, 0.2, 0.3)]
 
     ranking_discrete, details_discrete = fuzzy_topsis(alternatives_discrete, criteria_discrete, weights_discrete)

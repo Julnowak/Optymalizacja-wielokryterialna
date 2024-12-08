@@ -185,7 +185,7 @@ class MainWindow(QMainWindow):
             # ]
 
             title = "FUZZY TOPSIS"
-            criteria_discrete = ['cost', 'cost', 'cost']
+            criteria_discrete = [False, False, False]
             weights_discrete = [(0.3, 0.6, 0.1), (0.2, 0.5, 0.3), (0.1, 0.8, 0.1), (0.5, 0.2, 0.3)]
 
 
