@@ -125,19 +125,22 @@ def rsm_continuous(
 
 # Przykład wariantu ciągłego
 if __name__ == "__main__":
+
     # Dla przestrzeni 3D (dyskretne)
     A_3d = np.array(
-        [
-            [2, 3, 4],
-            [-1, 1, 2],
-            [1, 3, 4],
-            [1, 1, 2],
-            [2, 2, 4],
-            [0, 0, 0],
-        ]
-    )  # Punkty odniesienia (3D)
+        [[2, 3, 4],
+         [-1, 1, 2],
+         [1, 3, 4],
+         [1, 1, 2],
+         [2, 2, 4],
+         [0, 0, 0]])
+     # Punkty odniesienia (3D)
+
     B_3d = np.array(
-        [[3, 4, 5], [5, 1, 2], [1, 2, 3], [3, 3, 4]]
+        [[3, 4, 5],
+         [5, 1, 2],
+         [1, 2, 3],
+         [3, 3, 4]]
     )  # Punkty dopuszczalne (3D)
 
     # Obliczanie punktów i ich odległości

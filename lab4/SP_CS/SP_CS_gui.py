@@ -58,30 +58,31 @@ def determine_status_quo_aspiration(alternatives: List[List[float]], minmax: Lis
         aspiration.append(asp)
     return status_quo, aspiration
 
-def visualize(data, utilities, criterion1=0, criterion2=1, criterion3=2):
-    """
-    Wizualizacja alternatyw w 3D. Zakładamy co najmniej 3 kryteria.
-    """
-    fig = plt.figure(figsize=(10, 8))
-    ax = fig.add_subplot(111, projection='3d')
+# def visualize(data, utilities, criterion1=0, criterion2=1, criterion3=2):
+#     """
+#     Wizualizacja alternatyw w 3D. Zakładamy co najmniej 3 kryteria.
+#     """
+#     fig = plt.figure(figsize=(10, 8))
+#     ax = fig.add_subplot(111, projection='3d')
+#
+#     sc = ax.scatter(
+#         [d[criterion1] for d in data],
+#         [d[criterion2] for d in data],
+#         [d[criterion3] for d in data],
+#         c=utilities,
+#         cmap='viridis',
+#         edgecolor='k',
+#         s=100
+#     )
+#
+#     plt.colorbar(sc, label="S(u)")
+#     ax.set_xlabel(f"Criterion {criterion1 + 1}")
+#     ax.set_ylabel(f"Criterion {criterion2 + 1}")
+#     ax.set_zlabel(f"Criterion {criterion3 + 1}")
+#     ax.set_title("Visualization of Data Points in the Space of Three Criteria")
+#
+#     plt.show()
 
-    sc = ax.scatter(
-        [d[criterion1] for d in data],
-        [d[criterion2] for d in data],
-        [d[criterion3] for d in data],
-        c=utilities,
-        cmap='viridis',
-        edgecolor='k',
-        s=100
-    )
-
-    plt.colorbar(sc, label="S(u)")
-    ax.set_xlabel(f"Criterion {criterion1 + 1}")
-    ax.set_ylabel(f"Criterion {criterion2 + 1}")
-    ax.set_zlabel(f"Criterion {criterion3 + 1}")
-    ax.set_title("Visualization of Data Points in the Space of Three Criteria")
-
-    plt.show()
 
 def sp_cs(
     alternatives: List[List[float]],
@@ -133,14 +134,14 @@ def sp_cs(
     df["S(u)"] = df["S(u)"].apply(lambda x: f"{x:.4f}")
     # Wyświetlenie tabeli w terminalu
     print("\nRanking metodą SP-CS:")
-    print(df.to_string(index=False))
+    # print(df.to_string(index=False))
 
     # Wizualizacja 3D jeśli co najmniej 3 kryteria
-    if len(alternatives[0]) >= 3:
-        # Mapa index->S(u) w kolejności oryginalnych alternatyw
-        su_map = {r[0]: float(r[1]) for r in results}
-        utilities = [su_map[i] for i in range(len(alternatives))]
-        visualize(alternatives, utilities, criterion1=0, criterion2=1, criterion3=2)
+    # if len(alternatives[0]) >= 3:
+    #     # Mapa index->S(u) w kolejności oryginalnych alternatyw
+    #     su_map = {r[0]: float(r[1]) for r in results}
+    #     utilities = [su_map[i] for i in range(len(alternatives))]
+    #     visualize(alternatives, utilities, criterion1=0, criterion2=1, criterion3=2)
 
     return results
 
@@ -154,3 +155,7 @@ if __name__ == "__main__":
         [0.4, 0.6, 0.7]
     ]
     ranking = sp_cs(alternatives_example, minmax_example, metric='euclidean', debug=False)
+
+    print(ranking)
+
+    sorted_ranking = sorted(ranking,)

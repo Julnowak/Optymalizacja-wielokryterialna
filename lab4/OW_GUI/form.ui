@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>1200</width>
+    <height>800</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -88,16 +88,6 @@
         <height>200</height>
        </size>
       </property>
-      <column>
-       <property name="text">
-        <string>Klasa</string>
-       </property>
-      </column>
-      <column>
-       <property name="text">
-        <string>Waga</string>
-       </property>
-      </column>
      </widget>
     </item>
     <item row="0" column="2" colspan="2">
@@ -151,16 +141,6 @@
         <height>200</height>
        </size>
       </property>
-      <column>
-       <property name="text">
-        <string>Nowa kolumna</string>
-       </property>
-      </column>
-      <column>
-       <property name="text">
-        <string>Ranking</string>
-       </property>
-      </column>
      </widget>
     </item>
     <item row="3" column="0" colspan="3">
@@ -170,6 +150,9 @@
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
+      </property>
+      <property name="wordWrap">
+       <bool>true</bool>
       </property>
      </widget>
     </item>
@@ -184,16 +167,9 @@
         <height>200</height>
        </size>
       </property>
-      <column>
-       <property name="text">
-        <string>Kryterium</string>
-       </property>
-      </column>
-      <column>
-       <property name="text">
-        <string>Waga</string>
-       </property>
-      </column>
+      <attribute name="verticalHeaderHighlightSections">
+       <bool>true</bool>
+      </attribute>
      </widget>
     </item>
    </layout>
@@ -203,7 +179,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
+     <width>1200</width>
      <height>21</height>
     </rect>
    </property>
