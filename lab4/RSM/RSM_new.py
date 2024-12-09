@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List, Tuple, Union
 import numpy as np
 from math import sqrt
 import matplotlib
@@ -87,10 +87,10 @@ def rsm_discrete(
 
 def rsm_continuous(
     num_samples: int,
-    bounds: List[Tuple[float, float]],
     reference_points: NDArray[float],
     min_max: List[bool],
     classes,
+    bounds: Union[List[Tuple[float, float]], float] = 0,
 ) -> List[Tuple[List, float]]:
     """
     Reference Set Method (RSM) w wariancie ciągłym.
@@ -101,6 +101,9 @@ def rsm_continuous(
     :return: Zbiór punktów z obliczonymi odległościami do punktu referencyjnego.
     :param classes:
     """
+    if bounds == 0:
+        bounds = [(0, 10) for _ in range(len(min_max))]
+
     reference_points_list = reference_points.tolist()
     samples = [np.linspace(b[0], b[1], num_samples) for b in bounds]
     samples_mesh = np.array(np.meshgrid(*samples)).T.reshape(-1, len(bounds)).tolist()
