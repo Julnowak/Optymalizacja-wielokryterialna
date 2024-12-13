@@ -59,14 +59,12 @@ def rsm_discrete(
     reference_points: NDArray[float],
     decision_points: NDArray[float],
     min_max: List[bool],
-    classes,
-) -> List[Tuple[List, float]]:
+) -> List[Tuple[List, float, int]]:
     """
     Reference Set Method (RSM) w wariancie dyskretnym.
     :param reference_points: punkty referencyjne w przestrzeni kryteriów.
     :param decision_points: punkty decyzyjne
     :param min_max: Lista True (maksymalizacja) lub False (minimalizacja) dla każdego kryterium.
-    :param classes:
     :return: Zbiór punktów z obliczonymi odległościami do punktu referencyjnego.
     """
     reference_points_list = reference_points.tolist()
@@ -82,6 +80,17 @@ def rsm_discrete(
 
     scores.sort(key=lambda x: x[1], reverse=True)
 
+    n = len(scores)
+    threshold_10 = int(n * 0.1)
+    threshold_40 = int(n * 0.4)
+    for idx, (point, score) in enumerate(scores):
+        if idx <= threshold_10:
+            scores[idx] = (point, score, 1)
+        elif idx <= threshold_40:
+            scores[idx] = (point, score, 2)
+        else:
+            scores[idx] = (point, score, 3)
+
     return scores
 
 
@@ -89,9 +98,8 @@ def rsm_continuous(
     num_samples: int,
     reference_points: NDArray[float],
     min_max: List[bool],
-    classes,
     bounds: Union[List[Tuple[float, float]], float] = 0,
-) -> List[Tuple[List, float]]:
+) -> List[Tuple[List, float, int]]:
     """
     Reference Set Method (RSM) w wariancie ciągłym.
     :param num_samples: liczba próbek.
@@ -99,7 +107,6 @@ def rsm_continuous(
     :param min_max: Lista True (maksymalizacja) lub False (minimalizacja) dla każdego kryterium.
     :param reference_points: punkt referencyjny w przestrzeni kryteriów.
     :return: Zbiór punktów z obliczonymi odległościami do punktu referencyjnego.
-    :param classes:
     """
     if bounds == 0:
         bounds = [(0, 10) for _ in range(len(min_max))]
@@ -120,45 +127,43 @@ def rsm_continuous(
 
     scores.sort(key=lambda x: x[1], reverse=True)
 
+    n = len(scores)
+    threshold_10 = int(n * 0.1)
+    threshold_40 = int(n * 0.4)
+    for idx, (point, score) in enumerate(scores):
+        if idx <= threshold_10:
+            scores[idx] = (point, score, 1)
+        elif idx <= threshold_40:
+            scores[idx] = (point, score, 2)
+        else:
+            scores[idx] = (point, score, 3)
+
     return scores
 
 
 # Przykład wariantu ciągłego
 if __name__ == "__main__":
-
     # Dla przestrzeni 3D (dyskretne)
-    A_3d = np.array(
-        [[2, 3, 4],
-         [-1, 1, 2],
-         [1, 3, 4],
-         [1, 1, 2],
-         [2, 2, 4],
-         [0, 0, 0]])
-     # Punkty odniesienia (3D)
+    A_3d = np.array([[2, 3, 4], [-1, 1, 2], [1, 3, 4], [1, 1, 2], [2, 2, 4], [0, 0, 0]])
+    # Punkty odniesienia (3D)
 
     B_3d = np.array(
-        [[3, 4, 5],
-         [5, 1, 2],
-         [1, 2, 3],
-         [3, 3, 4]]
+        [[3, 4, 5], [5, 1, 2], [1, 2, 3], [3, 3, 4]]
     )  # Punkty dopuszczalne (3D)
 
     # Obliczanie punktów i ich odległości
     discrete_results_3d = rsm_discrete(
-        reference_points=A_3d,
-        decision_points=B_3d,
-        min_max=[False, False, False],
-        classes=0,
+        reference_points=A_3d, decision_points=B_3d, min_max=[False, False, False]
     )
-    data, utilities = zip(*discrete_results_3d)
+    data, utilities, class1 = zip(*discrete_results_3d)
     data = np.array(data)
     utilities = np.array(utilities)
 
     visualize(data=data, utilities=utilities)
 
     print("Punkty w wariancie dyskretnym (posortowane według odległości):")
-    for point, score in discrete_results_3d:
-        print(f"Point: {np.round(point, 4)}, Score: {score:.4f}")
+    for point, score, cls in discrete_results_3d:
+        print(f"Point: {np.round(point, 4)}, Score: {score:.4f}, Class: {cls}")
 
     # Dla przestrzeni 3D (ciągłe)
     bounds_continuous_3d = [(0, 10), (5, 15), (1, 5)]  # Granice dla przestrzeni 3D
@@ -169,18 +174,17 @@ if __name__ == "__main__":
         bounds=bounds_continuous_3d,
         reference_points=A_3d_cont,
         min_max=[False, False, False],
-        classes=0,
     )
 
-    data2, utilities2 = zip(*continuous_results_3d)
+    data2, utilities2, class2 = zip(*continuous_results_3d)
     data2 = np.array(data2)
     utilities2 = list(utilities2)
 
     visualize(data=data2, utilities=utilities2)
 
     print("\nPunkty w wariancie ciągłym (posortowane według odległości):")
-    for point, score in continuous_results_3d[:10]:
-        print(f"Point: {np.round(point, 4)}, Score: {score:.4f}")
+    for point, score, cls in continuous_results_3d[:10]:
+        print(f"Point: {np.round(point, 4)}, Score: {score:.4f}, Class: {cls}")
 
     # A_4d = np.array([
     #     [2, 3, 4, 5],
@@ -200,8 +204,7 @@ if __name__ == "__main__":
     # discrete_results_4d = rsm_discrete(
     #     reference_points=A_4d,
     #     decision_points=B_4d,
-    #     min_max=[False, False, False, False],
-    #     classes=0
+    #     min_max=[False, False, False, False]
     # )
     #
     # print("Punkty w wariancie dyskretnym (4D):")
@@ -221,8 +224,7 @@ if __name__ == "__main__":
     #     num_samples=5,
     #     bounds=bounds_continuous_4d,
     #     reference_points=A_4d_cont,
-    #     min_max=[False, False, False, False],
-    #     classes=0
+    #     min_max=[False, False, False, False]
     # )
     #
     # print("\nPunkty w wariancie ciągłym (4D):")
