@@ -12,7 +12,6 @@ from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QMessageBo
 #     pyside6-uic form.ui -o ui_form.py, or
 #     pyside2-uic form.ui -o ui_form.py
 from RSM.RSM_new import rsm_discrete
-from SP_CS.SP_CS import sp_cs_continuous
 from SP_CS.SP_CS_gui import sp_cs
 from TOPSIS.FUZZY_TOPSIS import fuzzy_topsis
 from UTA_BIS.UTA_DIS import UTA_DIS
@@ -47,7 +46,6 @@ class MainWindow(QMainWindow):
         except:
             pass
 
-
         if title == "FUZZY TOPSIS":
             middle_points = [[(l[1]) for l in alt] for alt in data]
             middle_points = np.array(middle_points)
@@ -62,6 +60,7 @@ class MainWindow(QMainWindow):
 
         self.ui.graph.canvas.axes = self.ui.graph.canvas.figure.add_subplot(111, projection='3d')
         # Tworzenie wykresu 3D
+
         scatter = self.ui.graph.canvas.axes.scatter(
             x, y, z,
             c=utilities,
@@ -169,6 +168,24 @@ class MainWindow(QMainWindow):
 
     def startAlgo(self):
 
+        metryka = self.ui.metric_select.currentText()
+        wariant = self.ui.variant_select.currentText()
+        sample_num = int(self.ui.sample_num.text())
+        bounds = (int(self.ui.lower_bound.text()), int(self.ui.upper_bound.text()))
+
+        metrica = None
+        variant = None
+        if metryka == "Euklidesowa":
+            metrica = "euclidean"
+        elif metryka == "Czebyszewa":
+            metrica = "chebyshev"
+
+        if wariant == "Ciągły":
+            variant = "continuous"
+        elif wariant == "Dyskretny":
+            variant = "discrete"
+
+
         if self.ui.criterium_select.currentText() == "FUZZY TOPSIS":
             A = []
             for i in range(self.ui.alternatives_table.rowCount()):
@@ -178,24 +195,27 @@ class MainWindow(QMainWindow):
                     A[i].append((val-1, val, val+1))
 
             # A = [
-            #     [(1, 2, 3), (1, 2, 3), (1, 2, 3)],
-            #     [(2, 3, 4), (2, 3, 4), (2, 3, 4)],
-            #     [(3, 4, 5), (3, 4, 5), (3, 4, 5)],
-            #     [(4, 5, 6), (4, 5, 6), (4, 5, 6)],
+            #     [(1, 2, 3), (3, 4, 5), (2, 3, 4)],
+            #     [(42, 43, 44), (41, 42, 43), (43, 44, 45)],
+            #     [(83, 84, 85), (82, 83, 84), (81, 82, 83)],
             # ]
 
             title = "FUZZY TOPSIS"
-            criteria_discrete = [False, False, False]
-            weights_discrete = [(0.3, 0.6, 0.1), (0.2, 0.5, 0.3), (0.1, 0.8, 0.1), (0.5, 0.2, 0.3)]
+            if self.ui.opti_type.currentText() == "Minimalizacja":
+                criteria_discrete = [False] * len(A[0])
+            else:
+                criteria_discrete = [True] * len(A[0])
 
+            weights_discrete = [(1, 1, 1),
+                                (1, 1, 1),
+                                (1, 1, 1)]
 
-            ranking_discrete, details_discrete = fuzzy_topsis(A, criteria_discrete,
-                                                              weights_discrete)
+            ranking_discrete, details_discrete = fuzzy_topsis(A, criteria_discrete, weights_discrete,
+                                                              variant=variant, metric=metrica, num_samples=sample_num, bounds=[bounds]*len(A))
 
             ranking = dict()
             for i in range(len(ranking_discrete)):
-                ranking[ranking_discrete[i]+1] = float(details_discrete["closeness"][i])
-
+                ranking[ranking_discrete[i]+1] = details_discrete['closeness'][i]
             sorted_ranking = sorted(ranking.items(), key=lambda h: h[1], reverse=True)
 
             print("\nCałkowite użyteczności alternatyw:")
@@ -217,8 +237,12 @@ class MainWindow(QMainWindow):
 
             self.ui.ranking_table.resizeColumnsToContents()
 
-            # print("\nDiscrete Case Ranking:", ranking_discrete)
-            # print("Details (Discrete):", details_discrete)
+            ranks = dict()
+
+            for i in ranking_discrete:
+                ranks[i] = details_discrete['closeness'][i]
+
+            self.visualize(A, details_discrete['closeness'], title=title)
 
         elif self.ui.criterium_select.currentText() == "RSM":
             A_3d = [
@@ -231,11 +255,16 @@ class MainWindow(QMainWindow):
             ]  # Punkty odniesienia (3D)
             B_3d = [[3, 4, 5], [5, 1, 2], [1, 2, 3], [3, 3, 4]]  # Punkty dopuszczalne (3D)
 
+            if self.ui.opti_type.currentText() == "Minimalizacja":
+                criteria = [False] * len(A_3d[0])
+            else:
+                criteria = [True] * len(A_3d[0])
+
             # Obliczanie punktów i ich odległości
             discrete_results_3d = rsm_discrete(
                 reference_points=A_3d,
                 decision_points=B_3d,
-                min_max_criterial=["min", "min", "min"],
+                min_max=criteria,
             )
             data, utilities = zip(*discrete_results_3d)
             data = list(data)
@@ -248,14 +277,21 @@ class MainWindow(QMainWindow):
 
         elif self.ui.criterium_select.currentText() == "SP CS":
             title = "SP CS"
-            minmax_example = [False, False, False]
+
             A = []
             for i in range(self.ui.alternatives_table.rowCount()):
                 A.append([])
                 for j in range(2, self.ui.alternatives_table.columnCount()):
                     A[i].append(float(self.ui.alternatives_table.item(i, j).text()))
-            ranking = sp_cs(A, minmax_example, metric='euclidean', debug=False)
+
+            if self.ui.opti_type.currentText() == "Minimalizacja":
+                minmax_example = [False] * len(A[0])
+            else:
+                minmax_example = [True] * len(A[0])
+
+            ranking = sp_cs(A, minmax_example, metric=metrica, debug=False)
             sorted_ranking = sorted(ranking, key=lambda h: h[1], reverse=True)
+            self.visualize(A, [s[1] for s in sorted_ranking], title=title)
 
         elif self.ui.criterium_select.currentText() == "UTA DIS":
             A = []
@@ -276,7 +312,10 @@ class MainWindow(QMainWindow):
 
             title = "UTA DIS"
             # Maksymalizacja dla 1. i 3. kryterium, minimalizacja dla 2.
-            minmax = [False, False, False]
+            if self.ui.opti_type.currentText() == "Minimalizacja":
+                minmax = [False] * len(A[0])
+            else:
+                minmax = [True] * len(A[0])
 
             # Wagi kryteriów
             weights = [0.4, 0.3, 0.3]
@@ -299,6 +338,7 @@ class MainWindow(QMainWindow):
 
             print("\nPrzypisane kategorie:")
             print(categories)
+            self.visualize(A, [s[1] for s in sorted_ranking], title=title)
 
         num = 0
         for (k, v) in sorted_ranking:
@@ -315,7 +355,6 @@ class MainWindow(QMainWindow):
             QtWidgets.QAbstractScrollArea.AdjustToContents)
 
         self.ui.ranking_table.resizeColumnsToContents()
-        self.visualize(A, [s[1] for s in sorted_ranking], title=title)
 
 
 if __name__ == "__main__":

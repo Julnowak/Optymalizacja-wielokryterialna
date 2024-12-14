@@ -112,6 +112,7 @@ def sp_cs_continuous(
     results = sp_cs_discrete(samples, status_quo, aspiration, minmax, metric, num_t_samples, debug=debug)
     return results, samples
 
+
 def visualize(data, utilities, criterion1=0, criterion2=1, criterion3=2):
     fig = plt.figure(figsize=(10, 8))
     ax = fig.add_subplot(111, projection='3d')  # 3D plot

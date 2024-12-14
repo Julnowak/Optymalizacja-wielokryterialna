@@ -186,47 +186,47 @@ if __name__ == "__main__":
     for point, score, cls in continuous_results_3d[:10]:
         print(f"Point: {np.round(point, 4)}, Score: {score:.4f}, Class: {cls}")
 
-    # A_4d = np.array([
-    #     [2, 3, 4, 5],
-    #     [-1, 1, 2, 3],
-    #     [1, 3, 4, 5],
-    #     [1, 1, 2, 2],
-    #     [2, 2, 4, 5],
-    #     [0, 0, 0, 0],
-    # ])  # Punkty odniesienia (4D)
-    # B_4d = np.array([
-    #     [3, 4, 5, 6],
-    #     [5, 1, 2, 3],
-    #     [1, 2, 3, 4],
-    #     [3, 3, 4, 5],
-    # ])  # Punkty dopuszczalne (4D)
-    #
-    # discrete_results_4d = rsm_discrete(
-    #     reference_points=A_4d,
-    #     decision_points=B_4d,
-    #     min_max=[False, False, False, False]
-    # )
-    #
-    # print("Punkty w wariancie dyskretnym (4D):")
-    # for point, score in discrete_results_4d:
-    #     print(f"Point: {np.round(point, 4)}, Score: {score:.4f}")
-    #
-    # # Dla przestrzeni 4D (ciągłe)
-    # bounds_continuous_4d = [
-    #     (0, 10),
-    #     (5, 15),
-    #     (1, 5),
-    #     (0, 10),
-    # ]  # Granice dla przestrzeni 4D
-    # A_4d_cont = np.array([[0, 0, 0, 0], [5, 5, 5, 5]])  # Punkty odniesienia (4D)
-    #
-    # continuous_results_4d = rsm_continuous(
-    #     num_samples=5,
-    #     bounds=bounds_continuous_4d,
-    #     reference_points=A_4d_cont,
-    #     min_max=[False, False, False, False]
-    # )
-    #
-    # print("\nPunkty w wariancie ciągłym (4D):")
-    # for point, score in continuous_results_4d:
-    #     print(f"Point: {np.round(point, 4)}, Score: {score:.4f}")
+    A_4d = np.array([
+        [2, 3, 4, 5],
+        [-1, 1, 2, 3],
+        [1, 3, 4, 5],
+        [1, 1, 2, 2],
+        [2, 2, 4, 5],
+        [0, 0, 0, 0],
+    ])  # Punkty odniesienia (4D)
+    B_4d = np.array([
+        [3, 4, 5, 6],
+        [5, 1, 2, 3],
+        [1, 2, 3, 4],
+        [3, 3, 4, 5],
+    ])  # Punkty dopuszczalne (4D)
+
+    discrete_results_4d = rsm_discrete(
+        reference_points=A_4d,
+        decision_points=B_4d,
+        min_max=[False, False, False, False]
+    )
+
+    print("Punkty w wariancie dyskretnym (4D):")
+    for point, score in discrete_results_4d:
+        print(f"Point: {np.round(point, 4)}, Score: {score:.4f}")
+
+    # Dla przestrzeni 4D (ciągłe)
+    bounds_continuous_4d = [
+        (0, 10),
+        (5, 15),
+        (1, 5),
+        (0, 10),
+    ]  # Granice dla przestrzeni 4D
+    A_4d_cont = np.array([[0, 0, 0, 0], [5, 5, 5, 5]])  # Punkty odniesienia (4D)
+
+    continuous_results_4d = rsm_continuous(
+        num_samples=5,
+        bounds=bounds_continuous_4d,
+        reference_points=A_4d_cont,
+        min_max=[False, False, False, False]
+    )
+
+    print("\nPunkty w wariancie ciągłym (4D):")
+    for point, score in continuous_results_4d:
+        print(f"Point: {np.round(point, 4)}, Score: {score:.4f}")

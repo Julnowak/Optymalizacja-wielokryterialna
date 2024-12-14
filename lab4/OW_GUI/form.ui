@@ -15,161 +15,323 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
-    <item row="1" column="3" colspan="3">
-     <widget class="QLabel" name="label_2">
-      <property name="text">
-       <string>Klasy</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="0" colspan="3">
-     <widget class="QLabel" name="label">
-      <property name="text">
-       <string>Alternatywy z kryteriami</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="5">
-     <widget class="QPushButton" name="start_btn">
-      <property name="minimumSize">
-       <size>
-        <width>150</width>
-        <height>40</height>
-       </size>
-      </property>
-      <property name="text">
-       <string>Stwórz ranking</string>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="1">
-     <spacer name="horizontalSpacer">
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-      <property name="sizeType">
-       <enum>QSizePolicy::Fixed</enum>
-      </property>
-      <property name="sizeHint" stdset="0">
-       <size>
-        <width>100</width>
-        <height>20</height>
-       </size>
-      </property>
-     </spacer>
-    </item>
-    <item row="0" column="4">
-     <spacer name="horizontalSpacer_2">
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-      <property name="sizeType">
-       <enum>QSizePolicy::Fixed</enum>
-      </property>
-      <property name="sizeHint" stdset="0">
-       <size>
-        <width>100</width>
-        <height>20</height>
-       </size>
-      </property>
-     </spacer>
-    </item>
-    <item row="2" column="3" colspan="3">
-     <widget class="QTableWidget" name="class_table">
-      <property name="minimumSize">
-       <size>
-        <width>0</width>
-        <height>200</height>
-       </size>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="2" colspan="2">
-     <widget class="QComboBox" name="criterium_select">
-      <property name="minimumSize">
-       <size>
-        <width>300</width>
-        <height>0</height>
-       </size>
-      </property>
-      <item>
-       <property name="text">
-        <string>FUZZY TOPSIS</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>UTA DIS</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>SP CS</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>RSM</string>
-       </property>
-      </item>
-     </widget>
-    </item>
     <item row="0" column="0">
-     <widget class="QPushButton" name="load_btn">
-      <property name="minimumSize">
-       <size>
-        <width>150</width>
-        <height>40</height>
-       </size>
+     <widget class="QTabWidget" name="tabWidget">
+      <property name="currentIndex">
+       <number>0</number>
       </property>
-      <property name="text">
-       <string>Wczytaj dane z pliku</string>
-      </property>
-     </widget>
-    </item>
-    <item row="4" column="0" colspan="3">
-     <widget class="QTableWidget" name="ranking_table">
-      <property name="minimumSize">
-       <size>
-        <width>0</width>
-        <height>200</height>
-       </size>
-      </property>
-     </widget>
-    </item>
-    <item row="3" column="0" colspan="3">
-     <widget class="QLabel" name="label_3">
-      <property name="text">
-       <string>Stworzony ranking</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
-      </property>
-      <property name="wordWrap">
-       <bool>true</bool>
-      </property>
-     </widget>
-    </item>
-    <item row="4" column="3" colspan="3">
-     <widget class="plotwidget" name="graph" native="true"/>
-    </item>
-    <item row="2" column="0" colspan="3">
-     <widget class="QTableWidget" name="alternatives_table">
-      <property name="minimumSize">
-       <size>
-        <width>0</width>
-        <height>200</height>
-       </size>
-      </property>
-      <attribute name="verticalHeaderHighlightSections">
-       <bool>true</bool>
-      </attribute>
+      <widget class="QWidget" name="tab">
+       <attribute name="title">
+        <string>Ustawienia</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout_2">
+        <item row="0" column="0">
+         <widget class="QPushButton" name="load_btn">
+          <property name="minimumSize">
+           <size>
+            <width>150</width>
+            <height>40</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Wczytaj dane z pliku</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Fixed</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>100</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="0" column="2" colspan="2">
+         <widget class="QComboBox" name="criterium_select">
+          <property name="minimumSize">
+           <size>
+            <width>300</width>
+            <height>0</height>
+           </size>
+          </property>
+          <item>
+           <property name="text">
+            <string>FUZZY TOPSIS</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>UTA DIS</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>SP CS</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>RSM</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item row="0" column="4">
+         <spacer name="horizontalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Fixed</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>100</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="0" column="5">
+         <widget class="QPushButton" name="start_btn">
+          <property name="minimumSize">
+           <size>
+            <width>150</width>
+            <height>40</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Stwórz ranking</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0" colspan="3">
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>Alternatywy z kryteriami</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="3" colspan="3">
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string>Klasy</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0" colspan="3">
+         <widget class="QTableWidget" name="alternatives_table">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>200</height>
+           </size>
+          </property>
+          <attribute name="verticalHeaderHighlightSections">
+           <bool>true</bool>
+          </attribute>
+         </widget>
+        </item>
+        <item row="2" column="3" colspan="3">
+         <widget class="QTableWidget" name="class_table">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>200</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0" rowspan="2" colspan="6">
+         <widget class="QGroupBox" name="groupBox">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>200</height>
+           </size>
+          </property>
+          <property name="title">
+           <string>Parametry specyficzne dla algorytmów:</string>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_5">
+           <item row="1" column="1">
+            <widget class="QSpinBox" name="lower_bound"/>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_9">
+             <property name="text">
+              <string>Granice:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="4">
+            <widget class="QSpinBox" name="sample_num">
+             <property name="minimum">
+              <number>1</number>
+             </property>
+             <property name="value">
+              <number>5</number>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="2">
+            <widget class="QSpinBox" name="upper_bound">
+             <property name="value">
+              <number>10</number>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1" colspan="2">
+            <widget class="QComboBox" name="variant_select">
+             <item>
+              <property name="text">
+               <string>Ciągły</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Dyskretny</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item row="1" column="3">
+            <widget class="QLabel" name="label_11">
+             <property name="text">
+              <string>Liczba próbek:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_8">
+             <property name="text">
+              <string>Wariant:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="4">
+            <widget class="QComboBox" name="metric_select">
+             <item>
+              <property name="text">
+               <string>Euklidesowa</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Czebyszewa</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item row="0" column="3">
+            <widget class="QLabel" name="label_10">
+             <property name="text">
+              <string>Miara:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_4">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>30</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Typ:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QComboBox" name="opti_type">
+             <item>
+              <property name="text">
+               <string>Minimalizacja</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Maksymalizacja</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tab_2">
+       <attribute name="title">
+        <string>Wyniki</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout_4">
+        <item row="0" column="1">
+         <widget class="QLabel" name="label_3">
+          <property name="text">
+           <string>Stworzony ranking</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+          <property name="wordWrap">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_7">
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>50</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Wykres</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QTableWidget" name="ranking_table">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>200</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0" rowspan="2">
+         <widget class="plotwidget" name="graph" native="true">
+          <property name="minimumSize">
+           <size>
+            <width>600</width>
+            <height>0</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
      </widget>
     </item>
    </layout>

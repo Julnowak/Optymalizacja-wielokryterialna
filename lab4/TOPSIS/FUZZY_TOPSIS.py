@@ -10,7 +10,8 @@ def fuzzy_topsis(
     weights,
     variant="continuous",  # Określamy typ wariantu: "continuous" lub "discrete"
     num_samples=0,
-    bounds=None
+    bounds=None,
+    metric="euclidean"
 ):
     """
     Fuzzy TOPSIS Algorithm.
@@ -26,7 +27,7 @@ def fuzzy_topsis(
 
     def normalize_fuzzy(value, ideal):
         """Normalize a fuzzy value based on ideal solution."""
-        return [(value[0] / ideal[2]), (value[1] / ideal[1]), (value[2] / ideal[0])]
+        return [(value[0] / ideal[0]), (value[1] / ideal[1]), (value[2] / ideal[2])]
 
     # Calculate fuzzy ideal and anti-ideal solutions
     ideal = []
@@ -40,32 +41,54 @@ def fuzzy_topsis(
             ideal.append([min(c[0] for c in col), min(c[1] for c in col), min(c[2] for c in col)])
             anti_ideal.append([max(c[0] for c in col), max(c[1] for c in col), max(c[2] for c in col)])
 
+    print(ideal)
+    print(anti_ideal)
+
     # Normalize alternatives
     normalized = [
         [normalize_fuzzy(alt[j], ideal[j]) for j in range(num_criteria)]
         for alt in alternatives
     ]
 
+    print(ideal)
+    ideal = [
+        [1.0 for _ in range(num_criteria)] for _ in ideal
+    ]
+
+    print(normalized)
+
     # Weighted normalized fuzzy decision matrix
     weighted = [
-        [[val[0] * weights[j][0], val[1] * weights[j][1], val[2] * weights[j][2]] for j, val in enumerate(alt)]
+        [[val[k] * weights[j][k] for k in range(3)] for j, val in enumerate(alt)]
         for alt in normalized
     ]
 
-    # Distance to fuzzy ideal and anti-ideal solutions
-    def fuzzy_distance(val, ref):
-        """Calculate fuzzy distance."""
-        return np.sqrt(sum((val[k] - ref[k]) ** 2 for k in range(3)))
+    print(weighted)
 
-    distances_ideal = [sum(fuzzy_distance(val, ideal[j]) for j, val in enumerate(alt)) for alt in weighted]
-    distances_anti_ideal = [sum(fuzzy_distance(val, anti_ideal[j]) for j, val in enumerate(alt)) for alt in weighted]
+    # Distance to fuzzy ideal and anti-ideal solutions
+    def fuzzy_distance(val, ref, met="euclidean"):
+        """Calculate fuzzy distance."""
+        if met == 'euclidean':
+            return np.sqrt(sum((val[k] - ref[k]) ** 2 for k in range(3)))
+        elif met == 'chebyshev':
+            return max((abs(val[k] - ref[k]) ** 2 for k in range(3)))
+        else:
+            raise ValueError("Unknown metric")
+
+    distances_ideal = [sum(fuzzy_distance(val, ideal[j], metric) for j, val in enumerate(alt)) for alt in weighted]
+
+    print(distances_ideal)
+
+    distances_anti_ideal = [sum(fuzzy_distance(val, anti_ideal[j], metric) for j, val in enumerate(alt)) for alt in weighted]
 
     # Calculate closeness coefficient
     closeness = [dist_anti / (dist_anti + dist_ideal) for dist_anti, dist_ideal in zip(distances_anti_ideal, distances_ideal)]
 
-    # Generate points for the continuous variant if needed
+    print(closeness)
+
     if variant == "continuous" and bounds is not None and num_samples > 0:
         samples = [np.linspace(b[0], b[1], num_samples) for b in bounds]
+        print(samples)
         samples_mesh = np.array(np.meshgrid(*samples)).T.reshape(-1, len(bounds)).tolist()
 
         # Calculate distances for continuous points
@@ -73,16 +96,9 @@ def fuzzy_topsis(
         for point in samples_mesh:
             d_plus = min([fuzzy_distance(point, r_plus) for r_plus in ideal])
             d_minus = min([fuzzy_distance(point, r_minus) for r_minus in anti_ideal])
-            continuous_scores.append((point, d_minus - d_plus))
+            continuous_scores.append(d_minus / (d_minus + d_plus))
 
-        continuous_scores.sort(key=lambda x: x[1], reverse=True)
-        return continuous_scores, {
-        "normalized": normalized,
-        "weighted": weighted,
-        "distances_ideal": distances_ideal,
-        "distances_anti_ideal": distances_anti_ideal,
-        "closeness": closeness,
-    }
+        closeness = continuous_scores
 
     # Return ranking for the discrete variant
     ranking = np.argsort(closeness)[::-1]
@@ -107,8 +123,8 @@ def visualize_fuzzy_topsis(alternatives, closeness, title="Fuzzy TOPSIS Ranking"
     middle_points = np.array(middle_points)
 
     # Sort by closeness coefficients (for coloring)
-    ranking_order = np.argsort(closeness)[::-1]
-    colors = plt.cm.viridis(np.linspace(0, 1, len(alternatives)))[ranking_order]
+    ranking_order = list(closeness.keys())
+    colors = plt.cm.viridis_r(np.linspace(0, 1, len(alternatives)))[ranking_order]
 
     # 3D scatter plot
     fig = plt.figure()
@@ -118,7 +134,7 @@ def visualize_fuzzy_topsis(alternatives, closeness, title="Fuzzy TOPSIS Ranking"
         ax.scatter(
             point[0], point[1], point[2],
             color=color,
-            label=f"Alternative {i + 1} (Rank: {ranking_order.tolist().index(i) + 1})"
+            label=f"Alternative {i + 1} (Rank: {ranking_order[i] + 1})"
         )
 
     ax.set_title(title)
@@ -138,35 +154,52 @@ if __name__ == "__main__":
         [(3, 5, 7), (3, 5, 7), (1, 3, 5), (2, 4, 6)],
         [(1, 2, 3), (2, 3, 4), (3, 5, 7), (3, 5, 7)],
     ]
+    alternatives_continuous = [
+        [(1, 3, 5), (2, 4, 6), (3, 5, 7), (1, 2, 3)],
+        [(22, 24, 26), (21, 23, 25), (22, 24, 26), (22, 23, 24)],
+        [(43, 45, 47), (43, 45, 47), (41, 43, 45), (42, 44, 46)],
+        [(71, 72, 73), (72, 73, 74), (73, 75, 77), (73, 75, 77)],
+    ]
 
     criteria_continuous = [False, False, False, False]
-    weights_continuous = [(0.2, 0.5, 0.8),
-                          (0.3, 0.6, 0.9),
-                          (0.4, 0.7, 1.0),
-                          (0.1, 0.4, 0.7)]
+    # criteria_continuous = [True] *4
+    weights_continuous = [(1.0, 1.0, 1.0),
+                          (1.0, 1.0, 1.0),
+                          (1.0, 1.0, 1.0),
+                          (1.0, 1.0, 1.0)]
 
     ranking_continuous, details_continuous = fuzzy_topsis(alternatives_continuous, criteria_continuous, weights_continuous, variant="continuous", num_samples=5, bounds=[(0, 10), (0, 10), (0, 10), (0, 10)])
 
+    ranks = dict()
+    for i in ranking_continuous:
+        ranks[i] = details_continuous['closeness'][i]
+
     print("Continuous Case Ranking:", ranking_continuous)
     print("Details (Continuous):", details_continuous)
-    visualize_fuzzy_topsis(alternatives_continuous, details_continuous['closeness'], title="Discrete Alternatives")
+    visualize_fuzzy_topsis(alternatives_continuous, ranks, title="Discrete Alternatives")
 
     # Example for discrete case with N=3 and N=4
     alternatives_discrete = [
         [(1, 2, 3), (3, 4, 5), (2, 3, 4)],
-        [(2, 3, 4), (1, 2, 3), (3, 4, 5)],
-        [(3, 4, 5), (2, 3, 4), (1, 2, 3)],
+        [(42, 43, 44), (41, 42, 43), (43, 44, 45)],
+        [(83, 84, 85), (82, 83, 84), (81, 82, 83)],
     ]
 
+    criteria_discrete = [True, True, True]
     criteria_discrete = [False, False, False]
-    weights_discrete = [(0.3, 0.6, 0.9),
-                        (0.2, 0.5, 0.8),
-                        (0.5, 0.8, 1.0)]
+    weights_discrete = [(1.0, 1.0, 1.0),
+                        (1.0, 1.0, 1.0),
+                        (1.0, 1.0, 1.0)]
 
     ranking_discrete, details_discrete = fuzzy_topsis(alternatives_discrete, criteria_discrete, weights_discrete, variant="discrete")
 
     print("\nDiscrete Case Ranking:", ranking_discrete)
     print("Details (Discrete):", details_discrete)
 
+    ranks = dict()
+
+    for i in ranking_discrete:
+        ranks[i] = details_discrete['closeness'][i]
+
     # Visualize discrete data
-    visualize_fuzzy_topsis(alternatives_discrete, details_discrete['closeness'], title="Discrete Alternatives")
+    visualize_fuzzy_topsis(alternatives_discrete, ranks, title="Discrete Alternatives")
