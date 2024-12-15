@@ -69,11 +69,11 @@ class MainWindow(QMainWindow):
         max_val = max(utilities)
 
         # Scale the values
-        scaled_values = [(v - min_val) / (max_val - min_val) for v in utilities]
-        print(scaled_values)
+        # scaled_values = [(v - min_val) / (max_val - min_val) for v in utilities]
+        # print(scaled_values)
         scatter = self.ui.graph.canvas.axes.scatter(
             x, y, z,
-            c=scaled_values,
+            c=utilities,
             cmap='viridis',
             edgecolor='k',
             s=100
@@ -91,8 +91,7 @@ class MainWindow(QMainWindow):
         # Aktualizacja płótna (canvas)
         self.ui.graph.canvas.draw()
 
-
-    def visualize_continuous(self, data, utilities, title="Tytuł"):
+    def visualize(self, data, utilities, title="Tytuł"):
         """
         Wizualizacja alternatyw w 3D w PySide6. Zakładamy co najmniej 3 kryteria.
         """
@@ -121,9 +120,15 @@ class MainWindow(QMainWindow):
             colors = [cmap(norm(utilities[sorted_indices[i]])) for i in range(len(sorted_indices))]
         else:
             # Tworzenie danych do wizualizacji
-            x = [d[0] for d in data]
-            y = [d[1] for d in data]
-            z = [d[2] for d in data]
+            middle_points = data
+            sorted_indices = np.argsort(list(utilities.values()))[::-1]
+
+            # Normalize closeness values to use the full color scale
+            norm = Normalize(vmin=min(utilities.values()), vmax=max(utilities.values()))
+            cmap = cm.viridis  # Using the reversed viridis color map
+
+            # Generate colors based on the normalized closeness values
+            colors = [cmap(norm(utilities[sorted_indices[i]])) for i in range(len(sorted_indices))]
 
         self.ui.graph.canvas.axes = self.ui.graph.canvas.figure.add_subplot(111, projection='3d')
         # Tworzenie wykresu 3D
@@ -251,6 +256,8 @@ class MainWindow(QMainWindow):
             variant = "discrete"
 
         if self.ui.criterium_select.currentText() == "FUZZY TOPSIS":
+            title = "FUZZY TOPSIS"
+
             A = []
             for i in range(self.ui.alternatives_table.rowCount()):
                 A.append([])
@@ -258,7 +265,7 @@ class MainWindow(QMainWindow):
                     val = float(self.ui.alternatives_table.item(i, j).text())
                     A[i].append((val-1, val, val+1))
             weights_discrete = [(1, 1, 1)]* len(A[0])
-            title = "FUZZY TOPSIS"
+
             if variant == "continuous":
                 if self.ui.opti_type.currentText() == "Minimalizacja":
                     criteria_discrete = [False] * len(A[0])
@@ -312,8 +319,7 @@ class MainWindow(QMainWindow):
                     [(71, 72, 73), (72, 73, 74), (73, 75, 77), (73, 75, 77)],
                 ]
 
-                criteria_continuous = [False, False, False, False]
-                # criteria_continuous = [True] *4
+                criteria = [False] * len(A[0])
                 weights_continuous = [(1.0, 1.0, 1.0)] * len(A[0])
 
                 ranking_continuous, details_discrete = fuzzy_topsis(A, criteria_discrete,
@@ -324,7 +330,7 @@ class MainWindow(QMainWindow):
                 for i in ranking_continuous:
                     ranks[i] = details_discrete['closeness'][i]
 
-                self.visualize_continuous(details_discrete["samples"], ranks, title=title)
+                self.visualize(details_discrete["samples"], ranks, title=title)
 
             elif variant == "discrete":
                 self.visualize_discrete(A, details_discrete['closeness'], title=title)
@@ -376,15 +382,11 @@ class MainWindow(QMainWindow):
                     min_max=criteria,
                 )
 
-            self.visualize_discrete([v[0] for v in results], [v[1] for v in results], title=title)
+            d = dict()
+            for idx, v in enumerate(results):
+                d[idx] = v[1]
+            self.visualize([v[0] for v in results], d, title=title)
             print(results)
-
-            # results_with_original_idx = []
-            #
-            # ranking = dict()
-            # for idx, i in enumerate(results):
-            #     ranking[idx] = i[1]
-            # sorted_ranking = sorted(ranking.items(), key=lambda h: h[1], reverse=True)
 
             num = 0
             for idx, (point, score, cls) in enumerate(results):
@@ -434,6 +436,8 @@ class MainWindow(QMainWindow):
 
         elif self.ui.criterium_select.currentText() == "UTA DIS":
 
+            title = "UTA DIS"
+
             A = []
             for i in range(self.ui.alternatives_table.rowCount()):
                 A.append([])
@@ -441,7 +445,7 @@ class MainWindow(QMainWindow):
                     A[i].append(float(self.ui.alternatives_table.item(i, j).text()))
             A = np.array(A)
 
-            title = "UTA DIS"
+
             # Maksymalizacja dla 1. i 3. kryterium, minimalizacja dla 2.
             if self.ui.opti_type.currentText() == "Minimalizacja":
                 minmax = [False] * len(A[0])
@@ -457,6 +461,17 @@ class MainWindow(QMainWindow):
             # Klasyfikacja alternatyw do kategorii
             if variant == "discrete":
                 categories, total_utilities, _ = UTA_DIS(A, minmax, weights, thresholds, continuous=False)
+                ranking = dict()
+                for num, x in enumerate(total_utilities):
+                    ranking[num] = float(x)
+
+                sorted_ranking = sorted(ranking.items(), key=lambda h: h[1], reverse=True)
+
+                print("\nCałkowite użyteczności alternatyw:")
+                print(total_utilities)
+                print(sorted_ranking)
+
+                self.visualize(A, ranking, title=title)
             else:
                 weights = [1.0] * 4
                 if self.ui.opti_type.currentText() == "Minimalizacja":
@@ -465,20 +480,16 @@ class MainWindow(QMainWindow):
                     minmax = [True] * 4
                 thresholds = [0.3, 0.5, 0.7, 1.0]
                 categories, total_utilities, A = UTA_DIS(A, minmax, weights, thresholds, continuous=True, bounds=[bounds]*4, num_samples=sample_num)
+                ranking = dict()
+                for num, x in enumerate(total_utilities):
+                    ranking[num] = float(x)
 
-            ranking = dict()
-            for num, x in enumerate(total_utilities):
-                ranking[num + 1] = float(x)
+                sorted_ranking = sorted(ranking.items(), key=lambda h: h[1], reverse=True)
 
-            sorted_ranking = sorted(ranking.items(), key=lambda h: h[1], reverse=True)
-
-            print("\nCałkowite użyteczności alternatyw:")
-            print(total_utilities)
-            print(sorted_ranking)
-
-            print("\nPrzypisane kategorie:")
-            print(categories)
-            self.visualize_discrete(A, [s[1] for s in sorted_ranking], title=title)
+                print("\nCałkowite użyteczności alternatyw:")
+                print(total_utilities)
+                print(sorted_ranking)
+                self.visualize(A, ranking, title=title)
 
             num = 0
             for (k, v) in sorted_ranking:

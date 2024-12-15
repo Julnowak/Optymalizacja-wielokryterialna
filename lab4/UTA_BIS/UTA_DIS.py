@@ -144,6 +144,7 @@ if __name__ == "__main__":
 
     # Define minmax for criteria: True for maximization, False for minimization
     minmax = [True, True, True]
+    minmax = [False]*3
 
     # Weights for each criterion
     weights = [0.5, 0.3, 0.2]

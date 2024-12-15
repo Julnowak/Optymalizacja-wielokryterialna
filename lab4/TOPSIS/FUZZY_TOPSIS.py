@@ -112,6 +112,7 @@ def fuzzy_topsis(
         samples = [[(s-1, s, s+1) for s in sam] for sam in samples_mesh]
 
 
+
     # Return ranking for the discrete variant
     ranking = np.argsort(closeness)[::-1]
     return ranking, {
