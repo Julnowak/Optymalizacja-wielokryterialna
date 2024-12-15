@@ -16,7 +16,7 @@ from matplotlib import cm
 from matplotlib.colors import Normalize
 
 from RSM.RSM_new import rsm_discrete, rsm_continuous
-from SP_CS.SP_CS_gui import sp_cs
+from SP_CS.SP_CS_gui import sp_cs_discrete, sp_cs_continuous
 from TOPSIS.FUZZY_TOPSIS import fuzzy_topsis
 from UTA_BIS.UTA_DIS import UTA_DIS
 from ui_form import Ui_MainWindow
@@ -407,8 +407,33 @@ class MainWindow(QMainWindow):
             self.ui.ranking_table.resizeColumnsToContents()
 
         elif self.ui.criterium_select.currentText() == "SP CS":
+            # title = "SP CS"
+            #
+            # A = []
+            # for i in range(self.ui.alternatives_table.rowCount()):
+            #     A.append([])
+            #     for j in range(2, self.ui.alternatives_table.columnCount()):
+            #         A[i].append(float(self.ui.alternatives_table.item(i, j).text()))
+            #
+            # if self.ui.opti_type.currentText() == "Minimalizacja":
+            #     minmax_example = [False] * len(A[0])
+            # else:
+            #     minmax_example = [True] * len(A[0])
+            #
+            # ranking = sp_cs(A, minmax_example, metric=metrica, debug=False)
+            # print(ranking)
+            # sorted_ranking = sorted(ranking, key=lambda h: h[1], reverse=True)
+            # self.visualize_discrete(A, [s[1] for s in sorted_ranking], title=title)
+            #
+            # num = 0
+            # for (k, v) in sorted_ranking:
+            #     self.ui.ranking_table.setRowCount(len(sorted_ranking))
+            #     self.ui.ranking_table.setColumnCount(2)
+            #
+            #     self.ui.ranking_table.setItem(num, 0, QTableWidgetItem(str(k+1)))
+            #     self.ui.ranking_table.setItem(num, 1, QTableWidgetItem(str(v)))
+            #     num += 1
             title = "SP CS"
-
             A = []
             for i in range(self.ui.alternatives_table.rowCount()):
                 A.append([])
@@ -420,19 +445,53 @@ class MainWindow(QMainWindow):
             else:
                 minmax_example = [True] * len(A[0])
 
-            ranking = sp_cs(A, minmax_example, metric=metrica, debug=False)
-            print(ranking)
-            sorted_ranking = sorted(ranking, key=lambda h: h[1], reverse=True)
-            self.visualize_discrete(A, [s[1] for s in sorted_ranking], title=title)
+            metrica = "euclidean" if self.ui.metric_select.currentText() == "Euklidesowa" else "chebyshev"
+            variant = self.ui.variant_select.currentText()  # "Dyskretny" lub "Ciągły"
+            sample_num = int(self.ui.sample_num.text())
+            lower_bound = int(self.ui.lower_bound.text())
+            upper_bound = int(self.ui.upper_bound.text())
 
-            num = 0
-            for (k, v) in sorted_ranking:
+            if variant == "Dyskretny":
+                # Dyskretny wariant SP-CS
+                ranking = sp_cs_discrete(A, minmax_example, metric=metrica, debug=False)
+                # ranking to [(index, S(u))]
+                sorted_ranking = sorted(ranking, key=lambda h: h[1], reverse=False)
+
+                # visualize_discrete oczekuje listy alternatyw (A) i listy wartości S(u)
+                utilities_list = [v for (k, v) in sorted_ranking]
+                self.visualize_discrete(A, utilities_list, title=title)
+
+                num = 0
                 self.ui.ranking_table.setRowCount(len(sorted_ranking))
                 self.ui.ranking_table.setColumnCount(2)
+                for (k, v) in sorted_ranking:
+                    self.ui.ranking_table.setItem(num, 0, QTableWidgetItem(str(k + 1)))
+                    self.ui.ranking_table.setItem(num, 1, QTableWidgetItem(f"{v:.4f}"))
+                    num += 1
+                self.ui.ranking_table.setHorizontalHeaderLabels(["Nr alternatywy", "Wynik"])
+                self.ui.ranking_table.resizeColumnsToContents()
 
-                self.ui.ranking_table.setItem(num, 0, QTableWidgetItem(str(k+1)))
-                self.ui.ranking_table.setItem(num, 1, QTableWidgetItem(str(v)))
-                num += 1
+            elif variant == "Ciągły":
+                # Ciągły wariant SP-CS
+                bounds = [(lower_bound, upper_bound)] * len(A[0])
+                results, samples = sp_cs_continuous(bounds, minmax_example, metric=metrica, num_samples=sample_num,
+                                                    debug=False)
+                sorted_ranking = sorted(results, key=lambda h: h[1], reverse=False)
+
+                # visualize oczekuje danych i słownika {indeks: wartość}
+                utilities_dict = {k: v for (k, v) in sorted_ranking}
+                self.visualize(samples, utilities_dict, title=title)
+
+                num = 0
+                self.ui.ranking_table.setRowCount(len(sorted_ranking))
+                self.ui.ranking_table.setColumnCount(2)
+                for (k, v) in sorted_ranking:
+                    self.ui.ranking_table.setItem(num, 0, QTableWidgetItem(str(k + 1)))
+                    self.ui.ranking_table.setItem(num, 1, QTableWidgetItem(f"{v:.4f}"))
+                    num += 1
+                self.ui.ranking_table.setHorizontalHeaderLabels(["Nr alternatywy", "Wynik"])
+                self.ui.ranking_table.resizeColumnsToContents()
+
 
         elif self.ui.criterium_select.currentText() == "UTA DIS":
 
