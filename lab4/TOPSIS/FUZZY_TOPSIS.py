@@ -1,5 +1,8 @@
 import numpy as np
 import matplotlib
+from matplotlib import cm
+from matplotlib.colors import Normalize
+
 matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 
@@ -27,7 +30,21 @@ def fuzzy_topsis(
 
     def normalize_fuzzy(value, ideal):
         """Normalize a fuzzy value based on ideal solution."""
-        return [(value[0] / ideal[0]), (value[1] / ideal[1]), (value[2] / ideal[2])]
+        try:
+            v1 = (value[0] / ideal[0])
+        except:
+            v1 = (value[0] / 0.00000001)
+
+        try:
+            v2 = (value[1] / ideal[1])
+        except:
+            v2 = (value[1] / 0.00000001)
+
+        try:
+            v3 = (value[2] / ideal[2])
+        except:
+            v3 = (value[2] / 0.00000001)
+        return [v1, v2, v3]
 
     # Calculate fuzzy ideal and anti-ideal solutions
     ideal = []
@@ -63,8 +80,6 @@ def fuzzy_topsis(
         for alt in normalized
     ]
 
-    print(weighted)
-
     # Distance to fuzzy ideal and anti-ideal solutions
     def fuzzy_distance(val, ref, met="euclidean"):
         """Calculate fuzzy distance."""
@@ -77,18 +92,13 @@ def fuzzy_topsis(
 
     distances_ideal = [sum(fuzzy_distance(val, ideal[j], metric) for j, val in enumerate(alt)) for alt in weighted]
 
-    print(distances_ideal)
-
     distances_anti_ideal = [sum(fuzzy_distance(val, anti_ideal[j], metric) for j, val in enumerate(alt)) for alt in weighted]
 
     # Calculate closeness coefficient
     closeness = [dist_anti / (dist_anti + dist_ideal) for dist_anti, dist_ideal in zip(distances_anti_ideal, distances_ideal)]
-
-    print(closeness)
-
+    samples = None
     if variant == "continuous" and bounds is not None and num_samples > 0:
         samples = [np.linspace(b[0], b[1], num_samples) for b in bounds]
-        print(samples)
         samples_mesh = np.array(np.meshgrid(*samples)).T.reshape(-1, len(bounds)).tolist()
 
         # Calculate distances for continuous points
@@ -99,6 +109,8 @@ def fuzzy_topsis(
             continuous_scores.append(d_minus / (d_minus + d_plus))
 
         closeness = continuous_scores
+        samples = [[(s-1, s, s+1) for s in sam] for sam in samples_mesh]
+
 
     # Return ranking for the discrete variant
     ranking = np.argsort(closeness)[::-1]
@@ -108,6 +120,7 @@ def fuzzy_topsis(
         "distances_ideal": distances_ideal,
         "distances_anti_ideal": distances_anti_ideal,
         "closeness": closeness,
+        "samples": samples
     }
 
 
@@ -120,29 +133,39 @@ def visualize_fuzzy_topsis(alternatives, closeness, title="Fuzzy TOPSIS Ranking"
     """
     # Extract middle points (m values) for visualization
     middle_points = [[(l[1]) for l in alt] for alt in alternatives]
-    middle_points = np.array(middle_points)
 
-    # Sort by closeness coefficients (for coloring)
-    ranking_order = list(closeness.keys())
-    colors = plt.cm.viridis_r(np.linspace(0, 1, len(alternatives)))[ranking_order]
+    # Sort alternatives by closeness coefficients in descending order
+    sorted_indices = np.argsort(list(closeness.values()))[::-1]
+
+
+    # Normalize closeness values to use the full color scale
+    norm = Normalize(vmin=min(closeness.values()), vmax=max(closeness.values()))
+    cmap = cm.viridis_r  # Using the reversed viridis color map
+
+    # Generate colors based on the normalized closeness values
+    colors = [cmap(norm(closeness[sorted_indices[i]])) for i in range(len(sorted_indices))]
+
 
     # 3D scatter plot
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
 
-    for i, (point, color) in enumerate(zip(middle_points, colors)):
+    for rank, idx in enumerate(sorted_indices):
+        point = middle_points[idx]
         ax.scatter(
             point[0], point[1], point[2],
-            color=color,
-            label=f"Alternative {i + 1} (Rank: {ranking_order[i] + 1})"
+            color=colors[rank],
+            label=f"Alternative {idx + 1} (Rank: {rank + 1})"
         )
 
+    # Add labels and title
     ax.set_title(title)
     ax.set_xlabel("Criterion 1 (Middle Points)")
     ax.set_ylabel("Criterion 2 (Middle Points)")
     ax.set_zlabel("Criterion 3 (Middle Points)")
-    ax.legend()
+    # ax.legend()
     plt.show()
+
 
 
 # Example usage
@@ -174,9 +197,10 @@ if __name__ == "__main__":
     for i in ranking_continuous:
         ranks[i] = details_continuous['closeness'][i]
 
-    print("Continuous Case Ranking:", ranking_continuous)
-    print("Details (Continuous):", details_continuous)
-    visualize_fuzzy_topsis(alternatives_continuous, ranks, title="Discrete Alternatives")
+    print(ranks)
+    # print("Continuous Case Ranking:", ranking_continuous)
+    # print("Details (Continuous):", details_continuous)
+    visualize_fuzzy_topsis(details_continuous["samples"], ranks, title="Discrete Alternatives")
 
     # Example for discrete case with N=3 and N=4
     alternatives_discrete = [
@@ -186,15 +210,15 @@ if __name__ == "__main__":
     ]
 
     criteria_discrete = [True, True, True]
-    criteria_discrete = [False, False, False]
+    # criteria_discrete = [False, False, False]
     weights_discrete = [(1.0, 1.0, 1.0),
                         (1.0, 1.0, 1.0),
                         (1.0, 1.0, 1.0)]
 
     ranking_discrete, details_discrete = fuzzy_topsis(alternatives_discrete, criteria_discrete, weights_discrete, variant="discrete")
 
-    print("\nDiscrete Case Ranking:", ranking_discrete)
-    print("Details (Discrete):", details_discrete)
+    # print("\nDiscrete Case Ranking:", ranking_discrete)
+    # print("Details (Discrete):", details_discrete)
 
     ranks = dict()
 

@@ -11,7 +11,10 @@ from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog, QMessageBo
 # You need to run the following command to generate the ui_form.py file
 #     pyside6-uic form.ui -o ui_form.py, or
 #     pyside2-uic form.ui -o ui_form.py
-from RSM.RSM_new import rsm_discrete
+from matplotlib import cm
+from matplotlib.colors import Normalize
+
+from RSM.RSM_new import rsm_discrete, rsm_continuous
 from SP_CS.SP_CS_gui import sp_cs
 from TOPSIS.FUZZY_TOPSIS import fuzzy_topsis
 from UTA_BIS.UTA_DIS import UTA_DIS
@@ -31,7 +34,7 @@ class MainWindow(QMainWindow):
 
         self.ui.start_btn.clicked.connect(self.startAlgo)
 
-    def visualize(self, data, utilities, criterion1=0, criterion2=1, criterion3=2, title="Tytuł"):
+    def visualize_discrete(self, data, utilities, title="Tytuł"):
         """
         Wizualizacja alternatyw w 3D w PySide6. Zakładamy co najmniej 3 kryteria.
         """
@@ -54,29 +57,90 @@ class MainWindow(QMainWindow):
             z = middle_points[:, 2]
         else:
             # Tworzenie danych do wizualizacji
-            x = [d[criterion1] for d in data]
-            y = [d[criterion2] for d in data]
-            z = [d[criterion3] for d in data]
+            x = [d[0] for d in data]
+            y = [d[1] for d in data]
+            z = [d[2] for d in data]
 
         self.ui.graph.canvas.axes = self.ui.graph.canvas.figure.add_subplot(111, projection='3d')
         # Tworzenie wykresu 3D
 
+        min_val = min(utilities)
+        max_val = max(utilities)
+
+        # Scale the values
+        scaled_values = [(v - min_val) / (max_val - min_val) for v in utilities]
+        print(scaled_values)
         scatter = self.ui.graph.canvas.axes.scatter(
             x, y, z,
-            c=utilities,
+            c=scaled_values,
             cmap='viridis',
             edgecolor='k',
             s=100
         )
 
         # Dodanie opisu osi i tytułu
-        self.ui.graph.canvas.axes.set_xlabel(f"Kryterium {criterion1 + 1}")
-        self.ui.graph.canvas.axes.set_ylabel(f"Kryterium {criterion2 + 1}")
-        self.ui.graph.canvas.axes.set_zlabel(f"Kryterium {criterion3 + 1}")
+        self.ui.graph.canvas.axes.set_xlabel(f"Kryterium {1}")
+        self.ui.graph.canvas.axes.set_ylabel(f"Kryterium {2}")
+        self.ui.graph.canvas.axes.set_zlabel(f"Kryterium {3}")
         self.ui.graph.canvas.axes.set_title(title)
 
         # Dodanie paska kolorów
         self.ui.graph.canvas.figure.colorbar(scatter, ax=self.ui.graph.canvas.axes, label="S(u)")
+
+        # Aktualizacja płótna (canvas)
+        self.ui.graph.canvas.draw()
+
+
+    def visualize_continuous(self, data, utilities, title="Tytuł"):
+        """
+        Wizualizacja alternatyw w 3D w PySide6. Zakładamy co najmniej 3 kryteria.
+        """
+
+        self.ui.graph.canvas.axes.clear()
+        self.ui.graph.show()
+        try:
+            if self.ui.graph.canvas.axes is not None:
+                self.ui.graph.canvas.figure.delaxes(self.ui.graph.canvas.axes)
+                self.ui.graph.canvas.figure.clf()
+
+        except:
+            pass
+
+        if title == "FUZZY TOPSIS":
+            middle_points = [[(l[1]) for l in alt] for alt in data]
+
+            # Sort alternatives by closeness coefficients in descending order
+            sorted_indices = np.argsort(list(utilities.values()))[::-1]
+
+            # Normalize closeness values to use the full color scale
+            norm = Normalize(vmin=min(utilities.values()), vmax=max(utilities.values()))
+            cmap = cm.viridis_r  # Using the reversed viridis color map
+
+            # Generate colors based on the normalized closeness values
+            colors = [cmap(norm(utilities[sorted_indices[i]])) for i in range(len(sorted_indices))]
+        else:
+            # Tworzenie danych do wizualizacji
+            x = [d[0] for d in data]
+            y = [d[1] for d in data]
+            z = [d[2] for d in data]
+
+        self.ui.graph.canvas.axes = self.ui.graph.canvas.figure.add_subplot(111, projection='3d')
+        # Tworzenie wykresu 3D
+        print(sorted_indices)
+        for rank, idx in enumerate(sorted_indices):
+            point = middle_points[idx]
+            self.ui.graph.canvas.axes.scatter(
+                point[0], point[1], point[2],
+                color=colors[rank],
+                label=f"Alternative {idx + 1} (Rank: {rank + 1})"
+            )
+
+        # Dodanie opisu osi i tytułu
+        self.ui.graph.canvas.axes.set_xlabel(f"Kryterium {1}")
+        self.ui.graph.canvas.axes.set_ylabel(f"Kryterium {2}")
+        self.ui.graph.canvas.axes.set_zlabel(f"Kryterium {3}")
+        self.ui.graph.canvas.axes.set_title(title)
+
 
         # Aktualizacja płótna (canvas)
         self.ui.graph.canvas.draw()
@@ -185,7 +249,6 @@ class MainWindow(QMainWindow):
         elif wariant == "Dyskretny":
             variant = "discrete"
 
-
         if self.ui.criterium_select.currentText() == "FUZZY TOPSIS":
             A = []
             for i in range(self.ui.alternatives_table.rowCount()):
@@ -193,25 +256,23 @@ class MainWindow(QMainWindow):
                 for j in range(2, self.ui.alternatives_table.columnCount()):
                     val = float(self.ui.alternatives_table.item(i, j).text())
                     A[i].append((val-1, val, val+1))
-
-            # A = [
-            #     [(1, 2, 3), (3, 4, 5), (2, 3, 4)],
-            #     [(42, 43, 44), (41, 42, 43), (43, 44, 45)],
-            #     [(83, 84, 85), (82, 83, 84), (81, 82, 83)],
-            # ]
-
+            weights_discrete = [(1, 1, 1)]* len(A[0])
             title = "FUZZY TOPSIS"
-            if self.ui.opti_type.currentText() == "Minimalizacja":
-                criteria_discrete = [False] * len(A[0])
+            if variant == "continuous":
+                if self.ui.opti_type.currentText() == "Minimalizacja":
+                    criteria_discrete = [False] * len(A[0])
+                else:
+                    criteria_discrete = [True] * len(A[0])
+
+                ranking_discrete, details_discrete = fuzzy_topsis(A, criteria_discrete, weights_discrete,
+                                                                  variant=variant, metric=metrica, num_samples=sample_num, bounds=[bounds]*len(A[0]))
             else:
-                criteria_discrete = [True] * len(A[0])
-
-            weights_discrete = [(1, 1, 1),
-                                (1, 1, 1),
-                                (1, 1, 1)]
-
-            ranking_discrete, details_discrete = fuzzy_topsis(A, criteria_discrete, weights_discrete,
-                                                              variant=variant, metric=metrica, num_samples=sample_num, bounds=[bounds]*len(A))
+                if self.ui.opti_type.currentText() == "Minimalizacja":
+                    criteria_discrete = [False] * len(A[0])
+                else:
+                    criteria_discrete = [True] * len(A[0])
+                ranking_discrete, details_discrete = fuzzy_topsis(A, criteria_discrete, weights_discrete,
+                                                                  variant=variant, metric=metrica, num_samples=sample_num, bounds=[bounds]*len(A[0]))
 
             ranking = dict()
             for i in range(len(ranking_discrete)):
@@ -239,41 +300,98 @@ class MainWindow(QMainWindow):
 
             ranks = dict()
 
-            for i in ranking_discrete:
-                ranks[i] = details_discrete['closeness'][i]
+            if variant == "continuous":
+                for i in ranking_discrete:
+                    ranks[i] = details_discrete['closeness'][i]
 
-            self.visualize(A, details_discrete['closeness'], title=title)
+                alternatives_continuous = [
+                    [(1, 3, 5), (2, 4, 6), (3, 5, 7), (1, 2, 3)],
+                    [(22, 24, 26), (21, 23, 25), (22, 24, 26), (22, 23, 24)],
+                    [(43, 45, 47), (43, 45, 47), (41, 43, 45), (42, 44, 46)],
+                    [(71, 72, 73), (72, 73, 74), (73, 75, 77), (73, 75, 77)],
+                ]
+
+                criteria_continuous = [False, False, False, False]
+                # criteria_continuous = [True] *4
+                weights_continuous = [(1.0, 1.0, 1.0)] * len(A[0])
+
+                ranking_continuous, details_discrete = fuzzy_topsis(A, criteria_discrete,
+                                                                      weights_continuous, variant="continuous",
+                                                                      num_samples=sample_num,
+                                                                      bounds=[bounds]*len(A[0]))
+                ranks = dict()
+                for i in ranking_continuous:
+                    ranks[i] = details_discrete['closeness'][i]
+
+                self.visualize_continuous(details_discrete["samples"], ranks, title=title)
+
+            elif variant == "discrete":
+                self.visualize_discrete(A, details_discrete['closeness'], title=title)
 
         elif self.ui.criterium_select.currentText() == "RSM":
-            A_3d = [
-                [2, 3, 4],
-                [-1, 1, 2],
-                [1, 3, 4],
-                [1, 1, 2],
-                [2, 2, 4],
-                [0, 0, 0],
-            ]  # Punkty odniesienia (3D)
-            B_3d = [[3, 4, 5], [5, 1, 2], [1, 2, 3], [3, 3, 4]]  # Punkty dopuszczalne (3D)
-
-            if self.ui.opti_type.currentText() == "Minimalizacja":
-                criteria = [False] * len(A_3d[0])
-            else:
-                criteria = [True] * len(A_3d[0])
-
-            # Obliczanie punktów i ich odległości
-            discrete_results_3d = rsm_discrete(
-                reference_points=A_3d,
-                decision_points=B_3d,
-                min_max=criteria,
-            )
-            data, utilities = zip(*discrete_results_3d)
-            data = list(data)
-            utilities = list(utilities)
 
             title = "RSM"
-            print("Punkty w wariancie dyskretnym (posortowane według odległości):")
-            for point, score in discrete_results_3d:
-                print(f"Point: {np.round(point, 4)}, Score: {score:.4f}")
+
+            if variant == "continuous":
+                if self.ui.opti_type.currentText() == "Minimalizacja":
+                    criteria = [False] * 4
+                else:
+                    criteria = [True] * 4
+
+                bounds_continuous_4d = [bounds]*4
+
+                A_4d_cont = [[0, 0, 0, 0], [5, 5, 5, 5]]  # Punkty odniesienia (4D)
+
+                results = rsm_continuous(
+                    num_samples=sample_num,
+                    bounds=bounds_continuous_4d,
+                    reference_points=np.array(A_4d_cont),
+                    min_max=criteria
+                )
+
+            elif variant == "discrete":
+
+                A = []
+                for i in range(self.ui.alternatives_table.rowCount()):
+                    A.append([])
+                    for j in range(2, self.ui.alternatives_table.columnCount()):
+                        A[i].append(float(self.ui.alternatives_table.item(i, j).text()))
+
+                B_3d = [[3, 4, 5], [5, 1, 2], [1, 2, 3], [3, 3, 4]]  # Punkty dopuszczalne (3D)
+
+                if self.ui.opti_type.currentText() == "Minimalizacja":
+                    criteria = [False] * len(A[0])
+                else:
+                    criteria = [True] * len(A[0])
+
+                results = rsm_discrete(
+                    reference_points=np.array(B_3d),
+                    decision_points=np.array(A),
+                    min_max=criteria,
+                )
+
+            self.visualize_discrete([v[0] for v in results], [v[1] for v in results], title=title)
+            print(results)
+            ranking = dict()
+            for idx, i in enumerate(results):
+                ranking[idx] = i[1]
+            sorted_ranking = sorted(ranking.items(), key=lambda h: h[1], reverse=True)
+
+            num = 0
+            for (k, v) in sorted_ranking:
+                self.ui.ranking_table.setRowCount(len(sorted_ranking))
+                self.ui.ranking_table.setColumnCount(2)
+
+                self.ui.ranking_table.setItem(num, 0, QTableWidgetItem(str(k)))
+                self.ui.ranking_table.setItem(num, 1, QTableWidgetItem(str(v)))
+                num += 1
+
+            self.ui.ranking_table.setHorizontalHeaderLabels(["Nr alternatywy", "Wynik"])
+
+            self.ui.ranking_table.setSizeAdjustPolicy(
+                QtWidgets.QAbstractScrollArea.AdjustToContents)
+
+            self.ui.ranking_table.resizeColumnsToContents()
 
         elif self.ui.criterium_select.currentText() == "SP CS":
             title = "SP CS"
@@ -290,25 +408,27 @@ class MainWindow(QMainWindow):
                 minmax_example = [True] * len(A[0])
 
             ranking = sp_cs(A, minmax_example, metric=metrica, debug=False)
+            print(ranking)
             sorted_ranking = sorted(ranking, key=lambda h: h[1], reverse=True)
-            self.visualize(A, [s[1] for s in sorted_ranking], title=title)
+            self.visualize_discrete(A, [s[1] for s in sorted_ranking], title=title)
+
+            num = 0
+            for (k, v) in sorted_ranking:
+                self.ui.ranking_table.setRowCount(len(sorted_ranking))
+                self.ui.ranking_table.setColumnCount(2)
+
+                self.ui.ranking_table.setItem(num, 0, QTableWidgetItem(str(k)))
+                self.ui.ranking_table.setItem(num, 1, QTableWidgetItem(str(v)))
+                num += 1
 
         elif self.ui.criterium_select.currentText() == "UTA DIS":
+
             A = []
             for i in range(self.ui.alternatives_table.rowCount()):
                 A.append([])
                 for j in range(2, self.ui.alternatives_table.columnCount()):
                     A[i].append(float(self.ui.alternatives_table.item(i, j).text()))
             A = np.array(A)
-
-            # A = np.array([
-            #     [12, 12, 12],
-            #     [7, 8, 7],
-            #     [6, 7, 6],
-            #     [5, 6, 5],
-            #     [4, 5, 4],
-            #     [3, 4, 3]
-            # ])
 
             title = "UTA DIS"
             # Maksymalizacja dla 1. i 3. kryterium, minimalizacja dla 2.
@@ -318,7 +438,7 @@ class MainWindow(QMainWindow):
                 minmax = [True] * len(A[0])
 
             # Wagi kryteriów
-            weights = [0.4, 0.3, 0.3]
+            weights = [1.0, 1.0, 1.0]
 
             # Progi definiujące kategorie
             thresholds = [0.3, 0.5, 0.7]
@@ -338,16 +458,16 @@ class MainWindow(QMainWindow):
 
             print("\nPrzypisane kategorie:")
             print(categories)
-            self.visualize(A, [s[1] for s in sorted_ranking], title=title)
+            self.visualize_discrete(A, [s[1] for s in sorted_ranking], title=title)
 
-        num = 0
-        for (k, v) in sorted_ranking:
-            self.ui.ranking_table.setRowCount(len(sorted_ranking))
-            self.ui.ranking_table.setColumnCount(2)
+            num = 0
+            for (k, v) in sorted_ranking:
+                self.ui.ranking_table.setRowCount(len(sorted_ranking))
+                self.ui.ranking_table.setColumnCount(2)
 
-            self.ui.ranking_table.setItem(num, 0, QTableWidgetItem(str(k)))
-            self.ui.ranking_table.setItem(num, 1, QTableWidgetItem(str(v)))
-            num += 1
+                self.ui.ranking_table.setItem(num, 0, QTableWidgetItem(str(k)))
+                self.ui.ranking_table.setItem(num, 1, QTableWidgetItem(str(v)))
+                num += 1
 
         self.ui.ranking_table.setHorizontalHeaderLabels(["Nr alternatywy", "Wynik"])
 
