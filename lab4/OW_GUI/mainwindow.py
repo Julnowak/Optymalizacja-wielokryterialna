@@ -114,7 +114,7 @@ class MainWindow(QMainWindow):
 
             # Normalize closeness values to use the full color scale
             norm = Normalize(vmin=min(utilities.values()), vmax=max(utilities.values()))
-            cmap = cm.viridis_r  # Using the reversed viridis color map
+            cmap = cm.viridis  # Using the reversed viridis color map
 
             # Generate colors based on the normalized closeness values
             colors = [cmap(norm(utilities[sorted_indices[i]])) for i in range(len(sorted_indices))]
@@ -284,7 +284,7 @@ class MainWindow(QMainWindow):
 
             ranking = dict()
             for i in range(len(ranking_discrete)):
-                ranking[ranking_discrete[i]+1] = details_discrete['closeness'][i]
+                ranking[ranking_discrete[i]] = details_discrete['closeness'][i]
             sorted_ranking = sorted(ranking.items(), key=lambda h: h[1], reverse=True)
 
             print("\nCałkowite użyteczności alternatyw:")

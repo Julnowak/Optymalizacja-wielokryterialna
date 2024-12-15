@@ -26,6 +26,14 @@ def fuzzy_topsis(
     :param bounds: List of tuples (min, max) for each criterion (if applicable).
     :return: Ranking of alternatives and intermediate matrices.
     """
+
+    samples = None
+    if variant == "continuous" and bounds is not None and num_samples > 0:
+        samples = [np.linspace(b[0], b[1], num_samples) for b in bounds]
+        samples_mesh = np.array(np.meshgrid(*samples)).T.reshape(-1, len(bounds)).tolist()
+        alternatives = [[(s - 1, s, s + 1) for s in sam] for sam in samples_mesh]
+        samples = [[(s-1, s, s+1) for s in sam] for sam in samples_mesh]
+
     num_alternatives, num_criteria = len(alternatives), len(criteria)
 
     def normalize_fuzzy(value, ideal):
@@ -96,10 +104,10 @@ def fuzzy_topsis(
 
     # Calculate closeness coefficient
     closeness = [dist_anti / (dist_anti + dist_ideal) for dist_anti, dist_ideal in zip(distances_anti_ideal, distances_ideal)]
-    samples = None
+    # samples = None
     if variant == "continuous" and bounds is not None and num_samples > 0:
-        samples = [np.linspace(b[0], b[1], num_samples) for b in bounds]
-        samples_mesh = np.array(np.meshgrid(*samples)).T.reshape(-1, len(bounds)).tolist()
+        # samples = [np.linspace(b[0], b[1], num_samples) for b in bounds]
+        # samples_mesh = np.array(np.meshgrid(*samples)).T.reshape(-1, len(bounds)).tolist()
 
         # Calculate distances for continuous points
         continuous_scores = []
@@ -141,7 +149,7 @@ def visualize_fuzzy_topsis(alternatives, closeness, title="Fuzzy TOPSIS Ranking"
 
     # Normalize closeness values to use the full color scale
     norm = Normalize(vmin=min(closeness.values()), vmax=max(closeness.values()))
-    cmap = cm.viridis_r  # Using the reversed viridis color map
+    cmap = cm.viridis  # Using the reversed viridis color map
 
     # Generate colors based on the normalized closeness values
     colors = [cmap(norm(closeness[sorted_indices[i]])) for i in range(len(sorted_indices))]
