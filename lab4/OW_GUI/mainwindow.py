@@ -391,7 +391,7 @@ class MainWindow(QMainWindow):
                 self.ui.ranking_table.setRowCount(len(results))
                 self.ui.ranking_table.setColumnCount(4)
 
-                self.ui.ranking_table.setItem(num, 0, QTableWidgetItem(str(idx)))
+                self.ui.ranking_table.setItem(num, 0, QTableWidgetItem(str(idx +1)))
                 self.ui.ranking_table.setItem(num, 1, QTableWidgetItem(str(score)))
                 self.ui.ranking_table.setItem(num, 2, QTableWidgetItem(str(point)))
                 self.ui.ranking_table.setItem(num, 3, QTableWidgetItem(str(cls)))
@@ -428,7 +428,7 @@ class MainWindow(QMainWindow):
                 self.ui.ranking_table.setRowCount(len(sorted_ranking))
                 self.ui.ranking_table.setColumnCount(2)
 
-                self.ui.ranking_table.setItem(num, 0, QTableWidgetItem(str(k)))
+                self.ui.ranking_table.setItem(num, 0, QTableWidgetItem(str(k+1)))
                 self.ui.ranking_table.setItem(num, 1, QTableWidgetItem(str(v)))
                 num += 1
 
@@ -455,7 +455,16 @@ class MainWindow(QMainWindow):
             thresholds = [0.3, 0.5, 0.7]
 
             # Klasyfikacja alternatyw do kategorii
-            categories, total_utilities = UTA_DIS(A, minmax, weights, thresholds)
+            if variant == "discrete":
+                categories, total_utilities, _ = UTA_DIS(A, minmax, weights, thresholds, continuous=False)
+            else:
+                weights = [1.0] * 4
+                if self.ui.opti_type.currentText() == "Minimalizacja":
+                    minmax = [False] * 4
+                else:
+                    minmax = [True] * 4
+                thresholds = [0.3, 0.5, 0.7, 1.0]
+                categories, total_utilities, A = UTA_DIS(A, minmax, weights, thresholds, continuous=True, bounds=[bounds]*4, num_samples=sample_num)
 
             ranking = dict()
             for num, x in enumerate(total_utilities):

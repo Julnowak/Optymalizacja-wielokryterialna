@@ -10,6 +10,17 @@ def find_minmax_criteria(A):
     max_gi = np.max(A, axis=0)
     return min_gi, max_gi
 
+import numpy as np
+from typing import List, Tuple, Union
+
+
+def generate_samples(bounds: List[Tuple[float, float]], num_samples: int) -> List[List[float]]:
+    """
+    Generate a grid of samples in the given bounds using num_samples for each criterion.
+    """
+    samples = [np.linspace(b[0], b[1], num_samples) for b in bounds]
+    return np.array(np.meshgrid(*samples)).T.reshape(-1, len(bounds))
+
 
 def calc_partial_utilities(A, min_gi, max_gi, minmax, weights, continuous=False, bounds=None, num_samples=10):
     """Calculate partial utilities for both discrete and continuous alternatives."""
@@ -24,7 +35,6 @@ def calc_partial_utilities(A, min_gi, max_gi, minmax, weights, continuous=False,
             else:
                 value = (A[a, k] - min_gi[k]) / range_value
 
-            # Continuous interpolation
             if continuous:
                 if bounds is None:
                     raise ValueError("Bounds must be provided for continuous alternatives.")
@@ -70,13 +80,18 @@ def UTA_DIS(A, minmax, weights=None, thresholds=None, continuous=False, bounds=N
     :param num_samples: Number of samples for interpolation in continuous mode.
     :return: Categories and total utilities.
     """
+
+
+
+
+    # Calculate partial utilities
+    if continuous:
+        A = generate_samples(bounds, num_samples)
+
     num_criteria = A.shape[1]
     if weights is None:
         weights = [1 / num_criteria] * num_criteria
-
     min_g, max_g = find_minmax_criteria(A)
-
-    # Calculate partial utilities
     U = calc_partial_utilities(A, min_g, max_g, minmax, weights, continuous, bounds, num_samples)
 
     # Calculate total utilities
@@ -88,7 +103,7 @@ def UTA_DIS(A, minmax, weights=None, thresholds=None, continuous=False, bounds=N
     else:
         categories = None
 
-    return categories, total_utilities
+    return categories, total_utilities, A
 
 
 def visualize(alternatives, utilities, title="UTA-DIS Visualization"):
@@ -128,7 +143,7 @@ if __name__ == "__main__":
     ])
 
     # Define minmax for criteria: True for maximization, False for minimization
-    minmax = [True, False, True]
+    minmax = [True, True, True]
 
     # Weights for each criterion
     weights = [0.5, 0.3, 0.2]
@@ -140,10 +155,10 @@ if __name__ == "__main__":
     bounds = [(0, 10), (20, 50), (40, 80)]
 
     # Run UTA-DIS for discrete alternatives
-    categories_discrete, total_utilities_discrete = UTA_DIS(A_discrete, minmax, weights, thresholds, continuous=False)
+    categories_discrete, total_utilities_discrete, _ = UTA_DIS(A_discrete, minmax, weights, thresholds, continuous=False)
 
     # Run UTA-DIS for continuous alternatives
-    categories_continuous, total_utilities_continuous = UTA_DIS(
+    categories_continuous, total_utilities_continuous, alts = UTA_DIS(
         A_continuous, minmax, weights, thresholds, continuous=True, bounds=bounds, num_samples=10
     )
 
@@ -160,4 +175,4 @@ if __name__ == "__main__":
 
     # Visualize results
     visualize(A_discrete, total_utilities_discrete, title="UTA-DIS Discrete Alternatives")
-    visualize(A_continuous, total_utilities_continuous, title="UTA-DIS Continuous Alternatives")
+    visualize(alts, total_utilities_continuous, title="UTA-DIS Continuous Alternatives")
