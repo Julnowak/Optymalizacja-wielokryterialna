@@ -1,6 +1,7 @@
 # This Python file uses the following encoding: utf-8
 import os
 import sys
+import random
 
 import numpy as np
 import pandas as pd
@@ -340,7 +341,12 @@ class MainWindow(QMainWindow):
 
                 bounds_continuous_4d = [bounds]*4
 
-                A_4d_cont = [[0, 0, 0, 0], [5, 5, 5, 5]]  # Punkty odniesienia (4D)
+                lower_bound = max(0, bounds[0] - 2)
+                upper_bound = min(10, bounds[1] + 2)
+
+                A_4d_cont = [
+                    [random.randint(lower_bound, upper_bound) for _ in range(4)] for _ in range(5)
+                ]  # Punkty odniesienia (4D)
 
                 results = rsm_continuous(
                     num_samples=sample_num,
@@ -357,7 +363,7 @@ class MainWindow(QMainWindow):
                     for j in range(2, self.ui.alternatives_table.columnCount()):
                         A[i].append(float(self.ui.alternatives_table.item(i, j).text()))
 
-                B_3d = [[3, 4, 5], [5, 1, 2], [1, 2, 3], [3, 3, 4]]  # Punkty dopuszczalne (3D)
+                B_3d = [[3, 4, 5], [5, 1, 2], [1, 2, 3], [3, 3, 4]]  # Punkty referencyjne (3D)
 
                 if self.ui.opti_type.currentText() == "Minimalizacja":
                     criteria = [False] * len(A[0])
@@ -372,21 +378,26 @@ class MainWindow(QMainWindow):
 
             self.visualize_discrete([v[0] for v in results], [v[1] for v in results], title=title)
             print(results)
-            ranking = dict()
-            for idx, i in enumerate(results):
-                ranking[idx] = i[1]
-            sorted_ranking = sorted(ranking.items(), key=lambda h: h[1], reverse=True)
+
+            # results_with_original_idx = []
+            #
+            # ranking = dict()
+            # for idx, i in enumerate(results):
+            #     ranking[idx] = i[1]
+            # sorted_ranking = sorted(ranking.items(), key=lambda h: h[1], reverse=True)
 
             num = 0
-            for (k, v) in sorted_ranking:
-                self.ui.ranking_table.setRowCount(len(sorted_ranking))
-                self.ui.ranking_table.setColumnCount(2)
+            for idx, (point, score, cls) in enumerate(results):
+                self.ui.ranking_table.setRowCount(len(results))
+                self.ui.ranking_table.setColumnCount(4)
 
-                self.ui.ranking_table.setItem(num, 0, QTableWidgetItem(str(k)))
-                self.ui.ranking_table.setItem(num, 1, QTableWidgetItem(str(v)))
+                self.ui.ranking_table.setItem(num, 0, QTableWidgetItem(str(idx)))
+                self.ui.ranking_table.setItem(num, 1, QTableWidgetItem(str(score)))
+                self.ui.ranking_table.setItem(num, 2, QTableWidgetItem(str(point)))
+                self.ui.ranking_table.setItem(num, 3, QTableWidgetItem(str(cls)))
                 num += 1
 
-            self.ui.ranking_table.setHorizontalHeaderLabels(["Nr alternatywy", "Wynik"])
+            self.ui.ranking_table.setHorizontalHeaderLabels(["Nr alternatywy", "Wynik", "Punkt", "Klasa"])
 
             self.ui.ranking_table.setSizeAdjustPolicy(
                 QtWidgets.QAbstractScrollArea.AdjustToContents)
