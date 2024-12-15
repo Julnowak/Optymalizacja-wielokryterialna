@@ -369,7 +369,11 @@ class MainWindow(QMainWindow):
                     for j in range(2, self.ui.alternatives_table.columnCount()):
                         A[i].append(float(self.ui.alternatives_table.item(i, j).text()))
 
-                B_3d = [[3, 4, 5], [5, 1, 2], [1, 2, 3], [3, 3, 4]]  # Punkty referencyjne (3D)
+                lower_bound = 0
+                upper_bound = 10
+                B = [
+                    [random.randint(lower_bound, upper_bound) for _ in range(len(A[0]))] for _ in range(5)
+                ]
 
                 if self.ui.opti_type.currentText() == "Minimalizacja":
                     criteria = [False] * len(A[0])
@@ -377,7 +381,7 @@ class MainWindow(QMainWindow):
                     criteria = [True] * len(A[0])
 
                 results = rsm_discrete(
-                    reference_points=np.array(B_3d),
+                    reference_points=np.array(B),
                     decision_points=np.array(A),
                     min_max=criteria,
                 )
@@ -389,17 +393,33 @@ class MainWindow(QMainWindow):
             print(results)
 
             num = 0
-            for idx, (point, score, cls) in enumerate(results):
-                self.ui.ranking_table.setRowCount(len(results))
-                self.ui.ranking_table.setColumnCount(4)
+            if variant == "continuous":
+                for idx, (point, score, cls) in enumerate(results):
+                    self.ui.ranking_table.setRowCount(len(results))
+                    self.ui.ranking_table.setColumnCount(4)
 
-                self.ui.ranking_table.setItem(num, 0, QTableWidgetItem(str(idx +1)))
-                self.ui.ranking_table.setItem(num, 1, QTableWidgetItem(str(score)))
-                self.ui.ranking_table.setItem(num, 2, QTableWidgetItem(str(point)))
-                self.ui.ranking_table.setItem(num, 3, QTableWidgetItem(str(cls)))
-                num += 1
+                    self.ui.ranking_table.setItem(num, 0, QTableWidgetItem(str(idx +1)))
+                    self.ui.ranking_table.setItem(num, 1, QTableWidgetItem(str(score)))
+                    self.ui.ranking_table.setItem(num, 2, QTableWidgetItem(str(point)))
+                    self.ui.ranking_table.setItem(num, 3, QTableWidgetItem(str(cls)))
+                    num += 1
 
-            self.ui.ranking_table.setHorizontalHeaderLabels(["Nr alternatywy", "Wynik", "Punkt", "Klasa"])
+                self.ui.ranking_table.setHorizontalHeaderLabels(
+                    ["Pozycja w rankingu", "Wynik", "Punkt", "Klasa"])
+
+            elif variant == "discrete":
+                for idx, (point, score, cls) in enumerate(results):
+                    self.ui.ranking_table.setRowCount(len(results))
+                    self.ui.ranking_table.setColumnCount(5)
+
+                    self.ui.ranking_table.setItem(num, 0, QTableWidgetItem(str(idx + 1)))
+                    self.ui.ranking_table.setItem(num, 1, QTableWidgetItem(str(A.index(point) + 1)))
+                    self.ui.ranking_table.setItem(num, 2, QTableWidgetItem(str(score)))
+                    self.ui.ranking_table.setItem(num, 3, QTableWidgetItem(str(point)))
+                    self.ui.ranking_table.setItem(num, 4, QTableWidgetItem(str(cls)))
+                    num += 1
+
+                self.ui.ranking_table.setHorizontalHeaderLabels(["Pozycja w rankingu", "Nr alternatywy", "Wynik", "Punkt", "Klasa"])
 
             self.ui.ranking_table.setSizeAdjustPolicy(
                 QtWidgets.QAbstractScrollArea.AdjustToContents)
@@ -559,7 +579,8 @@ class MainWindow(QMainWindow):
                 self.ui.ranking_table.setItem(num, 1, QTableWidgetItem(str(v)))
                 num += 1
 
-        self.ui.ranking_table.setHorizontalHeaderLabels(["Nr alternatywy", "Wynik"])
+        if self.ui.criterium_select.currentText() != "RSM":
+            self.ui.ranking_table.setHorizontalHeaderLabels(["Nr alternatywy", "Wynik"])
 
         self.ui.ranking_table.setSizeAdjustPolicy(
             QtWidgets.QAbstractScrollArea.AdjustToContents)
