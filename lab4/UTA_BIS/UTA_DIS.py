@@ -1,19 +1,18 @@
 import numpy as np
 import matplotlib
-
 matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 
 
-# Funkcja do znajdowania minimalnych i maksymalnych wartości dla każdego kryterium
 def find_minmax_criteria(A):
+    """Find minimum and maximum values for each criterion."""
     min_gi = np.min(A, axis=0)
     max_gi = np.max(A, axis=0)
     return min_gi, max_gi
 
 
-# Funkcja do obliczania cząstkowych użyteczności
-def calc_partial_utilities_dis(A, min_gi, max_gi, minmax, weights):
+def calc_partial_utilities(A, min_gi, max_gi, minmax, weights, continuous=False, bounds=None, num_samples=10):
+    """Calculate partial utilities for both discrete and continuous alternatives."""
     num_variants, num_criteria = A.shape
     U = np.zeros((num_variants, num_criteria))
 
@@ -21,24 +20,33 @@ def calc_partial_utilities_dis(A, min_gi, max_gi, minmax, weights):
         for a in range(num_variants):
             range_value = max_gi[k] - min_gi[k]
             if range_value == 0:
-                value = 0.5  # Jeżeli min = max, przyjmujemy wartość pośrednią
+                value = 0.5  # If min == max, assume a middle value
             else:
                 value = (A[a, k] - min_gi[k]) / range_value
 
-            if minmax[k]:  # Maksymalizacja
+            # Continuous interpolation
+            if continuous:
+                if bounds is None:
+                    raise ValueError("Bounds must be provided for continuous alternatives.")
+                criterion_range = np.linspace(bounds[k][0], bounds[k][1], num_samples)
+                interpolated_value = np.interp(A[a, k], criterion_range, np.linspace(0, 1, num_samples))
+                value = interpolated_value
+
+            if minmax[k]:  # Maximization
                 U[a, k] = value * weights[k]
-            else:  # Minimalizacja
+            else:  # Minimization
                 U[a, k] = (1 - value) * weights[k]
+
     return U
 
 
-# Funkcja obliczająca całkowitą użyteczność
 def calc_total_utilities(U):
+    """Calculate total utilities by summing partial utilities."""
     return np.sum(U, axis=1)
 
 
-# Klasyfikacja do kategorii
 def classify_categories(total_utilities, thresholds):
+    """Classify utilities into categories based on thresholds."""
     categories = []
     for utility in total_utilities:
         for i, threshold in enumerate(thresholds):
@@ -50,10 +58,17 @@ def classify_categories(total_utilities, thresholds):
     return categories
 
 
-# UTA-DIS
-def UTA_DIS(A, minmax, weights=None, thresholds=None):
+def UTA_DIS(A, minmax, weights=None, thresholds=None, continuous=False, bounds=None, num_samples=10):
     """
-    Funkcja UTA-DIS dla wariantu dyskretnego.
+    UTA-DIS algorithm for both discrete and continuous alternatives.
+    :param A: Matrix of alternatives.
+    :param minmax: List of boolean values for each criterion (True=maximize, False=minimize).
+    :param weights: Weights for each criterion (default=None, equal weights).
+    :param thresholds: Thresholds for category classification.
+    :param continuous: Boolean, whether the data is continuous.
+    :param bounds: Bounds for each criterion (used in continuous mode).
+    :param num_samples: Number of samples for interpolation in continuous mode.
+    :return: Categories and total utilities.
     """
     num_criteria = A.shape[1]
     if weights is None:
@@ -61,61 +76,13 @@ def UTA_DIS(A, minmax, weights=None, thresholds=None):
 
     min_g, max_g = find_minmax_criteria(A)
 
-    # Obliczanie cząstkowych użyteczności
-    U = calc_partial_utilities_dis(A, min_g, max_g, minmax, weights)
-
-    # Obliczanie całkowitych użyteczności
-    total_utilities = calc_total_utilities(U)
-
-    # Jeśli progi są zdefiniowane, klasyfikacja do kategorii
-    if thresholds is not None:
-        categories = classify_categories(total_utilities, thresholds)
-    else:
-        categories = None
-
-    return categories, total_utilities
-
-
-def calc_partial_utilities_continuous(A, min_gi, max_gi, minmax, weights, bounds, step):
-    num_variants, num_criteria = A.shape
-    U = np.zeros((num_variants, num_criteria))
-
-    for k in range(num_criteria):
-        for a in range(num_variants):
-            # Generate the continuous range for each criterion based on the bounds and step
-            criterion_range = np.arange(bounds[k][0], bounds[k][1] + step, step)
-
-            # Normalize the value for interpolation
-            range_value = max_gi[k] - min_gi[k]
-            if range_value == 0:
-                value = 0.5  # If min == max, assume a middle value
-            else:
-                value = (A[a, k] - min_gi[k]) / range_value
-
-            # Calculate partial utility
-            if minmax[k]:  # Maximization
-                U[a, k] = value * weights[k]
-            else:  # Minimization
-                U[a, k] = (1 - value) * weights[k]
-    return U
-
-def UTA_CONTINUOUS(A, minmax, weights=None, thresholds=None, bounds=None, step=0.1):
-    num_criteria = A.shape[1]
-    if weights is None:
-        weights = [1 / num_criteria] * num_criteria
-
-    if bounds is None:
-        raise ValueError("Bounds must be defined for each criterion.")
-
-    min_g, max_g = find_minmax_criteria(A)
-
-    # Calculate partial utilities for continuous data
-    U = calc_partial_utilities_continuous(A, min_g, max_g, minmax, weights, bounds, step)
+    # Calculate partial utilities
+    U = calc_partial_utilities(A, min_g, max_g, minmax, weights, continuous, bounds, num_samples)
 
     # Calculate total utilities
     total_utilities = calc_total_utilities(U)
 
-    # Classify if thresholds are provided
+    # Classify into categories if thresholds are provided
     if thresholds is not None:
         categories = classify_categories(total_utilities, thresholds)
     else:
@@ -123,31 +90,27 @@ def UTA_CONTINUOUS(A, minmax, weights=None, thresholds=None, bounds=None, step=0
 
     return categories, total_utilities
 
-# Wizualizacja wyników
-def visualize(data, utilities, criterion1=0, criterion2=1, criterion3=2):
-    fig = plt.figure(figsize=(10, 8))
+
+def visualize(alternatives, utilities, title="UTA-DIS Visualization"):
+    """Visualize alternatives and utilities in a 3D space."""
+    fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
     sc = ax.scatter(
-        data[:, criterion1],
-        data[:, criterion2],
-        data[:, criterion3],
-        c=utilities,
-        cmap='viridis',
-        edgecolor='k',
-        s=100
+        alternatives[:, 0], alternatives[:, 1], alternatives[:, 2],
+        c=utilities, cmap='viridis', s=100, edgecolor='k'
     )
-    plt.colorbar(sc, label="Użyteczność")
-    ax.set_xlabel(f"Kryterium {criterion1 + 1}")
-    ax.set_ylabel(f"Kryterium {criterion2 + 1}")
-    ax.set_zlabel(f"Kryterium {criterion3 + 1}")
-    ax.set_title("Wizualizacja punktów w przestrzeni kryteriów")
+    plt.colorbar(sc, label="Total Utility")
+    ax.set_xlabel("Criterion 1")
+    ax.set_ylabel("Criterion 2")
+    ax.set_zlabel("Criterion 3")
+    ax.set_title(title)
     plt.show()
 
 
 # Przykład testowania
 if __name__ == "__main__":
-    # Example matrix of alternatives (values for 3 criteria)
-    A = np.array([
+    # Example matrix of alternatives for discrete case
+    A_discrete = np.array([
         [12, 8, 15],
         [7, 5, 12],
         [6, 7, 10],
@@ -156,28 +119,45 @@ if __name__ == "__main__":
         [3, 4, 4]
     ])
 
+    # Example matrix of alternatives for continuous case
+    A_continuous = np.array([
+        [1, 3, 5],
+        [22, 24, 26],
+        [43, 45, 47],
+        [71, 72, 73]
+    ])
+
     # Define minmax for criteria: True for maximization, False for minimization
-    minmax = [False, False, False]  # Minimizing all criteria
+    minmax = [True, False, True]
 
     # Weights for each criterion
-    weights = [0.4, 0.3, 0.3]
+    weights = [0.5, 0.3, 0.2]
 
     # Thresholds for category classification
-    thresholds = [0.3, 0.5, 0.7]
+    thresholds = [0.3, 0.6, 0.8]
 
-    # Define bounds for each criterion (min_value, max_value)
-    bounds = [(0, 15), (0, 10), (0, 20)]
+    # Define bounds for each criterion in continuous case
+    bounds = [(0, 10), (20, 50), (40, 80)]
 
-    # Step size for interpolation
-    step = 0.5
+    # Run UTA-DIS for discrete alternatives
+    categories_discrete, total_utilities_discrete = UTA_DIS(A_discrete, minmax, weights, thresholds, continuous=False)
 
-    # Classify alternatives using UTA for continuous data
-    categories, total_utilities = UTA_CONTINUOUS(A, minmax, weights, thresholds, bounds, step)
+    # Run UTA-DIS for continuous alternatives
+    categories_continuous, total_utilities_continuous = UTA_DIS(
+        A_continuous, minmax, weights, thresholds, continuous=True, bounds=bounds, num_samples=10
+    )
 
-    print("Total Utilities:")
-    print(total_utilities)
-    print("Categories:")
-    print(categories)
+    # Print results
+    print("Discrete Alternatives Utilities:")
+    print(total_utilities_discrete)
+    print("Discrete Alternatives Categories:")
+    print(categories_discrete)
 
-    # Wizualizacja w 3D
-    visualize(A, total_utilities)
+    print("\nContinuous Alternatives Utilities:")
+    print(total_utilities_continuous)
+    print("Continuous Alternatives Categories:")
+    print(categories_continuous)
+
+    # Visualize results
+    visualize(A_discrete, total_utilities_discrete, title="UTA-DIS Discrete Alternatives")
+    visualize(A_continuous, total_utilities_continuous, title="UTA-DIS Continuous Alternatives")

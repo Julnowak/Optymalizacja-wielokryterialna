@@ -449,7 +449,7 @@ class MainWindow(QMainWindow):
                 minmax = [True] * len(A[0])
 
             # Wagi kryteriów
-            weights = [1.0, 1.0, 1.0]
+            weights = [1.0] * len(A[0])
 
             # Progi definiujące kategorie
             thresholds = [0.3, 0.5, 0.7]
