@@ -350,7 +350,7 @@ if __name__ == "__main__":
     terrain = terrain_generator(terrain_size=(50,50), terrain_type="hills")
 
     starts = [(5,5),   (10,10),  (40,10)]
-    ends   = [(45,40), (35,40),  (10,45)]
+    ends   = [(45,40), (45,40),  (45,40)]
     n_robots = 3
 
     # Wprost wywołanie MultiRobotsPSO:
