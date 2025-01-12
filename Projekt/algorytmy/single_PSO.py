@@ -2,6 +2,8 @@ from algorytmy.terrain import terrain_generator
 import numpy as np
 import matplotlib.pyplot as plt
 import math
+import random
+
 
 def plot_graph(best_location):
     """
@@ -10,6 +12,7 @@ def plot_graph(best_location):
     Parameters:
         best_location (List[float, float]): Lists of points to plot.
     """
+
 
     plt.close("all")
     plt.figure(figsize=(5, 5))
@@ -33,7 +36,6 @@ def plot_graph(best_location):
             facecolors="blue",
             edgecolors="face",
         )
-        # plt.text(best_location[i][0] + 0.1,best_location[i][1]+0.1,str(i),fontsize=8)
     plt.xlim(-1, 23)
     plt.ylim(-1, 23)
     plt.title("Particle Swarm Optimization")
@@ -49,10 +51,10 @@ def loss_function(x):
         int: The loss function result
     """
 
-    z = (x[0, 0] - START[0]) ** 2 + (x[0, 1] - START[1]) ** 2
+    z = (x[0][0] - START[0]) ** 2 + (x[0][1] - START[1]) ** 2
     for i in range(DIM - 1):
-        z = z + ((x[i, 0] - x[i + 1, 0]) ** 2 + (x[i, 1] - x[i + 1, 1]) ** 2)
-    z = z + (x[DIM - 1, 0] - END[0]) ** 2 + (x[DIM - 1, 1] - END[1]) ** 2
+        z += (x[i][0] - x[i + 1][0]) ** 2 + (x[i][1] - x[i + 1][1]) ** 2
+    z += (x[DIM - 1][0] - END[0]) ** 2 + (x[DIM - 1][1] - END[1]) ** 2
     return math.sqrt(z)
 
 def random_initialization(swarm_size):
@@ -71,19 +73,18 @@ def random_initialization(swarm_size):
         List[float, float]: The best location.
     """
 
-    # set the location and velocity of the particle's
-    particles_loc = np.random.rand(swarm_size, DIM, 2) * 20
-    particles_vel = np.random.rand(swarm_size, DIM, 2)
+    particles_loc = [[[random.random() * 20, random.random() * 20] for _ in range(DIM)] for _ in range(swarm_size)]
+    particles_vel = [[[random.random() for _ in range(2)] for _ in range(DIM)] for _ in range(swarm_size)]
 
     # set the initial particle best location and value
     particles_lowest_loss = [
-        loss_function(particles_loc[i, :, :]) for i in range(0, len(particles_loc))
+        loss_function(particles_loc[i]) for i in range(swarm_size)
     ]
-    particles_best_location = np.copy(particles_loc)
+    particles_best_location = [loc.copy() for loc in particles_loc]
 
     # set the initial global best location and value
-    global_lowest_loss = np.min(particles_lowest_loss)
-    global_best_location = particles_loc[np.argmin(particles_lowest_loss)].copy()
+    global_lowest_loss = min(particles_lowest_loss)
+    global_best_location = particles_loc[particles_lowest_loss.index(global_lowest_loss)].copy()
 
     return (
         particles_loc,
@@ -122,60 +123,64 @@ def particle_swarm_optimization(
     ) = random_initialization(swarm_size)
 
     for iteration_i in range(max_iterations):
-        if iteration_i % 20 == 0:
-            print(f"{int(iteration_i / max_iterations * 100)}% completed")
-
         for particle_i in range(swarm_size):
             for dim_i in range(DIM):
                 # Update the velocity vector in a given dimension
                 error_particle_best = (
-                    particles_best_location[particle_i, dim_i]
-                    - particles_loc[particle_i, dim_i]
+                    particles_best_location[particle_i][dim_i][0] - particles_loc[particle_i][dim_i][0],
+                    particles_best_location[particle_i][dim_i][1] - particles_loc[particle_i][dim_i][1]
                 )
                 error_global_best = (
-                    global_best_location[dim_i] - particles_loc[particle_i, dim_i]
+                    global_best_location[dim_i][0] - particles_loc[particle_i][dim_i][0],
+                    global_best_location[dim_i][1] - particles_loc[particle_i][dim_i][1]
                 )
-                new_vel = (
-                    inertia * particles_vel[particle_i, dim_i]
-                    + c1 * np.random.rand() * error_particle_best
-                    + c2 * np.random.rand() * error_global_best
-                )
+
+                new_vel = [
+                    inertia * particles_vel[particle_i][dim_i][0] + c1 * random.random() * error_particle_best[
+                        0] + c2 * random.random() * error_global_best[0],
+                    inertia * particles_vel[particle_i][dim_i][1] + c1 * random.random() * error_particle_best[
+                        1] + c2 * random.random() * error_global_best[1]
+                ]
 
                 # Bound a particle's velocity to the maximum value
-                new_vel = np.clip(new_vel, -max_vel, max_vel)
+                new_vel = [
+                    max(min(new_vel[0], max_vel), -max_vel),
+                    max(min(new_vel[1], max_vel), -max_vel)
+                ]
 
                 # Update the particle location and velocity
-                particles_loc[particle_i, dim_i] += new_vel * step_size
-                particles_vel[particle_i, dim_i] = new_vel
+                particles_loc[particle_i][dim_i][0] += new_vel[0] * step_size
+                particles_loc[particle_i][dim_i][1] += new_vel[1] * step_size
+                particles_vel[particle_i][dim_i] = new_vel
 
             # For the new location, check if this is a new local or global best
             particle_error = loss_function(particles_loc[particle_i])
             if particle_error < particles_lowest_loss[particle_i]:  # Local best
                 particles_lowest_loss[particle_i] = particle_error
-                particles_best_location[particle_i] = particles_loc[particle_i].copy()
+                particles_best_location[particle_i] = [loc.copy() for loc in particles_loc[particle_i]]
 
             if particle_error < global_lowest_loss:  # Global best
                 global_lowest_loss = particle_error
-                global_best_location = particles_loc[particle_i].copy()
+                global_best_location = [loc.copy() for loc in particles_loc[particle_i]]
 
     return global_best_location
+
 
 DIM = 11
 START = (1, 1)
 END = (10, 20)
 
 if __name__ == "__main__":
-    DIM = 11
+
     best_location = particle_swarm_optimization(
-        max_iterations=100,
+        max_iterations=1000,
         swarm_size=100,
         max_vel=3,
         step_size=1,
-        inertia=0.9,
-        c1=2.05,
-        c2=2.05
+        inertia=0.5,
+        c1=0.5,
+        c2=1
     )
     print("100% completed!")
     plot_graph(best_location)
-    plt.savefig("results", dpi=300)
     plt.show()
