@@ -34,22 +34,23 @@ def plot_graph(best_path):
     plt.scatter(start[0], start[1], 100, marker="o", facecolors="k", edgecolors="k")
     plt.title("Crawler Optimization")
 
-# def loss_function(x):
-#     # Funkcja straty: oblicza sumę kwadratów odległości między punktami
-#     print(x)
-#     print([x[0][0], x[0][1]])
-#     print(TERRAIN[x[0][0], x[0][1]])
-#     z = (x[0][0] - START[0]) ** 2 + (x[0][1] - START[1]) ** 2 + np.abs(TERRAIN[x[0][0], x[0][1]]) * 20000
-#     for i in range(DIM - 1):
-#         z += (x[i][0] - x[i + 1][0]) ** 2 + (x[i][1] - x[i + 1][1]) ** 2
-#     z += (x[DIM - 1][0] - END[0]) ** 2 + (x[DIM - 1][1] - END[1]) ** 2
-#     return np.sqrt(z)
 
+# def loss_function(path, ter):
+#     cost = 0
+#     for p in path:
+#         cost += ter[p[0]][p[1]] * 100
+#     return cost
 
 def loss_function(path, ter):
     cost = 0
+    num = 0
+    dist_penalty = 0
+    p_last = None
     for p in path:
-        cost += ter[p[0]][p[1]]
+        if num != 0:
+            dist_penalty = np.sqrt((p[0] - p_last[0])**2 + (p[1] - p_last[1])**2)
+        p_last = p
+        cost += ter[p[0]][p[1]] * 100 + dist_penalty * 200000
     return cost
 
 
@@ -85,6 +86,7 @@ def initial_path(start, end, map_size):
             # Avoid revisiting points
             if current not in path:
                 path.append(current)
+    path.append(end)
     return path
 
 def count_fits(large):
@@ -116,7 +118,6 @@ def step_distance(p1, p2):
             else:
                 n = [np.abs(0 - p2[i][0]), np.abs(0 - p2[i][1])]
             suma += count_fits(n)
-            print(suma)
 
     elif len(p2) < len(p1):
         for i in range(len(p1)):
@@ -202,6 +203,9 @@ def dispersal(actual, map_size):
             new_actual[i][0] -= addon
             new_actual[i][0] += addon
 
+    for i in new_actual:
+        if i[0] > map_size[0] or i[1] > map_size[1] or i[0] < map_size[0] or i[1] < map_size[1]:
+            return actual
     return new_actual
 
 class Solution:
@@ -253,16 +257,16 @@ def algorithm(start, end, map_size, terrain, visibility_range, num_of_iterations
             pg_list.append(best_solution)
 
         # 4 - Dyspersja i ponowne uaktualnienie pg
-        generated_number = random.randint(1, 100)
-        if generated_number <= probability_of_dispersion:
-            for disp_i in range(N):
-                solutions[disp_i].path = dispersal(solutions[disp_i].path, map_size)
-
-            for sol in solutions:
-                sol.loss_value = loss_function(sol.path, terrain)
-                if best_solution.loss_value > sol.loss_value:
-                    best_solution = sol
-            pg_list.append(best_solution)
+        # generated_number = random.randint(1, 100)
+        # if generated_number <= probability_of_dispersion:
+        #     for disp_i in range(N):
+        #         solutions[disp_i].path = dispersal(solutions[disp_i].path, map_size)
+        #
+        #     for sol in solutions:
+        #         sol.loss_value = loss_function(sol.path, terrain)
+        #         if best_solution.loss_value > sol.loss_value:
+        #             best_solution = sol
+        #     pg_list.append(best_solution)
 
         k = random.randint(0, N - 1)
 
@@ -280,7 +284,7 @@ def algorithm(start, end, map_size, terrain, visibility_range, num_of_iterations
 
 if __name__ == "__main__":
     start = [0, 0]
-    end = [10, 11]
+    end = [19, 19]
     map_size = [20, 20]
     terrain = terrain_generator(terrain_size=map_size)
 
