@@ -466,20 +466,21 @@ class MainWindow(QMainWindow):
                 minmax_example = [True] * len(A[0])
 
             metrica = "euclidean" if self.ui.metric_select.currentText() == "Euklidesowa" else "chebyshev"
-            variant = self.ui.variant_select.currentText()  # "Dyskretny" lub "Ciągły"
-            sample_num = int(self.ui.sample_num.text())
-            lower_bound = int(self.ui.lower_bound.text())
-            upper_bound = int(self.ui.upper_bound.text())
 
-            if variant == "Dyskretny":
+            if variant == "discrete":
                 # Dyskretny wariant SP-CS
                 ranking = sp_cs_discrete(A, minmax_example, metric=metrica, debug=False)
+
+                print(ranking)
                 # ranking to [(index, S(u))]
                 sorted_ranking = sorted(ranking, key=lambda h: h[1], reverse=False)
 
                 # visualize_discrete oczekuje listy alternatyw (A) i listy wartości S(u)
-                utilities_list = [v for (k, v) in sorted_ranking]
-                self.visualize_discrete(A, utilities_list, title=title)
+                ranks = dict()
+                for i in ranking:
+                    ranks[i[0]] = i[1]
+
+                self.visualize(A, ranks, title=title)
 
                 num = 0
                 self.ui.ranking_table.setRowCount(len(sorted_ranking))
@@ -491,9 +492,9 @@ class MainWindow(QMainWindow):
                 self.ui.ranking_table.setHorizontalHeaderLabels(["Nr alternatywy", "Wynik"])
                 self.ui.ranking_table.resizeColumnsToContents()
 
-            elif variant == "Ciągły":
+            elif variant == "continuous":
                 # Ciągły wariant SP-CS
-                bounds = [(lower_bound, upper_bound)] * len(A[0])
+                bounds = [bounds] * len(A[0])
                 results, samples = sp_cs_continuous(bounds, minmax_example, metric=metrica, num_samples=sample_num,
                                                     debug=False)
                 sorted_ranking = sorted(results, key=lambda h: h[1], reverse=False)
