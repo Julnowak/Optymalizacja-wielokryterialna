@@ -1,4 +1,5 @@
 import random
+import numpy as np
 
 
 def calculate_neighbourhood(point, map_size):
@@ -12,8 +13,6 @@ def calculate_neighbourhood(point, map_size):
 
 # print(calculate_neighbourhood([0,0], [20,20]))
 # print(calculate_neighbourhood([1,1], [20,20]))
-
-import numpy as np
 
 
 def count_fits(large):

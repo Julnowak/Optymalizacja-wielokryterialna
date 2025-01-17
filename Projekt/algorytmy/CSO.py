@@ -49,9 +49,12 @@ def loss_function(path, ter):
     p_last = None
     for p in path:
         if num != 0:
+            # Kara za odległość od poprzedniego punktu
             dist_penalty = np.sqrt((p[0] - p_last[0]) ** 2 + (p[1] - p_last[1]) ** 2)
         p_last = p
-        cost += ter[p[0]][p[1]] * 1000 + dist_penalty * 200 + len(path) * 800
+
+        # koszt terenu + kara za odległość od poprzedniego + długość ścieżki
+        cost += ter[p[0]][p[1]] * 1 + dist_penalty * 1 + len(path) * 1
     return cost
 
 
@@ -270,9 +273,7 @@ def algorithm(
         for sol_i in range(N):
             pi = solutions[sol_i]
             for sol_j in range(N):
-                if (
-                    0
-                    < step_distance(solutions[sol_i].path, solutions[sol_j].path)
+                if (0 < step_distance(solutions[sol_i].path, solutions[sol_j].path)
                     <= visibility_range
                     and solutions[sol_j].loss_value < solutions[sol_i].loss_value
                 ):
@@ -319,10 +320,10 @@ def algorithm(
 
 
 if __name__ == "__main__":
-    start = [20, 0]
+    start = [0, 0]
     end = [40, 40]
     map_size = [50, 50]
-    terrain = terrain_generator(terrain_size=map_size, noise_num=1)
+    terrain = terrain_generator(terrain_size=map_size, terrain_type="canyon", noise_num=1)
 
     best_path = algorithm(start, end, map_size, terrain, visibility_range=10)
 
