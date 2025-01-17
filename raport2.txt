@@ -1,0 +1,2 @@
+W ramach raportu z tego tygodnia przekazujemy jedynie kod do zadania.
+Zmieniono algorytm, który początkowo został wybrany do rozwiązania zadania - algorytm PSO został zastąpiony algorytmem CSO (cockroach swarm optimization) z uwzględnieniem funkcji koszty z warunkami optymalizacji wielokryterialnej.

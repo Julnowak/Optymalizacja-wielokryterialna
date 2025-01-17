@@ -7,7 +7,7 @@ from PySide6.QtWidgets import QApplication, QMainWindow
 # You need to run the following command to generate the ui_form.py file
 #     pyside6-uic form.ui -o ui_form.py, or
 #     pyside2-uic form.ui -o ui_form.py
-from algorytmy.Multi_PSO import MultiObjectivePSO
+
 from ui_form import Ui_MainWindow
 from algorytmy.terrain import terrain_generator
 
@@ -22,16 +22,16 @@ class MainWindow(QMainWindow):
         self.ui.map_plot.hide()
         self.ui.result_plot.hide()
         self.ui.generate_map_btn.clicked.connect(self.visualize_map)
-        self.ui.start_btn.clicked.connect(self.start)
+        # self.ui.start_btn.clicked.connect(self.start)
 
-    def start(self):
-        pso = MultiObjectivePSO(int(self.ui.particle_num.value()),
-                                2, (0,100), int(self.ui.iteration_num.value()),
-                                self.terrain,
-                                (int(self.ui.start_point_x.value()), int(self.ui.start_point_y.value())),
-                                (int(self.ui.stop_point_x.value()), int(self.ui.stop_point_y.value())))
-        pso.update()
-        print(pso.gbest_positions)
+    # def start(self):
+    #     pso = MultiObjectivePSO(int(self.ui.particle_num.value()),
+    #                             2, (0,100), int(self.ui.iteration_num.value()),
+    #                             self.terrain,
+    #                             (int(self.ui.start_point_x.value()), int(self.ui.start_point_y.value())),
+    #                             (int(self.ui.stop_point_x.value()), int(self.ui.stop_point_y.value())))
+    #     pso.update()
+    #     print(pso.gbest_positions)
 
     def visualize_map(self):
         """
