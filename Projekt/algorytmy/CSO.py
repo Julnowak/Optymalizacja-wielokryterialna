@@ -1,3 +1,4 @@
+import copy
 import random
 import math
 import time
@@ -87,15 +88,15 @@ def initial_path(start, end, map_size):
         # Filter neighbours to ensure movement towards the end point
         valid_neighbours = [
             n
-                for n in neighbours
-                if n[0] >= current[0]
-                and n[1] >= current[1]
-                and n[0] <= end[0]
-                and n[1] <= end[1]
-               and n[0] < map_size[0]
-               and n[1] < map_size[1]
-               and n[0] >= 0
-               and n[1] >= 0
+            for n in neighbours
+            if n[0] >= current[0]
+            and n[1] >= current[1]
+            and n[0] <= end[0]
+            and n[1] <= end[1]
+            and n[0] < map_size[0]
+            and n[1] < map_size[1]
+            and n[0] >= 0
+            and n[1] >= 0
         ]
 
         # Randomly select the next point from valid neighbours
@@ -152,15 +153,58 @@ def step_distance(p1, p2):
     return suma
 
 
-def cso_step(actual, best):
-    new_actual = actual.copy()
-    # print(new_actual)
-    if len(actual) < len(best):
-        new_actual.append(best[-1])
-    elif len(best) < len(actual):
-        new_actual.pop(-1)
+def fix_neighborhood(path, idx, map_size):
+    """Funkcja sprawdzająca i naprawiająca sąsiedztwo wokół zmienionego punktu."""
+
+    def distance(p1, p2):
+        """Odległość Manhattan między punktami."""
+        return abs(p1[0] - p2[0]) + abs(p1[1] - p2[1])
+
+    original_idx = idx
+    original_path = copy.deepcopy(path)
+    # Sprawdź punkt przed zmienionym
+    if idx > 0:  # Jeśli istnieje punkt przed
+        prev_point = path[idx - 1]
+        counter = 0
+        while path[idx] not in calculate_neighbourhood(path[idx - 1], map_size):
+            # Dodaj punkt między `prev_point` a `path[idx]`
+            counter += 1
+            new_point = min(
+                calculate_neighbourhood(path[idx - 1], map_size),
+                key=lambda p: distance(p, path[idx]),
+            )
+            path.insert(idx, new_point)
+            idx += 1  # Przesuwamy się, bo wstawiliśmy punkt
+
+    # Sprawdź punkt po zmienionym
+    # idx = original_idx  # Przywróć indeks na pierwotną wartość
+    if idx < len(path) - 1:  # Jeśli istnieje punkt po
+        next_point = path[idx + 1]
+        counter = 0
+        while next_point not in calculate_neighbourhood(path[idx], map_size):
+            # Dodaj punkt między `path[idx]` a `next_point`
+            counter += 1
+            new_point = min(
+                calculate_neighbourhood(path[idx], map_size),
+                key=lambda p: distance(p, next_point),
+            )
+            path.insert(idx + 1, new_point)
+            idx += 1  # Przesuwamy się, bo wstawiliśmy punkt
+
+    return path
+
+
+def cso_step(actual, best, map_size):
+    new_actual = copy.deepcopy(actual)
+    if 1 == 2:
+        print("chuj")
+    # if len(actual) < len(best):
+    #     new_actual.append(best[-1])
+    # elif len(best) < len(actual):
+    #     new_actual.pop(-2)
     else:
-        for i in range(len(actual)):
+        idx = 0
+        for i in range(1, len(actual)):
             if actual[i] != best[i]:
                 if actual[i][0] < best[i][0] and actual[i][1] < best[i][1]:
                     new_actual[i][0] += 1
@@ -169,7 +213,7 @@ def cso_step(actual, best):
                     new_actual[i][0] += 1
                 elif actual[i][0] < best[i][0] and actual[i][1] > best[i][1]:
                     new_actual[i][0] += 1
-                    new_actual[i][0] -= 1
+                    new_actual[i][1] -= 1
                 elif actual[i][0] == best[i][0] and actual[i][1] < best[i][1]:
                     new_actual[i][1] += 1
                 elif actual[i][0] == best[i][0] and actual[i][1] > best[i][1]:
@@ -181,8 +225,15 @@ def cso_step(actual, best):
                     new_actual[i][0] -= 1
                 elif actual[i][0] > best[i][0] and actual[i][1] < best[i][1]:
                     new_actual[i][0] -= 1
-                    new_actual[i][0] += 1
+                    new_actual[i][1] += 1
+                if new_actual[i] == new_actual[i - 1]:
+                    if new_actual[i + 1] == new_actual[i - 1]:
+                        new_actual.pop(i + 1)
+                    new_actual.pop(i)
+                idx = i
                 break
+        new_actual = fix_neighborhood(new_actual, idx=idx, map_size=map_size)
+
     return new_actual
 
 
@@ -273,7 +324,9 @@ def algorithm(
         for sol_i in range(N):
             pi = solutions[sol_i]
             for sol_j in range(N):
-                if (0 < step_distance(solutions[sol_i].path, solutions[sol_j].path)
+                if (
+                    0
+                    < step_distance(solutions[sol_i].path, solutions[sol_j].path)
                     <= visibility_range
                     and solutions[sol_j].loss_value < solutions[sol_i].loss_value
                 ):
@@ -282,10 +335,14 @@ def algorithm(
             # 3 - Implementacja ruchu roju oraz ponowne uaktualnienie pg
             if pi is solutions[sol_i]:
                 for _ in range(max_step):
-                    solutions[sol_i].path = cso_step(solutions[sol_i].path, pg.path)
+                    solutions[sol_i].path = cso_step(
+                        solutions[sol_i].path, pg.path, map_size
+                    )
             else:
                 for _ in range(max_step):
-                    solutions[sol_i].path = cso_step(solutions[sol_i].path, pi.path)
+                    solutions[sol_i].path = cso_step(
+                        solutions[sol_i].path, pi.path, map_size
+                    )
 
             for sol in solutions:
                 sol.loss_value = loss_function(sol.path, terrain)
@@ -301,7 +358,11 @@ def algorithm(
 
             for sol in solutions:
                 sol.loss_value = loss_function(sol.path, terrain)
-                if best_solution.loss_value > sol.loss_value and start in sol and end in sol:
+                if (
+                    best_solution.loss_value > sol.loss_value
+                    and start in sol
+                    and end in sol
+                ):
                     best_solution = sol
             pg_list.append(best_solution)
 
@@ -310,6 +371,12 @@ def algorithm(
         solutions[k] = pg
         pg_list.append(pg)
 
+        for point in best_solution.path:
+            best_solution.path = fix_neighborhood(
+                best_solution.path,
+                idx=best_solution.path.index(point),
+                map_size=map_size,
+            )
         # 4 - Dyspersja i ponowne uaktualnienie pg
     best = pg_list[0]
     for p in pg_list:
@@ -323,7 +390,9 @@ if __name__ == "__main__":
     start = [0, 0]
     end = [40, 40]
     map_size = [50, 50]
-    terrain = terrain_generator(terrain_size=map_size, terrain_type="canyon", noise_num=1)
+    terrain = terrain_generator(
+        terrain_size=map_size, terrain_type="canyon", noise_num=1
+    )
 
     best_path = algorithm(start, end, map_size, terrain, visibility_range=10)
 
