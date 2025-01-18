@@ -7,7 +7,7 @@ from PySide6.QtWidgets import QApplication, QMainWindow
 # You need to run the following command to generate the ui_form.py file
 #     pyside6-uic form.ui -o ui_form.py, or
 #     pyside2-uic form.ui -o ui_form.py
-from algorytmy.CSO import algorithm
+from algorytmy.CSO import algorithm, plot_graph
 from algorytmy.terrain import terrain_generator
 from ui_form import Ui_MainWindow
 from PySide6.QtCore import QThread, Signal
@@ -49,14 +49,16 @@ class MainWindow(QMainWindow):
         end = [19, 19]
         map_size = [20, 20]
 
-        best_path = algorithm((int(self.ui.start_point_x.value()), int(self.ui.start_point_y.value())),
-                              (int(self.ui.stop_point_x.value()), int(self.ui.stop_point_y.value())),
-                              map_size, self.terrain, visibility_range=10, num_of_iterations=int(self.ui.iteration_num.value()))
+        best_path, minimum_loss_values = algorithm(start=[int(self.ui.start_point_x.value()), int(self.ui.start_point_y.value())],
+                              end=[int(self.ui.stop_point_x.value()), int(self.ui.stop_point_y.value())],
+                              map_size=[int(self.ui.terrain_x.value()), int(self.ui.terrain_y.value())],
+                              terrain=self.terrain, visibility_range=10,
+                              num_of_iterations=int(self.ui.iteration_num.value()))
 
         print(best_path)
+        print(minimum_loss_values )
 
         print("100% completed!")
-        # plot_graph(best_path)
 
         # pso = MultiObjectivePSO(int(self.ui.particle_num.value()),
         #                         2, (0,100), int(self.ui.iteration_num.value()),

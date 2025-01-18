@@ -8,11 +8,11 @@ import matplotlib
 
 from algorytmy.terrain import terrain_generator
 
-matplotlib.use("TkAgg")
+matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 
 
-def plot_graph(best_path):
+def plot_graph(best_path, terrain, start, end):
     print(best_path)
     plt.close("all")
     plt.figure(figsize=(5, 5))
@@ -306,6 +306,7 @@ def algorithm(
 ):
     solutions = []
     best_solution = Solution(None, np.inf)  # path, cost,
+    loss_funcion_values_minimums_per_iter = []
     for i in range(cockroaches_num):
         new_path = initial_path(start, end, map_size)
         calc_new = loss_function(new_path, terrain)
@@ -353,7 +354,7 @@ def algorithm(
             pg_list.append(best_solution)
 
         # 4 - Dyspersja i ponowne uaktualnienie pg
-        generated_number = random.randint(1, 1000)
+        generated_number = random.randint(1, 3)
         if generated_number <= probability_of_dispersion:
             for disp_i in range(N):
                 solutions[disp_i].path = dispersal(solutions[disp_i].path, map_size)
@@ -379,13 +380,16 @@ def algorithm(
                 idx=best_solution.path.index(point),
                 map_size=map_size,
             )
-        # 4 - Dyspersja i ponowne uaktualnienie pg
+        loss_funcion_values_minimums_per_iter.append(best_solution.loss_value)
+
     best = pg_list[0]
     for p in pg_list:
         if best.loss_value > p.loss_value:
             best = p
     print(best_solution)
-    return best.path
+    plot_graph(best.path, terrain, start, end)
+    plt.show()
+    return best.path, loss_funcion_values_minimums_per_iter
 
 
 if __name__ == "__main__":
@@ -396,8 +400,8 @@ if __name__ == "__main__":
         terrain_size=map_size, terrain_type="canyon", noise_num=0
     )
 
-    best_path = algorithm(start, end, map_size, terrain, visibility_range=10)
+    best_path, _ = algorithm(start, end, map_size, terrain, visibility_range=10)
 
     print("100% completed!")
-    plot_graph(best_path)
+    plot_graph(best_path, terrain, start=start, end=end)
     plt.show()
