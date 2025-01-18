@@ -6,9 +6,10 @@ import time
 import numpy as np
 import matplotlib
 
+from algorytmy.terrain import terrain_generator
+
 matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
-from terrain import terrain_generator
 
 
 def plot_graph(best_path):
@@ -55,7 +56,7 @@ def loss_function(path, ter):
         p_last = p
 
         # koszt terenu + kara za odległość od poprzedniego + długość ścieżki
-        cost += ter[p[0]][p[1]] * 1 + dist_penalty * 1 + len(path) * 1
+        cost += ter[p[0]][p[1]] * 10000 + dist_penalty * 1000 + len(path) * 1
     return cost
 
 
@@ -194,7 +195,7 @@ def fix_neighborhood(path, idx, map_size):
     return path
 
 
-def cso_step(actual, best, map_size):
+def cso_step(actual, best, map_size, step = 1):
     new_actual = copy.deepcopy(actual)
     if 1 == 2:
         print("chuj")
@@ -207,25 +208,25 @@ def cso_step(actual, best, map_size):
         for i in range(1, len(actual)):
             if actual[i] != best[i]:
                 if actual[i][0] < best[i][0] and actual[i][1] < best[i][1]:
-                    new_actual[i][0] += 1
-                    new_actual[i][1] += 1
+                    new_actual[i][0] += step
+                    new_actual[i][1] += step
                 elif actual[i][0] < best[i][0] and actual[i][1] == best[i][1]:
-                    new_actual[i][0] += 1
+                    new_actual[i][0] += step
                 elif actual[i][0] < best[i][0] and actual[i][1] > best[i][1]:
-                    new_actual[i][0] += 1
-                    new_actual[i][1] -= 1
+                    new_actual[i][0] += step
+                    new_actual[i][1] -= step
                 elif actual[i][0] == best[i][0] and actual[i][1] < best[i][1]:
-                    new_actual[i][1] += 1
+                    new_actual[i][1] += step
                 elif actual[i][0] == best[i][0] and actual[i][1] > best[i][1]:
-                    new_actual[i][1] -= 1
+                    new_actual[i][1] -= step
                 elif actual[i][0] > best[i][0] and actual[i][1] > best[i][1]:
-                    new_actual[i][0] -= 1
-                    new_actual[i][1] -= 1
+                    new_actual[i][0] -= step
+                    new_actual[i][1] -= step
                 elif actual[i][0] > best[i][0] and actual[i][1] == best[i][1]:
-                    new_actual[i][0] -= 1
+                    new_actual[i][0] -= step
                 elif actual[i][0] > best[i][0] and actual[i][1] < best[i][1]:
-                    new_actual[i][0] -= 1
-                    new_actual[i][1] += 1
+                    new_actual[i][0] -= step
+                    new_actual[i][1] += step
                 if new_actual[i] == new_actual[i - 1]:
                     if new_actual[i + 1] == new_actual[i - 1]:
                         new_actual.pop(i + 1)
@@ -319,7 +320,8 @@ def algorithm(
     pg_list = [pg]
 
     N = len(solutions)
-    for _ in range(num_of_iterations):
+    for x in range(num_of_iterations):
+        print(x)
         # 2 - Znalezienie minimum lokalnego i globalnego
         for sol_i in range(N):
             pi = solutions[sol_i]
@@ -388,10 +390,10 @@ def algorithm(
 
 if __name__ == "__main__":
     start = [0, 0]
-    end = [40, 40]
-    map_size = [50, 50]
+    end = [60, 60]
+    map_size = [100, 100]
     terrain = terrain_generator(
-        terrain_size=map_size, terrain_type="canyon", noise_num=1
+        terrain_size=map_size, terrain_type="canyon", noise_num=0
     )
 
     best_path = algorithm(start, end, map_size, terrain, visibility_range=10)

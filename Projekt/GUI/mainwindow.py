@@ -7,9 +7,27 @@ from PySide6.QtWidgets import QApplication, QMainWindow
 # You need to run the following command to generate the ui_form.py file
 #     pyside6-uic form.ui -o ui_form.py, or
 #     pyside2-uic form.ui -o ui_form.py
-
-from ui_form import Ui_MainWindow
+from algorytmy.CSO import algorithm
 from algorytmy.terrain import terrain_generator
+from ui_form import Ui_MainWindow
+from PySide6.QtCore import QThread, Signal
+
+
+class AlgorithmThread(QThread):
+    progress = Signal(str)  # Signal to send progress or result back to the main thread
+
+    def __init__(self, start, end, map_size, terrain, visibility_range):
+        super().__init__()
+        self.start = start
+        self.end = end
+        self.map_size = map_size
+        self.terrain = terrain
+        self.visibility_range = visibility_range
+
+    def run(self):
+        # Execute the algorithm in a separate thread
+        best_path = algorithm(self.start, self.end, self.map_size, self.terrain, self.visibility_range)
+        self.progress.emit(str(best_path))  # Emit the result back to the main thread
 
 
 class MainWindow(QMainWindow):
@@ -18,20 +36,35 @@ class MainWindow(QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.flag = True
+        self.thread = None
 
         self.ui.map_plot.hide()
         self.ui.result_plot.hide()
         self.ui.generate_map_btn.clicked.connect(self.visualize_map)
-        # self.ui.start_btn.clicked.connect(self.start)
+        self.ui.start_btn.clicked.connect(self.start)
 
-    # def start(self):
-    #     pso = MultiObjectivePSO(int(self.ui.particle_num.value()),
-    #                             2, (0,100), int(self.ui.iteration_num.value()),
-    #                             self.terrain,
-    #                             (int(self.ui.start_point_x.value()), int(self.ui.start_point_y.value())),
-    #                             (int(self.ui.stop_point_x.value()), int(self.ui.stop_point_y.value())))
-    #     pso.update()
-    #     print(pso.gbest_positions)
+
+    def start(self):
+        start = [0, 0]
+        end = [19, 19]
+        map_size = [20, 20]
+
+        best_path = algorithm((int(self.ui.start_point_x.value()), int(self.ui.start_point_y.value())),
+                              (int(self.ui.stop_point_x.value()), int(self.ui.stop_point_y.value())),
+                              map_size, self.terrain, visibility_range=10, num_of_iterations=int(self.ui.iteration_num.value()))
+
+        print(best_path)
+
+        print("100% completed!")
+        # plot_graph(best_path)
+
+        # pso = MultiObjectivePSO(int(self.ui.particle_num.value()),
+        #                         2, (0,100), int(self.ui.iteration_num.value()),
+        #                         self.terrain,
+        #                         (int(self.ui.start_point_x.value()), int(self.ui.start_point_y.value())),
+        #                         (int(self.ui.stop_point_x.value()), int(self.ui.stop_point_y.value())))
+        # pso.update()
+        # print(pso.gbest_positions)
 
     def visualize_map(self):
         """
