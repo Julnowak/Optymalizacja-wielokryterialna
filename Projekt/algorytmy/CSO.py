@@ -65,11 +65,21 @@ def calculate_neighbourhood(point, map_size):
     for i in [-1, 0, 1]:
         for j in [-1, 0, 1]:
             p = [point[0] + i, point[1] + j]
+
+            # Tutaj p[0] może być równe 100 co za tym idzie nie jest to poprawne - zmieniam na to co na dole - jak źle myślę to trzeba znowu poprawić
+            # if (
+            #     p[0] >= 0
+            #     and p[1] >= 0
+            #     and p[0] <= map_size[0]
+            #     and p[1] <= map_size[1]
+            #     and p != point
+            # ):
+            #     neigh.append(p)
+
+            # Prawidłowy zakres indeksów to [0, map_size[0]) i [0, map_size[1]):
             if (
-                p[0] >= 0
-                and p[1] >= 0
-                and p[0] <= map_size[0]
-                and p[1] <= map_size[1]
+                0 <= p[0] < map_size[0]
+                and 0 <= p[1] < map_size[1]
                 and p != point
             ):
                 neigh.append(p)
@@ -227,10 +237,17 @@ def cso_step(actual, best, map_size, step = 1):
                 elif actual[i][0] > best[i][0] and actual[i][1] < best[i][1]:
                     new_actual[i][0] -= step
                     new_actual[i][1] += step
-                if new_actual[i] == new_actual[i - 1]:
+                # Gdy i == len(new_actual) - 1, new_actual[i + 1] wywoła błąd, bo indeks i+1 będzie poza zakresem.
+                # Niby mamy break, więc zwykle nie dojdzie do końca listy, ale w rzadkich sytuacjach może się to zdarzyć.
+                # Zmieniam na to co niżej
+                # if new_actual[i] == new_actual[i - 1]:
+                #     if new_actual[i + 1] == new_actual[i - 1]:
+                #         new_actual.pop(i + 1)
+                #     new_actual.pop(i)
+                if i < len(new_actual) - 1:  # Upewniamy się, że i+1 nie przekroczy długości listy
                     if new_actual[i + 1] == new_actual[i - 1]:
                         new_actual.pop(i + 1)
-                    new_actual.pop(i)
+                new_actual.pop(i)
                 idx = i
                 break
         new_actual = fix_neighborhood(new_actual, idx=idx, map_size=map_size)
@@ -276,14 +293,27 @@ def dispersal(actual, map_size):
             new_actual[i][0] -= addon if new_actual[i][0] > 0 else 0
             new_actual[i][1] += addon if new_actual[i][1] < map_size[1] else 0
 
+    # for i in new_actual:
+    #     if (
+    #         i[0] > map_size[0]
+    #         or i[1] > map_size[1]
+    #         or i[0] < map_size[0]  # To zawsze będzie prawda, jeśli i[0] != 100 - Co za tym idzie mamy problem z dyspersją
+    #         or i[1] < map_size[1]
+    #     ):
+    #         return actual
+    # return new_actual
+
+    # Jeśli którykolwiek punkt wyjdzie poza [0, map_size[0]) albo [0, map_size[1]),
+    # odrzucamy nową ścieżkę (wracamy do 'actual'). W przeciwnym wypadku akceptujemy 'new_actual'.
     for i in new_actual:
         if (
-            i[0] > map_size[0]
-            or i[1] > map_size[1]
-            or i[0] < map_size[0]
-            or i[1] < map_size[1]
+                i[0] < 0
+                or i[1] < 0
+                or i[0] >= map_size[0]
+                or i[1] >= map_size[1]
         ):
             return actual
+
     return new_actual
 
 
@@ -354,8 +384,12 @@ def algorithm(
             pg_list.append(best_solution)
 
         # 4 - Dyspersja i ponowne uaktualnienie pg
-        generated_number = random.randint(1, 3)
-        if generated_number <= probability_of_dispersion:
+        # Dyspersja uruchamia się zawsze bo warunek zawsze był prawdziwy - zmieniam na to co niżej
+        # generated_number = random.randint(1, 3)
+        # if generated_number <= probability_of_dispersion:
+
+        # Poprawny warunek - random.random() zwraca wartość między 0 a 1 - przemnażamy przez 100 bo probability_of_dispersion = 10
+        if 100 * random.random() < probability_of_dispersion:
             for disp_i in range(N):
                 solutions[disp_i].path = dispersal(solutions[disp_i].path, map_size)
 
@@ -363,8 +397,8 @@ def algorithm(
                 sol.loss_value = loss_function(sol.path, terrain)
                 if (
                     best_solution.loss_value > sol.loss_value
-                    and start in sol
-                    and end in sol
+                    and start in sol.path
+                    and end in sol.path
                 ):
                     best_solution = sol
             pg_list.append(best_solution)
