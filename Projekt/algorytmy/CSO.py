@@ -25,10 +25,18 @@ def plot_graph(best_path, terrain, start, end):
     plt.scatter(end[0], end[1], 100, marker="*", facecolors="k", edgecolors="k")
     plt.scatter(start[0], start[1], 100, marker="o", facecolors="k", edgecolors="k")
 
+    X = [best_path[i][0] for i in range(len(best_path))]
+    Y = [best_path[i][1] for i in range(len(best_path))]
+    plt.plot(
+        X,
+        Y,
+        "r-",
+    )
+
     for i in range(len(best_path)):
         plt.scatter(
-            best_path[i][1],
             best_path[i][0],
+            best_path[i][1],
             25,
             marker=".",
             facecolors="red",
@@ -44,9 +52,8 @@ def loss_function(path, ter):
     num = 0
     dist_penalty = 0
     for p in path:
-        if num != 0:
-            # Kara za odległość od poprzedniego punktu
-            dist_penalty = np.sqrt((p[0] - path[-1][0]) ** 2 + (p[1] - path[-1][1]) ** 2)
+        # Kara za odległość od ostatniego punktu
+        dist_penalty = np.sqrt((p[0] - path[-1][0]) ** 2 + (p[1] - path[-1][1]) ** 2)
 
         # koszt terenu + kara za odległość od poprzedniego + długość ścieżki
         cost += ter[p[0]][p[1]] + dist_penalty
@@ -58,16 +65,6 @@ def calculate_neighbourhood(point, map_size):
     for i in [-1, 0, 1]:
         for j in [-1, 0, 1]:
             p = [point[0] + i, point[1] + j]
-
-            # Tutaj p[0] może być równe 100 co za tym idzie nie jest to poprawne - zmieniam na to co na dole - jak źle myślę to trzeba znowu poprawić
-            # if (
-            #     p[0] >= 0
-            #     and p[1] >= 0
-            #     and p[0] <= map_size[0]
-            #     and p[1] <= map_size[1]
-            #     and p != point
-            # ):
-            #     neigh.append(p)
 
             # Prawidłowy zakres indeksów to [0, map_size[0]) i [0, map_size[1]):
             if (
@@ -198,71 +195,69 @@ def fix_neighborhood(path, idx, map_size):
     return path
 
 
-def cso_step(actual, best, map_size, step = 1):
+def cso_step(actual, best, map_size, step=1):
     new_actual = copy.deepcopy(actual)
-    if 1 == 2:
-        pass
-    # if len(actual) < len(best):
-    #     new_actual.append(best[-1])
-    # elif len(best) < len(actual):
-    #     new_actual.pop(-2)
-    else:
-        idx = 0
-        for i in range(1, len(actual)):
-            if actual[i] != best[i]:
-                if actual[i][0] < best[i][0] and actual[i][1] < best[i][1]:
-                    new_actual[i][0] += step
-                    new_actual[i][1] += step
-                elif actual[i][0] < best[i][0] and actual[i][1] == best[i][1]:
-                    new_actual[i][0] += step
-                elif actual[i][0] < best[i][0] and actual[i][1] > best[i][1]:
-                    new_actual[i][0] += step
-                    new_actual[i][1] -= step
-                elif actual[i][0] == best[i][0] and actual[i][1] < best[i][1]:
-                    new_actual[i][1] += step
-                elif actual[i][0] == best[i][0] and actual[i][1] > best[i][1]:
-                    new_actual[i][1] -= step
-                elif actual[i][0] > best[i][0] and actual[i][1] > best[i][1]:
-                    new_actual[i][0] -= step
-                    new_actual[i][1] -= step
-                elif actual[i][0] > best[i][0] and actual[i][1] == best[i][1]:
-                    new_actual[i][0] -= step
-                elif actual[i][0] > best[i][0] and actual[i][1] < best[i][1]:
-                    new_actual[i][0] -= step
-                    new_actual[i][1] += step
-                # Gdy i == len(new_actual) - 1, new_actual[i + 1] wywoła błąd, bo indeks i+1 będzie poza zakresem.
-                # Niby mamy break, więc zwykle nie dojdzie do końca listy, ale w rzadkich sytuacjach może się to zdarzyć.
-                # Zmieniam na to co niżej
-                # if new_actual[i] == new_actual[i - 1]:
-                #     if new_actual[i + 1] == new_actual[i - 1]:
-                #         new_actual.pop(i + 1)
-                #     new_actual.pop(i)
-                if i < len(new_actual) - 1:  # Upewniamy się, że i+1 nie przekroczy długości listy
+    idx = 0
+    for i in range(1, len(actual)):
+        if i >= len(best):
+            new_actual.pop(len(best))
+        elif actual[i] != best[i]:
+            if actual[i][0] < best[i][0] and actual[i][1] < best[i][1]:
+                new_actual[i][0] += step
+                new_actual[i][1] += step
+            elif actual[i][0] < best[i][0] and actual[i][1] == best[i][1]:
+                new_actual[i][0] += step
+            elif actual[i][0] < best[i][0] and actual[i][1] > best[i][1]:
+                new_actual[i][0] += step
+                new_actual[i][1] -= step
+            elif actual[i][0] == best[i][0] and actual[i][1] < best[i][1]:
+                new_actual[i][1] += step
+            elif actual[i][0] == best[i][0] and actual[i][1] > best[i][1]:
+                new_actual[i][1] -= step
+            elif actual[i][0] > best[i][0] and actual[i][1] > best[i][1]:
+                new_actual[i][0] -= step
+                new_actual[i][1] -= step
+            elif actual[i][0] > best[i][0] and actual[i][1] == best[i][1]:
+                new_actual[i][0] -= step
+            elif actual[i][0] > best[i][0] and actual[i][1] < best[i][1]:
+                new_actual[i][0] -= step
+                new_actual[i][1] += step
+            # Gdy i == len(new_actual) - 1, new_actual[i + 1] wywoła błąd, bo indeks i+1 będzie poza zakresem.
+            # Niby mamy break, więc zwykle nie dojdzie do końca listy, ale w rzadkich sytuacjach może się to zdarzyć.
+            # Zmieniam na to co niżej
+            # if new_actual[i] == new_actual[i - 1]:
+            #     if new_actual[i + 1] == new_actual[i - 1]:
+            #         new_actual.pop(i + 1)
+            #     new_actual.pop(i)
+            if i < len(new_actual) - 1:  # Upewniamy się, że i+1 nie przekroczy długości listy
+                if new_actual[i] == new_actual[i - 1] or new_actual[i] == new_actual[i + 1]:
                     if new_actual[i + 1] == new_actual[i - 1]:
                         new_actual.pop(i + 1)
-                new_actual.pop(i)
-                idx = i
-                break
-        new_actual = fix_neighborhood(new_actual, idx=idx, map_size=map_size)
+                    new_actual.pop(i)
+            idx = i
+            break
+    new_actual = fix_neighborhood(new_actual, idx=idx, map_size=map_size)
 
     return new_actual
 
 
 def dispersal(actual, map_size):
-    new_actual = actual.copy()
+    new_actual = copy.deepcopy(actual)
     x = random.randint(1, 10)
-    i = random.randint(0, len(actual) - 1)
+    i = random.randint(1, len(actual) - 2)
     if x == 1:
-        new = new_actual[0]
+        new = [0, 0]
         while new in new_actual:
             new = [
                 random.randint(1, map_size[0] - 1),
                 random.randint(1, map_size[1] - 1),
             ]
-        new_actual.append(new)
+        new_actual.insert(-1, new)
+        new_actual = fix_neighborhood(path=new_actual, idx=-2, map_size=map_size)
     elif x == 2:
         if len(new_actual) > 1:
-            new_actual.pop()
+            new_actual.pop(-2)
+            new_actual = fix_neighborhood(path=new_actual, idx=-2, map_size=map_size)
     else:
         addon = 1
         if x == 3:
@@ -298,12 +293,12 @@ def dispersal(actual, map_size):
 
     # Jeśli którykolwiek punkt wyjdzie poza [0, map_size[0]) albo [0, map_size[1]),
     # odrzucamy nową ścieżkę (wracamy do 'actual'). W przeciwnym wypadku akceptujemy 'new_actual'.
-    for i in new_actual:
+    for point in new_actual:
         if (
-                i[0] < 0
-                or i[1] < 0
-                or i[0] >= map_size[0]
-                or i[1] >= map_size[1]
+                point[0] < 0
+                or point[1] < 0
+                or point[0] >= map_size[0]
+                or point[1] >= map_size[1]
         ):
             return actual
 
@@ -339,14 +334,14 @@ def algorithm(
         if best_solution.loss_value > calc_new:
             best_solution = new_sol
 
-    plot_graph(best_solution.path, terrain, start, end)
+    # plot_graph(best_solution.path, terrain, start, end)
     pi = None
     pg = best_solution
     pg_list = [pg]
 
     N = len(solutions)
     for x in range(num_of_iterations):
-        print(x)
+        print(f"Numer iteracji {x}")
         # 2 - Znalezienie minimum lokalnego i globalnego
         for sol_i in range(N):
             pi = solutions[sol_i]
@@ -414,22 +409,31 @@ def algorithm(
     for p in pg_list:
         if best.loss_value > p.loss_value:
             best = p
-    print(best_solution)
-    plot_graph(best.path, terrain, start, end)
-    plt.show()
+    # print(best_solution)
+    # plot_graph(best.path, terrain, start, end)
+    # plt.show()
     return best.path, loss_funcion_values_minimums_per_iter
 
 
 if __name__ == "__main__":
+    # while True:
+    #     start = [0, 0]
+    #     end = [10, 10]
+    #     map_size = [20, 20]
+    #     terrain = terrain_generator(
+    #         terrain_size=map_size, terrain_type="hills", noise_num=0
+    #     )
+    #
+    #     best_path, _ = algorithm(start, end, map_size, terrain, visibility_range=10)
+
     start = [0, 0]
-    end = [10, 10]
-    map_size = [20, 20]
+    end = [40, 40]
+    map_size = [50, 50]
     terrain = terrain_generator(
-        terrain_size=map_size, terrain_type="canyon", noise_num=0
+        terrain_size=map_size, terrain_type="hills", noise_num=0
     )
 
     best_path, _ = algorithm(start, end, map_size, terrain, visibility_range=10)
-
     print("100% completed!")
     plot_graph(best_path, terrain, start=start, end=end)
     plt.show()
