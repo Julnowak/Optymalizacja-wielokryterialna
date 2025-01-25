@@ -22,41 +22,34 @@ def plot_graph(best_path, terrain, start, end):
         terrain,
     )
 
-    X = [best_path[i][0] for i in range(len(best_path))]
-    Y = [best_path[i][1] for i in range(len(best_path))]
-    plt.plot(
-        X,
-        Y,
-        "ro-",
-    )
+    plt.scatter(end[0], end[1], 100, marker="*", facecolors="k", edgecolors="k")
+    plt.scatter(start[0], start[1], 100, marker="o", facecolors="k", edgecolors="k")
 
     for i in range(len(best_path)):
         plt.scatter(
-            best_path[i][0],
             best_path[i][1],
+            best_path[i][0],
             25,
             marker=".",
-            facecolors="blue",
+            facecolors="red",
             edgecolors="face",
         )
-    plt.scatter(end[0], end[1], 100, marker="*", facecolors="k", edgecolors="k")
-    plt.scatter(start[0], start[1], 100, marker="o", facecolors="k", edgecolors="k")
+
     plt.title("Crawler Optimization")
+    plt.show()
 
 
 def loss_function(path, ter):
     cost = 0
     num = 0
     dist_penalty = 0
-    p_last = None
     for p in path:
         if num != 0:
             # Kara za odległość od poprzedniego punktu
-            dist_penalty = np.sqrt((p[0] - p_last[0]) ** 2 + (p[1] - p_last[1]) ** 2)
-        p_last = p
+            dist_penalty = np.sqrt((p[0] - path[-1][0]) ** 2 + (p[1] - path[-1][1]) ** 2)
 
         # koszt terenu + kara za odległość od poprzedniego + długość ścieżki
-        cost += ter[p[0]][p[1]] * 10000 + dist_penalty * 1000 + len(path) * 1
+        cost += ter[p[0]][p[1]] + dist_penalty
     return cost
 
 
@@ -208,7 +201,7 @@ def fix_neighborhood(path, idx, map_size):
 def cso_step(actual, best, map_size, step = 1):
     new_actual = copy.deepcopy(actual)
     if 1 == 2:
-        print("chuj")
+        pass
     # if len(actual) < len(best):
     #     new_actual.append(best[-1])
     # elif len(best) < len(actual):
@@ -346,6 +339,7 @@ def algorithm(
         if best_solution.loss_value > calc_new:
             best_solution = new_sol
 
+    plot_graph(best_solution.path, terrain, start, end)
     pi = None
     pg = best_solution
     pg_list = [pg]
@@ -369,12 +363,12 @@ def algorithm(
             if pi is solutions[sol_i]:
                 for _ in range(max_step):
                     solutions[sol_i].path = cso_step(
-                        solutions[sol_i].path, pg.path, map_size
+                        copy.deepcopy(solutions[sol_i].path), pg.path, map_size
                     )
             else:
                 for _ in range(max_step):
                     solutions[sol_i].path = cso_step(
-                        solutions[sol_i].path, pi.path, map_size
+                        copy.deepcopy(solutions[sol_i].path), pi.path, map_size
                     )
 
             for sol in solutions:
@@ -428,8 +422,8 @@ def algorithm(
 
 if __name__ == "__main__":
     start = [0, 0]
-    end = [60, 60]
-    map_size = [100, 100]
+    end = [10, 10]
+    map_size = [20, 20]
     terrain = terrain_generator(
         terrain_size=map_size, terrain_type="canyon", noise_num=0
     )

@@ -7,27 +7,11 @@ from PySide6.QtWidgets import QApplication, QMainWindow
 # You need to run the following command to generate the ui_form.py file
 #     pyside6-uic form.ui -o ui_form.py, or
 #     pyside2-uic form.ui -o ui_form.py
+from algorytmy.ASTAR_multi import astar
 from algorytmy.CSO import algorithm, plot_graph
 from algorytmy.terrain import terrain_generator
 from ui_form import Ui_MainWindow
-from PySide6.QtCore import QThread, Signal
-
-
-class AlgorithmThread(QThread):
-    progress = Signal(str)  # Signal to send progress or result back to the main thread
-
-    def __init__(self, start, end, map_size, terrain, visibility_range):
-        super().__init__()
-        self.start = start
-        self.end = end
-        self.map_size = map_size
-        self.terrain = terrain
-        self.visibility_range = visibility_range
-
-    def run(self):
-        # Execute the algorithm in a separate thread
-        best_path = algorithm(self.start, self.end, self.map_size, self.terrain, self.visibility_range)
-        self.progress.emit(str(best_path))  # Emit the result back to the main thread
+from PySide6.QtCore import QThread, Signal, QTimer
 
 
 class MainWindow(QMainWindow):
@@ -49,15 +33,32 @@ class MainWindow(QMainWindow):
         end = [19, 19]
         map_size = [20, 20]
 
-        best_path, minimum_loss_values = algorithm(start=[int(self.ui.start_point_x.value()), int(self.ui.start_point_y.value())],
-                              end=[int(self.ui.stop_point_x.value()), int(self.ui.stop_point_y.value())],
-                              map_size=[int(self.ui.terrain_x.value()), int(self.ui.terrain_y.value())],
-                              terrain=self.terrain, visibility_range=10,
-                              num_of_iterations=int(self.ui.iteration_num.value()))
+        # best_path, minimum_loss_values = algorithm(start=[int(self.ui.start_point_x.value()), int(self.ui.start_point_y.value())],
+        #                       end=[int(self.ui.stop_point_x.value()), int(self.ui.stop_point_y.value())],
+        #                       map_size=[int(self.ui.terrain_x.value()), int(self.ui.terrain_y.value())],
+        #                       terrain=self.terrain, visibility_range=10,
+        #                       num_of_iterations=int(self.ui.iteration_num.value()))
+        #
+        # print(best_path)
+        # print(minimum_loss_values )
 
-        print(best_path)
-        print(minimum_loss_values )
+        start_positions = [(0, 0), (10, 10), (20, 15), (30, 30)]
+        self.starts = start_positions
+        start = (0, 0)
+        goal = (50, 50)
 
+        occupied_positions = set()
+        self.paths = []
+
+        for start in start_positions:
+            path = astar(self.terrain, start, goal, occupied_positions)
+            if path:
+                self.paths.append(path)
+                occupied_positions.update(path)  # Aktualizacja zajętych pozycji
+            else:
+                print(f"Brak możliwej ścieżki dla robota z pozycji {start}")
+
+        self.visualize_results()
         print("100% completed!")
 
         # pso = MultiObjectivePSO(int(self.ui.particle_num.value()),
@@ -173,6 +174,159 @@ class MainWindow(QMainWindow):
     def hide_graph(self):
         self.ui.map_plot.canvas.axes.clear()
         self.ui.map_plot.hide()
+
+    def visualize_results(self):
+
+        def map_terrain_type(map_type):
+            ans = ""
+            if map_type == "Wzgórza":
+                ans = "hills"
+            elif map_type == "Linie":
+                ans = "lines"
+            elif map_type == "Skos":
+                ans = "slope"
+            elif map_type == "Zęby":
+                ans = "razors"
+            elif map_type == "Kanion":
+                ans = "canyon"
+            elif map_type == "Łuk":
+                ans = "bow"
+            elif map_type == "Labirynt":
+                ans = "maze"
+            return ans
+
+        self.ui.map_plot.canvas.axes.clear()
+        self.ui.map_plot.show()
+
+        # Wyświetlanie terenu za pomocą imshow
+        terrain_image = self.ui.map_plot.canvas.axes.imshow(self.terrain, origin='upper', cmap="magma")
+
+        # Dodanie colorbar (pasek kolorów) do mapy
+        if self.flag:
+            self.ui.map_plot.canvas.figure.colorbar(terrain_image, ax=self.ui.map_plot.canvas.axes, label="S(u)")
+            self.flag = False
+
+
+        # Rysowanie środka punktu stop (mniejszy punkt, wypełniony)
+        self.ui.map_plot.canvas.axes.scatter(
+            [int(self.ui.stop_point_x.value())],
+            [int(self.ui.stop_point_y.value())],
+            color="black",  # Czerwony kolor wypełnienia
+            edgecolor="none",  # Brak obwódki dla środka
+            marker="*",
+            s=50,  # Mniejszy rozmiar punktu
+        )
+
+        for start in self.starts:
+            # Rysowanie środka punktu start (mniejszy punkt, wypełniony)
+            self.ui.map_plot.canvas.axes.scatter(
+                start[1],
+                start[0],
+                color="black",  # Niebieski kolor wypełnienia
+                edgecolor="none",  # Brak obwódki dla środka
+                marker = "o",
+                s=50,  # Mniejszy rozmiar punktu
+            )
+
+
+        colors = ["red", "blue", "green", "purple", "orange"]
+
+        for i, path in enumerate(self.paths):
+            for point in path:
+                self.ui.map_plot.canvas.axes.scatter(
+                    point[1], point[0],
+                    facecolors=colors[i % len(colors)],
+                    edgecolor="face",  # Brak obwódki dla środka
+                    marker=".",
+                    s=25,  # Mniejszy rozmiar punktu
+                )
+
+        # Dodanie opisu osi i tytułu
+        self.ui.map_plot.canvas.axes.set_xlabel(f"X")
+        self.ui.map_plot.canvas.axes.set_ylabel(f"Y")
+        self.ui.map_plot.canvas.axes.set_title("Mapa")
+
+        # Odświeżenie wykresu
+        self.ui.map_plot.canvas.draw()
+
+    def visualize_animation(self):
+        def map_terrain_type(map_type):
+            mapping = {
+                "Wzgórza": "hills",
+                "Linie": "lines",
+                "Skos": "slope",
+                "Zęby": "razors",
+                "Kanion": "canyon",
+                "Łuk": "bow",
+                "Labirynt": "maze"
+            }
+            return mapping.get(map_type, "")
+
+        self.ui.map_plot.canvas.axes.clear()
+        self.ui.map_plot.show()
+
+        # Wyświetlanie terenu za pomocą imshow
+        terrain_image = self.ui.map_plot.canvas.axes.imshow(self.terrain, origin='upper', cmap="magma")
+
+        # Dodanie colorbar (pasek kolorów) do mapy
+        if self.flag:
+            self.ui.map_plot.canvas.figure.colorbar(terrain_image, ax=self.ui.map_plot.canvas.axes, label="S(u)")
+            self.flag = False
+
+        # Rysowanie środka punktu stop (mniejszy punkt, wypełniony)
+        self.ui.map_plot.canvas.axes.scatter(
+            [int(self.ui.stop_point_x.value())],
+            [int(self.ui.stop_point_y.value())],
+            color="black",
+            edgecolor="none",
+            marker="*",
+            s=50,
+        )
+
+        for start in self.starts:
+            self.ui.map_plot.canvas.axes.scatter(
+                start[1],
+                start[0],
+                color="black",
+                edgecolor="none",
+                marker="o",
+                s=50,
+            )
+
+        colors = ["red", "blue", "green", "purple", "orange"]
+
+        self.current_step = 0  # Licznik do animacji
+
+        def update_animation():
+            nonlocal self
+            if self.current_step < max(len(path) for path in self.paths):
+                for i, path in enumerate(self.paths):
+                    if self.current_step < len(path):
+                        point = path[self.current_step]
+                        self.ui.map_plot.canvas.axes.scatter(
+                            point[1], point[0],
+                            facecolors=colors[i % len(colors)],
+                            edgecolor="face",
+                            marker=".",
+                            s=25,
+                        )
+
+                self.ui.map_plot.canvas.draw()
+                self.current_step += 1
+            else:
+                timer.stop()  # Zatrzymanie animacji po wyświetleniu wszystkich punktów
+
+        # Ustawienie timera dla animacji
+        timer = QTimer()
+        timer.timeout.connect(update_animation)
+        timer.start(50)  # Czas aktualizacji w ms (100 ms = 10 FPS)
+
+        # Dodanie opisu osi i tytułu
+        self.ui.map_plot.canvas.axes.set_xlabel("X")
+        self.ui.map_plot.canvas.axes.set_ylabel("Y")
+        self.ui.map_plot.canvas.axes.set_title("Mapa")
+
+        self.ui.map_plot.canvas.draw()
 
 
 if __name__ == "__main__":

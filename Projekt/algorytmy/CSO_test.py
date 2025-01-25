@@ -110,3 +110,24 @@ def cso_step(actual, best):
 
 
 
+def generate_neighborhood(x, y, size, directions):
+    # Inicjalizujemy zbiór na sąsiedztwo
+    neighborhood = []
+
+    # Iterujemy po wszystkich kierunkach
+    for dx, dy in directions:
+        for dist in range(1, size + 1):
+            # Obliczamy nowe współrzędne punktu
+            new_x = x + dx * dist
+            new_y = y + dy * dist
+            neighborhood.append((new_x, new_y))
+
+    return neighborhood
+
+# Przykład użycia
+point = (2, 2)
+size = 1
+directions = [(0, 1), (1, 0), (0, -1), (-1, 0), (1, 1), (-1, -1), (-1, 1), (1, -1)]
+
+neighborhood = generate_neighborhood(*point, size, directions)
+print(neighborhood)
