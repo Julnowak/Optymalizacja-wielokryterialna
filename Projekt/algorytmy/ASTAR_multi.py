@@ -174,7 +174,7 @@ def astar(terrain, start, goal, occupied_positions):
 
 
 # Inicjalizacja mapy terenu 51x51
-terrain = terrain_generator(0, terrain_size=(51, 51), terrain_type="hilfls")
+terrain = terrain_generator(0, terrain_size=(51, 51), terrain_type="hills")
 
 # Punkty startowe dla N robotów
 start_positions = [(5, 5), (10, 0), (0, 10), (1, 1)]
