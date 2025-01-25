@@ -125,9 +125,14 @@ def generate_neighborhood(x, y, size, directions):
     return neighborhood
 
 # Przykład użycia
-point = (2, 2)
+point = (1, 1)
+end = (2,2)
 size = 1
 directions = [(0, 1), (1, 0), (0, -1), (-1, 0), (1, 1), (-1, -1), (-1, 1), (1, -1)]
 
+map = [[[0,0], [0,0], [0,0]]
+       [[0,0], [0,0], [0,0]]
+       [[0,0], [0,0], [0,0]]]
 neighborhood = generate_neighborhood(*point, size, directions)
 print(neighborhood)
+

@@ -94,83 +94,36 @@ def generate_neighborhood(point, size, directions):
     return neighborhood
 
 
-# # Funkcja kosztu, uwzględniająca teren i odległości między robotami
-# def movement_cost(current, neighbor, terrain, oc_pos, step_num):
-#     height_diff = abs(terrain[neighbor[0]][neighbor[1]] - terrain[current[0]][current[1]])
-#     base_cost = 1 + height_diff * 10000  # Podstawowy koszt z wysokością
-#     # print([row[step_num] for row in occupied_positions])
-#     columns = []
-#     for row in oc_pos:
-#         for t in range(-2, 3):
-#             if step_num + t >= 0:
-#                 try:
-#                     columns.append(row[step_num + t])
-#                 except:
-#                     pass
-#
-#     neigh = generate_neighborhood(neighbor, 3, [(0, 1), (1, 0), (0, -1), (-1, 0), (1, 1), (-1, -1), (-1, 1), (1, -1), (0,0)])
-#     # TODO: poprawić
-#     for x in neigh:
-#         if x in occupied_positions:
-#             print("-------", heuristic(neighbor, x)," " , neighbor," ", x )
-#             dis = heuristic(current, x)
-#             if dis != 0:
-#                 base_cost += 10000/dis # Kara za bliskość do innego robota
-#             else:
-#                 base_cost += 10000
-#
-#     print(f"Base {base_cost}, {current} --> {neighbor} " )
-#     return base_cost
-
 # Funkcja kosztu, uwzględniająca teren i odległości między robotami
-def movement_cost(current, neighbor, terrain, oc_pos, step_num):
+def movement_cost(current, neighbor, terrain, oc_pos, stp_num):
     height_diff = abs(terrain[neighbor[0]][neighbor[1]] - terrain[current[0]][current[1]])
     base_cost = 1 + height_diff * 10000  # Podstawowy koszt z wysokością
-
-    # Sprawdzamy, czy ktoś nie rezerwuje "neighbor" na kolejnej iteracji (step_num+1).
-    # Jeśli tak - ruch jest blokowany zwracając nieskończenie duży koszt.
-    for row in oc_pos:
-        if (step_num + 1) < len(row) and row[step_num + 1] == neighbor:
-            return float('inf')  # blokada
-
-    # Z listy ścieżek (oc_pos) wyciągamy pozycje innych robotów w zakresie kilku kroków
+    # print([row[step_num] for row in occupied_positions])
     columns = []
     for row in oc_pos:
+        # for t in row:
+        #     columns.append(t)
         for t in range(-2, 3):
-            if step_num + t >= 0:
+            # print(stp_num + t, " ")
+            if stp_num + t >= 0:
                 try:
-                    columns.append(row[step_num + t])
+                    columns.append(row[stp_num + t])
                 except:
                     pass
-
-    # Generujemy sąsiedztwo (dookoła 'neighbor') – np. do sprawdzania "czy ktoś jest blisko"
-    neigh = generate_neighborhood(
-        neighbor, 3,
-        [(0, 1), (1, 0), (0, -1), (-1, 0),
-         (1, 1), (-1, -1), (-1, 1), (1, -1),
-         (0, 0)]
-    )
-
-    # Kary za zbliżenie się do innego robota (jak poprzednio)
-    for x in neigh:
-        if x in columns:
-            print("Kolizja/bliskość:", heuristic(neighbor, x),
-                  "Sąsiad:", neighbor, "RobotInny:", x)
-            dis = heuristic(neighbor, x)
-            if dis != 0:
-                base_cost += 1000000 / dis
-            else:
-                base_cost += 1000000
-
-    print(f"Base {base_cost}, {current} --> {neighbor}")
+    # print(columns)
+    # neigh = generate_neighborhood(current, 3, [(0, 1), (1, 0), (0, -1), (-1, 0), (1, 1), (-1, -1), (-1, 1), (1, -1)])
+    # TODO: poprawić
+    if neighbor in columns:
+        base_cost += 10000000000
+        print("ffff")
+    # print(f"Base {base_cost}, {current} --> {neighbor} " )
     return base_cost
 
 
 # Algorytm A* dla każdego robota
 def astar(terrain, start, goal, occupied_positions):
     rows, cols = len(terrain), len(terrain[0])
-    open_set = []
-    heapq.heappush(open_set, (0, start))
+    open_set = [(0, start)]  # Lista zamiast kopca
     came_from = {}
     g_score = {start: 0}
     f_score = {start: heuristic(start, goal)}
@@ -179,9 +132,12 @@ def astar(terrain, start, goal, occupied_positions):
     directions = [(0, 1), (1, 0), (0, -1), (-1, 0), (1, 1), (-1, -1), (-1, 1), (1, -1)]
 
     while open_set:
-        _, current = heapq.heappop(open_set)
+        open_set.sort()  # Posortowanie listy w celu wyboru elementu o najniższym koszcie
+        _, current = open_set.pop(0)  # Pobranie elementu z najmniejszym kosztem
+
         if current == goal:
             path = []
+            # print(came_from)
             while current in came_from:
                 path.append(current)
                 current = came_from[current]
@@ -189,6 +145,7 @@ def astar(terrain, start, goal, occupied_positions):
             return path[::-1]
 
         x, y = current
+        print(step_num)
         for dx, dy in directions:
             neighbor = (x + dx, y + dy)
             if 0 <= neighbor[0] < rows and 0 <= neighbor[1] < cols:
@@ -199,13 +156,25 @@ def astar(terrain, start, goal, occupied_positions):
                     came_from[neighbor] = current
                     g_score[neighbor] = tentative_g_score
                     f_score[neighbor] = tentative_g_score + heuristic(neighbor, goal)
-                    heapq.heappush(open_set, (f_score[neighbor], neighbor))
-        step_num += 1
+
+                    ffff = []
+                    v = current
+                    while v in came_from:
+                        ffff.append(v)
+                        v = came_from[v]
+                    ffff.append(start)
+
+                    step_num = len(ffff[::-1])
+
+                    # Dodajemy do listy i sortujemy, aby utrzymać najniższy koszt na początku
+                    open_set.append((f_score[neighbor], neighbor))
+                    step_num += 1
+
     return None  # Brak ścieżki
 
 
 # Inicjalizacja mapy terenu 51x51
-terrain = terrain_generator(0, terrain_size=(51, 51), terrain_type="hills")
+terrain = terrain_generator(0, terrain_size=(51, 51), terrain_type="hilfls")
 
 # Punkty startowe dla N robotów
 start_positions = [(5, 5), (10, 0), (0, 10), (1, 1)]
@@ -222,8 +191,10 @@ for start in start_positions:
     if path:
         paths.append(path)
         occupied_positions.append(path)  # Aktualizacja zajętych pozycji
+        print(occupied_positions)
     else:
         print(f"Brak możliwej ścieżki dla robota z pozycji {start}")
+
 
 # Rysowanie wyników
 plot_graph(paths, terrain, start_positions, goal)
