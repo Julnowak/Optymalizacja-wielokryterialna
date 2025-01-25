@@ -83,14 +83,14 @@ def astar(terrain, start, goal):
 
 
 # Przykładowa mapa wysokości terenu 11x11
-terrain = terrain_generator(0, terrain_size=(51,51), terrain_type="hills")
+terrain = terrain_generator(0, terrain_size=(30,30), terrain_type="hills")
 
 print(terrain)
 # zerowa
 # terrain = np.random.randint(0, 1, (51, 51))
 
 start = (0, 0)
-goal = (50, 50)
+goal = (25, 27)
 
 path = astar(terrain, start, goal)
 plot_graph(path, terrain, start, goal)

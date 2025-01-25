@@ -94,11 +94,46 @@ def generate_neighborhood(point, size, directions):
     return neighborhood
 
 
+# # Funkcja kosztu, uwzględniająca teren i odległości między robotami
+# def movement_cost(current, neighbor, terrain, oc_pos, step_num):
+#     height_diff = abs(terrain[neighbor[0]][neighbor[1]] - terrain[current[0]][current[1]])
+#     base_cost = 1 + height_diff * 10000  # Podstawowy koszt z wysokością
+#     # print([row[step_num] for row in occupied_positions])
+#     columns = []
+#     for row in oc_pos:
+#         for t in range(-2, 3):
+#             if step_num + t >= 0:
+#                 try:
+#                     columns.append(row[step_num + t])
+#                 except:
+#                     pass
+#
+#     neigh = generate_neighborhood(neighbor, 3, [(0, 1), (1, 0), (0, -1), (-1, 0), (1, 1), (-1, -1), (-1, 1), (1, -1), (0,0)])
+#     # TODO: poprawić
+#     for x in neigh:
+#         if x in occupied_positions:
+#             print("-------", heuristic(neighbor, x)," " , neighbor," ", x )
+#             dis = heuristic(current, x)
+#             if dis != 0:
+#                 base_cost += 10000/dis # Kara za bliskość do innego robota
+#             else:
+#                 base_cost += 10000
+#
+#     print(f"Base {base_cost}, {current} --> {neighbor} " )
+#     return base_cost
+
 # Funkcja kosztu, uwzględniająca teren i odległości między robotami
 def movement_cost(current, neighbor, terrain, oc_pos, step_num):
     height_diff = abs(terrain[neighbor[0]][neighbor[1]] - terrain[current[0]][current[1]])
     base_cost = 1 + height_diff * 10000  # Podstawowy koszt z wysokością
-    # print([row[step_num] for row in occupied_positions])
+
+    # Sprawdzamy, czy ktoś nie rezerwuje "neighbor" na kolejnej iteracji (step_num+1).
+    # Jeśli tak - ruch jest blokowany zwracając nieskończenie duży koszt.
+    for row in oc_pos:
+        if (step_num + 1) < len(row) and row[step_num + 1] == neighbor:
+            return float('inf')  # blokada
+
+    # Z listy ścieżek (oc_pos) wyciągamy pozycje innych robotów w zakresie kilku kroków
     columns = []
     for row in oc_pos:
         for t in range(-2, 3):
@@ -108,18 +143,26 @@ def movement_cost(current, neighbor, terrain, oc_pos, step_num):
                 except:
                     pass
 
-    neigh = generate_neighborhood(neighbor, 3, [(0, 1), (1, 0), (0, -1), (-1, 0), (1, 1), (-1, -1), (-1, 1), (1, -1), (0,0)])
-    # TODO: poprawić
-    for x in neigh:
-        if x in occupied_positions:
-            print("-------", heuristic(neighbor, x)," " , neighbor," ", x )
-            dis = heuristic(current, x)
-            if dis != 0:
-                base_cost += 10000/dis # Kara za bliskość do innego robota
-            else:
-                base_cost += 10000
+    # Generujemy sąsiedztwo (dookoła 'neighbor') – np. do sprawdzania "czy ktoś jest blisko"
+    neigh = generate_neighborhood(
+        neighbor, 3,
+        [(0, 1), (1, 0), (0, -1), (-1, 0),
+         (1, 1), (-1, -1), (-1, 1), (1, -1),
+         (0, 0)]
+    )
 
-    print(f"Base {base_cost}, {current} --> {neighbor} " )
+    # Kary za zbliżenie się do innego robota (jak poprzednio)
+    for x in neigh:
+        if x in columns:
+            print("Kolizja/bliskość:", heuristic(neighbor, x),
+                  "Sąsiad:", neighbor, "RobotInny:", x)
+            dis = heuristic(neighbor, x)
+            if dis != 0:
+                base_cost += 1000000 / dis
+            else:
+                base_cost += 1000000
+
+    print(f"Base {base_cost}, {current} --> {neighbor}")
     return base_cost
 
 
