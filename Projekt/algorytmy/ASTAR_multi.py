@@ -10,7 +10,7 @@ def plot_graph(paths, terrain, starts, goal):
     plt.figure(figsize=(5, 5))
     plt.imshow(terrain)
 
-    colors = ["red", "blue", "green", "purple", "orange"]
+    colors = ["red", "blue", "orange", "yellow", "magenta"]
 
     for i, path in enumerate(paths):
         for point in path:
@@ -32,7 +32,7 @@ def plot_graph_animation(paths, terrain, starts, goal):
     fig, ax = plt.subplots(figsize=(5, 5))
     ax.imshow(terrain)
 
-    colors = ["red", "blue", "purple", "black"]
+    colors = ["red", "blue", "orange", "yellow", "magenta"]
 
     # Utwórz pustą listę, w której będziemy przechowywać obiekty scatter
     scatter_plots = []
@@ -95,33 +95,39 @@ def generate_neighborhood(point, size, directions):
 
 
 # Funkcja kosztu, uwzględniająca teren i odległości między robotami
-def movement_cost(current, neighbor, terrain, oc_pos, stp_num):
+def movement_cost(current, neighbor, terrain, oc_pos, stp_num, robot_distance=2, terrain_weight=1, robot_distance_weight=1):
     height_diff = abs(terrain[neighbor[0]][neighbor[1]] - terrain[current[0]][current[1]])
-    base_cost = 1 + height_diff * 10000  # Podstawowy koszt z wysokością
-    # print([row[step_num] for row in occupied_positions])
-    columns = []
+    distance_cost = 0
+
+    # Pobieramy zajęte pozycje w czasie i przestrzeni (przeszłość/przyszłość)
+    occupied_future_positions = set()
     for row in oc_pos:
-        # for t in row:
-        #     columns.append(t)
-        for t in range(-2, 3):
-            # print(stp_num + t, " ")
-            if stp_num + t >= 0:
-                try:
-                    columns.append(row[stp_num + t])
-                except:
-                    pass
-    # print(columns)
-    # neigh = generate_neighborhood(current, 3, [(0, 1), (1, 0), (0, -1), (-1, 0), (1, 1), (-1, -1), (-1, 1), (1, -1)])
-    # TODO: poprawić
-    if neighbor in columns:
-        base_cost += 10000000000
-        print("ffff")
-    # print(f"Base {base_cost}, {current} --> {neighbor} " )
-    return base_cost
+        for offset in range(-robot_distance, robot_distance + 1):  # Uwzględniamy dystans
+            index = stp_num + offset
+            if 0 <= index < len(row):  # Sprawdzenie, czy indeks jest w zakresie
+                occupied_future_positions.add(row[index])
+
+    # Generowanie sąsiedztwa dla potencjalnego konfliktu
+    neighbors = generate_neighborhood(neighbor, robot_distance, [
+        (0, 1), (1, 0), (0, -1), (-1, 0),
+        (1, 1), (-1, -1), (-1, 1), (1, -1),
+    ])
+
+    # Jeśli dany ruch prowadzi do zajętej pozycji, nakładamy dużą karę
+    if neighbor in occupied_future_positions:
+        distance_cost += 10**6  # Duża kara za kolizję, ale nie nieskończoność
+
+    # Dodatkowa kara za bliskość do zajętych pozycji (im bliżej, tym większa kara)
+    for n in neighbors:
+        if n in occupied_future_positions:
+            distance_cost += 100 / max(heuristic(neighbor, n), 1)  # Dynamiczna kara
+
+    # Zwracanie całkowitego kosztu, łącznie z wysokością terenu i karami za dystans
+    return (height_diff * 15 * terrain_weight) + (distance_cost * robot_distance_weight)
 
 
 # Algorytm A* dla każdego robota
-def astar(terrain, start, goal, occupied_positions):
+def astar(terrain, start, goal, occupied_positions, robot_distance=2, terrain_weight=1, robot_distance_weight=1):
     rows, cols = len(terrain), len(terrain[0])
     open_set = [(0, start)]  # Lista zamiast kopca
     came_from = {}
@@ -130,26 +136,42 @@ def astar(terrain, start, goal, occupied_positions):
     step_num = 0
 
     directions = [(0, 1), (1, 0), (0, -1), (-1, 0), (1, 1), (-1, -1), (-1, 1), (1, -1)]
+    costs = []
 
     while open_set:
-        open_set.sort()  # Posortowanie listy w celu wyboru elementu o najniższym koszcie
-        _, current = open_set.pop(0)  # Pobranie elementu z najmniejszym kosztem
+        open_set.sort()  # Sortowanie listy w celu wyboru elementu o najniższym koszcie
+        min_cost, current = open_set.pop(0)  # Pobranie elementu z najmniejszym kosztem
 
         if current == goal:
             path = []
-            # print(came_from)
             while current in came_from:
                 path.append(current)
                 current = came_from[current]
             path.append(start)
-            return path[::-1]
+            return path[::-1], min_cost, costs
 
         x, y = current
-        print(step_num)
+        costs.append(min_cost)
+
         for dx, dy in directions:
             neighbor = (x + dx, y + dy)
+
             if 0 <= neighbor[0] < rows and 0 <= neighbor[1] < cols:
-                cost = movement_cost(current, neighbor, terrain, occupied_positions, step_num)
+                # Sprawdzenie, czy pole sąsiada jest zajęte przez inne roboty w przyszłości
+                occupied_in_future = False
+                for t in range(robot_distance):
+                    if step_num + t < len(occupied_positions):
+                        if neighbor in occupied_positions[step_num + t]:
+                            occupied_in_future = True
+                            break
+
+                if occupied_in_future:
+                    continue  # Pomijamy ruch, jeśli sąsiad będzie zajęty
+
+                cost = movement_cost(
+                    current, neighbor, terrain, occupied_positions, step_num,
+                    robot_distance, terrain_weight, robot_distance_weight
+                )
                 tentative_g_score = g_score[current] + cost
 
                 if neighbor not in g_score or tentative_g_score < g_score[neighbor]:
@@ -157,41 +179,43 @@ def astar(terrain, start, goal, occupied_positions):
                     g_score[neighbor] = tentative_g_score
                     f_score[neighbor] = tentative_g_score + heuristic(neighbor, goal)
 
-                    ffff = []
+                    # Obliczanie aktualnego kroku robota
+                    temp_path = []
                     v = current
                     while v in came_from:
-                        ffff.append(v)
+                        temp_path.append(v)
                         v = came_from[v]
-                    ffff.append(start)
+                    temp_path.append(start)
 
-                    step_num = len(ffff[::-1])
+                    step_num = len(temp_path[::-1])
 
                     # Dodajemy do listy i sortujemy, aby utrzymać najniższy koszt na początku
                     open_set.append((f_score[neighbor], neighbor))
-                    step_num += 1
 
     return None  # Brak ścieżki
 
 
+
 # Inicjalizacja mapy terenu 51x51
-terrain = terrain_generator(0, terrain_size=(51, 51), terrain_type="hills")
+terrain = terrain_generator(0, terrain_size=(51, 51), terrain_type="hiflls")
 
 # Punkty startowe dla N robotów
-start_positions = [(5, 5), (10, 0), (0, 10), (1, 1)]
-# start_positions = [(0, 1), (1, 0), (0, 0), (1, 1)]
-goal = (48, 49)
+start_positions = [(2, 2), (10, 0), (0, 10), (1, 1)]
+start_positions = [(0, 2), (2, 0), (0, 0), (2, 2)]
+goal = (50, 50)
 
 # Lista pozycji zajętych przez roboty (początkowo puste)
 occupied_positions = list()
 paths = []
 
+all_cost = []
 for start in start_positions:
-    path = astar(terrain, start, goal, occupied_positions)
+    path, min_val, costs = astar(terrain, start, goal, occupied_positions, robot_distance=2, robot_distance_weight=1, terrain_weight=1)
+    all_cost.append(costs)
     print(" -------------------- ")
     if path:
         paths.append(path)
         occupied_positions.append(path)  # Aktualizacja zajętych pozycji
-        print(occupied_positions)
     else:
         print(f"Brak możliwej ścieżki dla robota z pozycji {start}")
 
@@ -200,8 +224,15 @@ for start in start_positions:
 plot_graph(paths, terrain, start_positions, goal)
 plot_graph_animation(paths, terrain, start_positions, goal)
 
+num = 0
+for i in all_cost:
+    plt.plot(i, color=["red", "blue", "orange", "yellow", "magenta"][num])
+    num+=1
+
+plt.show()
 if paths:
     for i, path in enumerate(paths):
         print(f"Najkrótsza ścieżka dla robota {i + 1}: {path}")
+        print(len(path))
 else:
     print("Brak możliwych ścieżek dla wszystkich robotów.")
