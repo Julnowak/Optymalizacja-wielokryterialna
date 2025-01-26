@@ -40,35 +40,25 @@ class MainWindow(QMainWindow):
 
 
     def start(self):
+        A = []
+        for i in range(self.ui.beg_points_table.rowCount()):
+            A.append([])
+            for j in range(1, self.ui.beg_points_table.columnCount()):
+                print(self.ui.beg_points_table.item(i, j).text())
+                val = int(self.ui.beg_points_table.item(i, j).text())
+                A[i].append(val)
 
-        # best_path, minimum_loss_values = algorithm(start=[int(self.ui.start_point_x.value()), int(self.ui.start_point_y.value())],
-        #                       end=[int(self.ui.stop_point_x.value()), int(self.ui.stop_point_y.value())],
-        #                       map_size=[int(self.ui.terrain_x.value()), int(self.ui.terrain_y.value())],
-        #                       terrain=self.terrain, visibility_range=10,
-        #                       num_of_iterations=int(self.ui.iteration_num.value()))
-        #
-        # print(best_path)
-        # print(minimum_loss_values )
+        A_list = []
+        for i in A:
+            A_list.append((i[0], i[1]))
+
+        start_positions = A_list
+        self.starts = start_positions
+        goal = (int(self.ui.stop_point_x.value()), int(self.ui.stop_point_y.value()))
 
         if self.ui.algorithm_type.currentText() == "A-STAR":
             # ASTAR
-            A = []
-            for i in range(self.ui.beg_points_table.rowCount()):
-                A.append([])
-                for j in range(1, self.ui.beg_points_table.columnCount()):
-                    print(self.ui.beg_points_table.item(i, j).text())
-                    val = int(self.ui.beg_points_table.item(i, j).text())
-                    A[i].append(val)
-
-            A_list = []
-            for i in A:
-                A_list.append((i[0], i[1]))
-
-            start_positions = A_list
-            self.starts = start_positions
-            goal = (int(self.ui.stop_point_x.value()),int(self.ui.stop_point_y.value()))
-
-            occupied_positions = set()
+            occupied_positions = list()
             self.paths = []
 
             beg = time.time()
@@ -80,21 +70,35 @@ class MainWindow(QMainWindow):
                              terrain_weight=int(self.ui.terrain_weight_num.value()), robot_distance_weight=int(self.ui.robodist_weight_num.value()))
                 self.all_costs.append(costs)
                 self.all_best_vals.append(min_val)
+                print(" -------------------- ")
                 if path:
                     self.paths.append(path)
-                    occupied_positions.update(path)  # Aktualizacja zajętych pozycji
+                    occupied_positions.append(path)  # Aktualizacja zajętych pozycji
                 else:
                     print(f"Brak możliwej ścieżki dla robota z pozycji {start}")
 
             end = time.time()
-
-            print(end-beg)
 
             ### Zobrazowanie wyników
             self.visualize_results()
             self.visualize_cost_plot()
             print("100% completed!")
 
+        elif self.ui.algorithm_type.currentText() == "CSO":
+            # best_path, minimum_loss_values = algorithm(start=[int(self.ui.start_point_x.value()), int(self.ui.start_point_y.value())],
+            #                       end=[int(self.ui.stop_point_x.value()), int(self.ui.stop_point_y.value())],
+            #                       map_size=[int(self.ui.terrain_x.value()), int(self.ui.terrain_y.value())],
+            #                       terrain=self.terrain, visibility_range=10,
+            #                       num_of_iterations=int(self.ui.iteration_num.value()))
+            #
+            # print(best_path)
+            # print(minimum_loss_values )
+            pass
+        elif self.ui.algorithm_type.currentText() == "TSP GA":
+            pass
+
+        algo_time = end-beg
+        print(algo_time)
 
     def visualize_map(self):
         """
@@ -219,6 +223,7 @@ class MainWindow(QMainWindow):
 
             self.ui.beg_points_table.setRowCount(df.shape[0])
             self.ui.beg_points_table.setColumnCount(df.shape[1])
+            self.labels = df["Nazwa robota"]
             for i in range(df.shape[0]):
                 self.ui.beg_points_table.setItem(i, 0, QTableWidgetItem(str(df["Nazwa robota"][i])))
                 self.ui.beg_points_table.setItem(i, 1, QTableWidgetItem(df["X"][i]))
@@ -416,13 +421,16 @@ class MainWindow(QMainWindow):
 
         # Rysowanie obwódki dla punktu stop (większy punkt, tylko kolor obwódki)
 
+        num = 0
         for x in self.all_costs:
-            self.ui.cost_plot.canvas.axes.plot(x)
+            self.ui.cost_plot.canvas.axes.plot(x, color= ["red", "blue", "orange", "yellow", "magenta"][num])
+            num+=1
 
         # Dodanie opisu osi i tytułu
         self.ui.cost_plot.canvas.axes.set_xlabel(f"Przejście")
         self.ui.cost_plot.canvas.axes.set_ylabel(f"Wartość")
         self.ui.cost_plot.canvas.axes.set_title("Zmiany kosztu")
+        self.ui.cost_plot.canvas.axes.legend(self.labels)
 
         # Odświeżenie wykresu
         self.ui.cost_plot.canvas.draw()

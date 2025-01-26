@@ -195,14 +195,30 @@ def astar(terrain, start, goal, occupied_positions, robot_distance=2, terrain_we
     return None  # Brak ścieżki
 
 
+from PIL import Image
+import numpy as np
+
+# Open the image file
+image = Image.open('kopup.PNG')
+grayscale_image = image.convert('L')  # 'L' oznacza obraz w skali szarości
+matrix = np.array(grayscale_image)
+
+# Przekonwertuj macierz NumPy na listę list
+matrix_list_of_lists = matrix.tolist()
+
+# # Wyświetl wynik (listę list)
+# for row in matrix_list_of_lists:
+#     print(row)
+terrain =  matrix_list_of_lists
 
 # Inicjalizacja mapy terenu 51x51
-terrain = terrain_generator(0, terrain_size=(51, 51), terrain_type="hiflls")
-
+# terrain = terrain_generator(0, terrain_size=(51, 51), terrain_type="hills")
+# print(terrain)
 # Punkty startowe dla N robotów
 start_positions = [(2, 2), (10, 0), (0, 10), (1, 1)]
 start_positions = [(0, 2), (2, 0), (0, 0), (2, 2)]
-goal = (50, 50)
+start_positions = [(0, 0), (10,0)]
+goal = (40, 40)
 
 # Lista pozycji zajętych przez roboty (początkowo puste)
 occupied_positions = list()
@@ -222,7 +238,7 @@ for start in start_positions:
 
 # Rysowanie wyników
 plot_graph(paths, terrain, start_positions, goal)
-plot_graph_animation(paths, terrain, start_positions, goal)
+# plot_graph_animation(paths, terrain, start_positions, goal)
 
 num = 0
 for i in all_cost:
