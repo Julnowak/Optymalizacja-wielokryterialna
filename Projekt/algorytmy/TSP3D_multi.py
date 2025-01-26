@@ -138,7 +138,6 @@ class GeneticTSP3DPath:
     def distance_path(self, path):
         cost = 0
         robot_distance = 2  # Minimalna dozwolona odległość między robotami
-        penalty_factor = 1000  # Współczynnik kary za zbyt bliską odległość
         stp_num= 0
 
         for i in range(len(path) - 1):
@@ -149,25 +148,30 @@ class GeneticTSP3DPath:
             # Sprawdzenie odległości od zajętych ścieżek innych robotów
             occupied_future_positions = set()
 
+            curr_occupied = []
             for row in self.occupied_paths:
+                try:
+                    curr_occupied.append(row[i])
+                except:
+                    pass
                 for offset in range(-robot_distance, robot_distance + 1):  # Uwzględniamy dystans
                     index = stp_num + offset
                     if 0 <= index < len(row):  # Sprawdzenie, czy indeks jest w zakresie
                         occupied_future_positions.add(row[index])
 
-            neighbors = generate_neighborhood(path[i], robot_distance, [
+            neighbors = generate_neighborhood(path[i+1], robot_distance, [
                 (0, 1), (1, 0), (0, -1), (-1, 0),
-                (1, 1), (-1, -1), (-1, 1), (1, -1), (0,0)
+                (1, 1), (-1, -1), (-1, 1), (1, -1)
             ], (len(terrain), len(terrain[0])))
 
             # Jeśli dany ruch prowadzi do zajętej pozycji, nakładamy dużą karę
-            if path[i] in occupied_future_positions:
-                cost += 100000 # Duża kara za kolizję, ale nie nieskończoność
-
+            if path[i] in curr_occupied:
+                cost += 99999999 # Duża kara za kolizję, ale nie nieskończoność
             # Dodatkowa kara za bliskość do zajętych pozycji (im bliżej, tym większa kara)
             for n in neighbors:
                 if n in occupied_future_positions:
-                    cost += 100000 / max(self.heuristic(path[i], n), 1)  # Dynamiczna kara
+                    cost += 100 / max(self.heuristic(path[i], n), 1)  # Dynamiczna kara
+            stp_num += 1
 
         return cost
 
@@ -523,7 +527,7 @@ if __name__ == "__main__":
     starts = [(5, 10), (20, 0), (0, 30), (1, 1)]
     ends   = [(48, 49), (48, 49), (48, 49), (48, 49)]
 
-    starts = [(1, 1), (1, 1),(1, 1), (1, 1)]
+    starts = [(1, 1), (0, 1),(1, 0), (0, 0)]
     ends   = [(48, 49), (48, 49), (48, 49), (48, 49)]
     # starts = [(5, 10),]
     # ends   = [(48, 49),]
@@ -542,7 +546,7 @@ if __name__ == "__main__":
     elite_size = 10
     tournament_size = 10
     offspring_rate = 0.5
-    mutation_rate = 1
+    mutation_rate = 0.5
 
     # Uruchamiamy wielorobotowe planowanie
     final_paths, costs = run_multi_robot_tsp3d_path(
