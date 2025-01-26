@@ -1,7 +1,5 @@
 import copy
 import random
-import math
-import time
 
 import numpy as np
 import matplotlib
@@ -48,16 +46,82 @@ def plot_graph(best_path, terrain, start, end):
     plt.show()
 
 
-def loss_function(path, ter):
-    cost = 0
-    num = 0
-    dist_penalty = 0
-    for p in path:
-        # Kara za odległość od ostatniego punktu
-        dist_penalty = np.sqrt((p[0] - path[-1][0]) ** 2 + (p[1] - path[-1][1]) ** 2)
+def generate_neighborhood(point, size, directions, terrain_size):
+    # Inicjalizujemy zbiór na sąsiedztwo
+    neighborhood = []
+    x, y = point
+    max_rows, max_cols = terrain_size
 
-        # koszt terenu + kara za odległość od poprzedniego + długość ścieżki
-        cost += ter[p[0]][p[1]] + dist_penalty
+    for dx, dy in directions:
+        for dist in range(1, size + 1):
+            new_x = x + dx * dist
+            new_y = y + dy * dist
+
+            # Sprawdzenie, czy nowa pozycja mieści się w granicach mapy terenu
+            if 0 <= new_x < max_rows and 0 <= new_y < max_cols:
+                neighborhood.append((new_x, new_y))
+
+    return neighborhood
+
+
+def distance(p1, p2):
+    """Odległość Manhattan między punktami."""
+    return abs(p1[0] - p2[0]) + abs(p1[1] - p2[1])
+
+
+def loss_function(
+    path,
+    terrain,
+    occupied_positions,
+    robot_distance=2,
+    terrain_weight=1,
+    robot_distance_weight=1,
+):
+    cost = 0
+    for i in range(len(path) - 1):
+        (x1, y1), (x2, y2) = path[i], path[i + 1]
+        height_diff = abs(terrain[x2][y2] - terrain[x1][y1])
+        cost += height_diff * terrain_weight
+
+        occupied_future_positions = []
+        for row in occupied_positions:
+            for offset in range(
+                -robot_distance, robot_distance + 1
+            ):  # Uwzględniamy dystans
+                index = i + offset
+                if 0 <= index < len(row):  # Sprawdzenie, czy indeks jest w zakresie
+                    occupied_future_positions.append(row[index])
+
+        neighbors = generate_neighborhood(
+            path[i],
+            robot_distance,
+            [
+                (0, 1),
+                (1, 0),
+                (0, -1),
+                (-1, 0),
+                (1, 1),
+                (-1, -1),
+                (-1, 1),
+                (1, -1),
+                (0, 0),
+            ],
+            (len(terrain), len(terrain[0])),
+        )
+
+        # Jeśli dany ruch prowadzi do zajętej pozycji, nakładamy dużą karę
+        if path[i] in occupied_future_positions:
+            cost += (
+                100000 * robot_distance_weight
+            )  # Duża kara za kolizję, ale nie nieskończoność
+
+        # Dodatkowa kara za bliskość do zajętych pozycji (im bliżej, tym większa kara)
+        for n in neighbors:
+            if n in occupied_future_positions:
+                cost += (
+                    100000 * robot_distance_weight / max(distance(path[i], n), 1)
+                )  # Dynamiczna kara
+
     return cost
 
 
@@ -153,10 +217,6 @@ def step_distance(p1, p2):
 
 def fix_neighborhood(path, idx, map_size, occupied_positions):
     """Funkcja sprawdzająca i naprawiająca sąsiedztwo wokół zmienionego punktu."""
-
-    def distance(p1, p2):
-        """Odległość Manhattan między punktami."""
-        return abs(p1[0] - p2[0]) + abs(p1[1] - p2[1])
 
     original_idx = idx
     original_path = copy.deepcopy(path)
@@ -377,7 +437,9 @@ def algorithm(
     loss_funcion_values_minimums_per_iter = []
     for i in range(cockroaches_num):
         new_path = initial_path(start, end, map_size)
-        calc_new = loss_function(new_path, terrain)
+        calc_new = loss_function(
+            path=new_path, terrain=terrain, occupied_positions=occupied_positions
+        )
         new_sol = Solution(new_path, calc_new)
         solutions.append(new_sol)
 
@@ -423,7 +485,11 @@ def algorithm(
                     )
 
             for sol in solutions:
-                sol.loss_value = loss_function(sol.path, terrain)
+                sol.loss_value = loss_function(
+                    path=sol.path,
+                    terrain=terrain,
+                    occupied_positions=occupied_positions,
+                )
                 if best_solution.loss_value > sol.loss_value:
                     best_solution = sol
             pg_list.append(best_solution)
@@ -439,7 +505,11 @@ def algorithm(
                 solutions[disp_i].path = dispersal(solutions[disp_i].path, map_size)
 
             for sol in solutions:
-                sol.loss_value = loss_function(sol.path, terrain)
+                sol.loss_value = loss_function(
+                    path=sol.path,
+                    terrain=terrain,
+                    occupied_positions=occupied_positions,
+                )
                 if (
                     best_solution.loss_value > sol.loss_value
                     and start in sol.path
