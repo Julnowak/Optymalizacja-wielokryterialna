@@ -143,7 +143,7 @@ class GeneticTSP3DPath:
         for i in range(len(path) - 1):
             (x1, y1), (x2, y2) = path[i], path[i + 1]
             height_diff = abs(self.terrain[x2][y2] - self.terrain[x1][y1])
-            cost += height_diff + self.heuristic((x1, y1), (x2, y2))
+            cost += height_diff * 1000 + self.heuristic((x1, y1), (x2, y2))
 
             # Sprawdzenie odległości od zajętych ścieżek innych robotów
             occupied_future_positions = set()
@@ -162,7 +162,7 @@ class GeneticTSP3DPath:
             neighbors = generate_neighborhood(path[i+1], robot_distance, [
                 (0, 1), (1, 0), (0, -1), (-1, 0),
                 (1, 1), (-1, -1), (-1, 1), (1, -1)
-            ], (len(terrain), len(terrain[0])))
+            ], (len(self.terrain), len(self.terrain[0])))
 
             # Jeśli dany ruch prowadzi do zajętej pozycji, nakładamy dużą karę
             if path[i] in curr_occupied:
@@ -537,7 +537,7 @@ if __name__ == "__main__":
     terrain = terrain_generator(
         noise_num=0,
         terrain_size=map_size,
-        terrain_type="hillsd"
+        terrain_type="hills"
     )
 
     # Parametry GA

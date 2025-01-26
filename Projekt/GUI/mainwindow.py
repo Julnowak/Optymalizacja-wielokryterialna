@@ -14,11 +14,12 @@ from PySide6.QtWidgets import QApplication, QMainWindow, QMessageBox, QFileDialo
 #     pyside6-uic form.ui -o ui_form.py, or
 #     pyside2-uic form.ui -o ui_form.py
 from algorytmy.ASTAR_multi import astar
-from algorytmy.CSO import algorithm, plot_graph
+from algorytmy.CSO import algorithm
+
 from algorytmy.TSP3D_multi import run_multi_robot_tsp3d_path
 from algorytmy.terrain import terrain_generator
 from ui_form import Ui_MainWindow
-from PySide6.QtCore import QThread, Signal, QTimer
+from PySide6.QtCore import QTimer
 
 
 class MainWindow(QMainWindow):
@@ -93,7 +94,7 @@ class MainWindow(QMainWindow):
             self.all_costs = []
             self.all_best_vals = []
             for start in start_positions:
-                print(self.ui.robot_dist_num.value())
+
                 path, min_val, costs, costs_f = astar(self.terrain, start, goal, occupied_positions, robot_distance=int(self.ui.robot_dist_num.value()) ,
                              terrain_weight=int(self.ui.terrain_weight_num.value()), robot_distance_weight=int(self.ui.robodist_weight_num.value()))
                 self.all_costs.append(costs)
@@ -135,15 +136,30 @@ class MainWindow(QMainWindow):
             self.ui.cost_table.setHorizontalHeaderLabels(self.labels)
 
         elif self.ui.algorithm_type.currentText() == "CSO":
-            # best_path, minimum_loss_values = algorithm(start=[int(self.ui.start_point_x.value()), int(self.ui.start_point_y.value())],
-            #                       end=[int(self.ui.stop_point_x.value()), int(self.ui.stop_point_y.value())],
-            #                       map_size=[int(self.ui.terrain_x.value()), int(self.ui.terrain_y.value())],
-            #                       terrain=self.terrain, visibility_range=10,
-            #                       num_of_iterations=int(self.ui.iteration_num.value()))
-            #
-            # print(best_path)
-            # print(minimum_loss_values )
-            pass
+
+            occupied_positions = []
+            paths = []
+
+            beg = time.time()
+
+            for start in A:
+                result_path, _ = algorithm(
+                    start=start,
+                    end=[int(self.ui.stop_point_y.value()), int(self.ui.stop_point_x.value())],
+                    map_size=(len(self.terrain), len(self.terrain[0])),
+                    terrain=self.terrain,
+                    visibility_range=10,
+                    occupied_positions=[],
+                    cockroaches_num = int(self.ui.vehicle_num.value())
+                )
+                print("poszło")
+                self.paths.append(result_path)
+                occupied_positions.append(result_path)
+
+            end = time.time()
+            self.ui.CSO_time_line.setText(str(end - beg))
+
+            print("100% completed!")
         elif self.ui.algorithm_type.currentText() == "TSP GA":
 
             # Parametry GA

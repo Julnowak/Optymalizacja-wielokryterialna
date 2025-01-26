@@ -543,22 +543,6 @@ def algorithm(
 
 
 if __name__ == "__main__":
-    # while True:
-    #     start = [0, 0]
-    #     end = [10, 10]
-    #     map_size = [20, 20]
-    #     terrain = terrain_generator(
-    #         terrain_size=map_size, terrain_type="hills", noise_num=0
-    #     )
-    #
-    #     best_path, _ = algorithm(start, end, map_size, terrain, visibility_range=10)
-
-    # start = [0, 0]
-    # end = [40, 40]
-    # map_size = [50, 50]
-    # terrain = terrain_generator(
-    #     terrain_size=map_size, terrain_type="hills", noise_num=0
-    # )
 
     # 4 roboty, każdy ma wspólny cel
     starts = [[5, 10], [20, 0], [0, 30], [1, 1]]
