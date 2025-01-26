@@ -6,9 +6,10 @@ import time
 import numpy as np
 import matplotlib
 
+from algorytmy.TSP3D_multi import plot_graphs_animation
 from algorytmy.terrain import terrain_generator
 
-matplotlib.use('TkAgg')
+matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
 
 
@@ -67,11 +68,7 @@ def calculate_neighbourhood(point, map_size):
             p = [point[0] + i, point[1] + j]
 
             # Prawidłowy zakres indeksów to [0, map_size[0]) i [0, map_size[1]):
-            if (
-                0 <= p[0] < map_size[0]
-                and 0 <= p[1] < map_size[1]
-                and p != point
-            ):
+            if 0 <= p[0] < map_size[0] and 0 <= p[1] < map_size[1] and p != point:
                 neigh.append(p)
     return neigh
 
@@ -90,10 +87,10 @@ def initial_path(start, end, map_size):
         valid_neighbours = [
             n
             for n in neighbours
-            if n[0] >= current[0]
-            and n[1] >= current[1]
-            and n[0] <= end[0]
-            and n[1] <= end[1]
+            if abs(n[0] - end[0]) <= abs(current[0] - end[0])
+            and abs(n[1] - end[1]) <= abs(current[1] - end[1])
+            # and n[0] <= end[0]
+            # and n[1] <= end[1]
             and n[0] < map_size[0]
             and n[1] < map_size[1]
             and n[0] >= 0
@@ -154,7 +151,7 @@ def step_distance(p1, p2):
     return suma
 
 
-def fix_neighborhood(path, idx, map_size):
+def fix_neighborhood(path, idx, map_size, occupied_positions):
     """Funkcja sprawdzająca i naprawiająca sąsiedztwo wokół zmienionego punktu."""
 
     def distance(p1, p2):
@@ -166,12 +163,16 @@ def fix_neighborhood(path, idx, map_size):
     # Sprawdź punkt przed zmienionym
     if idx > 0:  # Jeśli istnieje punkt przed
         prev_point = path[idx - 1]
-        counter = 0
         while path[idx] not in calculate_neighbourhood(path[idx - 1], map_size):
             # Dodaj punkt między `prev_point` a `path[idx]`
-            counter += 1
+            neighbourhood = calculate_neighbourhood(path[idx - 1], map_size)
+            for neighbour in neighbourhood:
+                if is_occupied(
+                    point=neighbour, idx=idx, occupied_positions=occupied_positions
+                ):
+                    neighbourhood.remove(neighbour)
             new_point = min(
-                calculate_neighbourhood(path[idx - 1], map_size),
+                neighbourhood,
                 key=lambda p: distance(p, path[idx]),
             )
             path.insert(idx, new_point)
@@ -181,12 +182,15 @@ def fix_neighborhood(path, idx, map_size):
     # idx = original_idx  # Przywróć indeks na pierwotną wartość
     if idx < len(path) - 1:  # Jeśli istnieje punkt po
         next_point = path[idx + 1]
-        counter = 0
         while next_point not in calculate_neighbourhood(path[idx], map_size):
-            # Dodaj punkt między `path[idx]` a `next_point`
-            counter += 1
+            neighbourhood = calculate_neighbourhood(path[idx], map_size)
+            for neighbour in neighbourhood:
+                if is_occupied(
+                    point=neighbour, idx=idx + 1, occupied_positions=occupied_positions
+                ):
+                    neighbourhood.remove(neighbour)
             new_point = min(
-                calculate_neighbourhood(path[idx], map_size),
+                neighbourhood,
                 key=lambda p: distance(p, next_point),
             )
             path.insert(idx + 1, new_point)
@@ -195,48 +199,93 @@ def fix_neighborhood(path, idx, map_size):
     return path
 
 
-def cso_step(actual, best, map_size, step=1):
+def bring_point_closer_to_best(point, best_point, step=1):
+    new_point = copy.deepcopy(point)
+    if point[0] < best_point[0] and point[1] < best_point[1]:
+        new_point[0] += step
+        new_point[1] += step
+    elif point[0] < best_point[0] and point[1] == best_point[1]:
+        new_point[0] += step
+    elif point[0] < best_point[0] and point[1] > best_point[1]:
+        new_point[0] += step
+        new_point[1] -= step
+    elif point[0] == best_point[0] and point[1] < best_point[1]:
+        new_point[1] += step
+    elif point[0] == best_point[0] and point[1] > best_point[1]:
+        new_point[1] -= step
+    elif point[0] > best_point[0] and point[1] > best_point[1]:
+        new_point[0] -= step
+        new_point[1] -= step
+    elif point[0] > best_point[0] and point[1] == best_point[1]:
+        new_point[0] -= step
+    elif point[0] > best_point[0] and point[1] < best_point[1]:
+        new_point[0] -= step
+        new_point[1] += step
+    return new_point
+
+
+def is_occupied(point, idx, occupied_positions):
+    for path in occupied_positions:
+        if not idx >= len(path):
+            if point == path[idx]:
+                return True
+    return False
+
+
+def cso_step(actual, best, map_size, occupied_positions, step=1):
     new_actual = copy.deepcopy(actual)
     idx = 0
     for i in range(1, len(actual)):
         if i >= len(best):
             new_actual.pop(len(best))
         elif actual[i] != best[i]:
-            if actual[i][0] < best[i][0] and actual[i][1] < best[i][1]:
-                new_actual[i][0] += step
-                new_actual[i][1] += step
-            elif actual[i][0] < best[i][0] and actual[i][1] == best[i][1]:
-                new_actual[i][0] += step
-            elif actual[i][0] < best[i][0] and actual[i][1] > best[i][1]:
-                new_actual[i][0] += step
-                new_actual[i][1] -= step
-            elif actual[i][0] == best[i][0] and actual[i][1] < best[i][1]:
-                new_actual[i][1] += step
-            elif actual[i][0] == best[i][0] and actual[i][1] > best[i][1]:
-                new_actual[i][1] -= step
-            elif actual[i][0] > best[i][0] and actual[i][1] > best[i][1]:
-                new_actual[i][0] -= step
-                new_actual[i][1] -= step
-            elif actual[i][0] > best[i][0] and actual[i][1] == best[i][1]:
-                new_actual[i][0] -= step
-            elif actual[i][0] > best[i][0] and actual[i][1] < best[i][1]:
-                new_actual[i][0] -= step
-                new_actual[i][1] += step
-            # Gdy i == len(new_actual) - 1, new_actual[i + 1] wywoła błąd, bo indeks i+1 będzie poza zakresem.
-            # Niby mamy break, więc zwykle nie dojdzie do końca listy, ale w rzadkich sytuacjach może się to zdarzyć.
-            # Zmieniam na to co niżej
-            # if new_actual[i] == new_actual[i - 1]:
-            #     if new_actual[i + 1] == new_actual[i - 1]:
-            #         new_actual.pop(i + 1)
-            #     new_actual.pop(i)
-            if i < len(new_actual) - 1:  # Upewniamy się, że i+1 nie przekroczy długości listy
-                if new_actual[i] == new_actual[i - 1] or new_actual[i] == new_actual[i + 1]:
+            best_point = copy.deepcopy(best[i])
+            new_point = copy.deepcopy(actual[i])
+            is_new_point_occupied = True
+
+            while is_new_point_occupied:
+                new_point = bring_point_closer_to_best(
+                    point=new_point, best_point=best_point
+                )
+
+                is_new_point_occupied = is_occupied(
+                    point=new_point, idx=i, occupied_positions=occupied_positions
+                )
+                # Jeśli nowy punkt jest zajęty i jest już punktem z najlepszej ścieżki to trzeba zmienić punkt docelowy bo będzie pętla nieskończona
+                if is_new_point_occupied and new_point == best_point:
+                    neighbourhood = calculate_neighbourhood(best_point, map_size)
+                    for neighbour in neighbourhood:
+                        if (
+                            is_occupied(
+                                point=neighbour,
+                                idx=i + 1,
+                                occupied_positions=occupied_positions,
+                            )
+                            or neighbour in best[:i]
+                        ):
+                            neighbourhood.remove(neighbour)
+                    best_point = random.choice(neighbourhood)
+
+            new_actual[i] = new_point
+
+            if (
+                i < len(new_actual) - 1
+            ):  # Upewniamy się, że i+1 nie przekroczy długości listy
+                if (
+                    new_actual[i] == new_actual[i - 1]
+                    or new_actual[i] == new_actual[i + 1]
+                ):
                     if new_actual[i + 1] == new_actual[i - 1]:
                         new_actual.pop(i + 1)
                     new_actual.pop(i)
             idx = i
             break
-    new_actual = fix_neighborhood(new_actual, idx=idx, map_size=map_size)
+    new_actual = fix_neighborhood(
+        path=new_actual,
+        idx=idx,
+        map_size=map_size,
+        occupied_positions=occupied_positions,
+    )
 
     return new_actual
 
@@ -253,11 +302,11 @@ def dispersal(actual, map_size):
                 random.randint(1, map_size[1] - 1),
             ]
         new_actual.insert(-1, new)
-        new_actual = fix_neighborhood(path=new_actual, idx=-2, map_size=map_size)
+        # new_actual = fix_neighborhood(path=new_actual, idx=-2, map_size=map_size)
     elif x == 2:
         if len(new_actual) > 1:
             new_actual.pop(-2)
-            new_actual = fix_neighborhood(path=new_actual, idx=-2, map_size=map_size)
+            # new_actual = fix_neighborhood(path=new_actual, idx=-2, map_size=map_size)
     else:
         addon = 1
         if x == 3:
@@ -295,10 +344,10 @@ def dispersal(actual, map_size):
     # odrzucamy nową ścieżkę (wracamy do 'actual'). W przeciwnym wypadku akceptujemy 'new_actual'.
     for point in new_actual:
         if (
-                point[0] < 0
-                or point[1] < 0
-                or point[0] >= map_size[0]
-                or point[1] >= map_size[1]
+            point[0] < 0
+            or point[1] < 0
+            or point[0] >= map_size[0]
+            or point[1] >= map_size[1]
         ):
             return actual
 
@@ -317,6 +366,7 @@ def algorithm(
     map_size,
     terrain,
     visibility_range,
+    occupied_positions,
     num_of_iterations: int = 10,
     cockroaches_num: int = 100,
     probability_of_dispersion: float = 10,
@@ -358,12 +408,18 @@ def algorithm(
             if pi is solutions[sol_i]:
                 for _ in range(max_step):
                     solutions[sol_i].path = cso_step(
-                        copy.deepcopy(solutions[sol_i].path), pg.path, map_size
+                        actual=copy.deepcopy(solutions[sol_i].path),
+                        best=pg.path,
+                        map_size=map_size,
+                        occupied_positions=occupied_positions,
                     )
             else:
                 for _ in range(max_step):
                     solutions[sol_i].path = cso_step(
-                        copy.deepcopy(solutions[sol_i].path), pi.path, map_size
+                        actual=copy.deepcopy(solutions[sol_i].path),
+                        best=pi.path,
+                        map_size=map_size,
+                        occupied_positions=occupied_positions,
                     )
 
             for sol in solutions:
@@ -402,6 +458,7 @@ def algorithm(
                 best_solution.path,
                 idx=best_solution.path.index(point),
                 map_size=map_size,
+                occupied_positions=occupied_positions,
             )
         loss_funcion_values_minimums_per_iter.append(best_solution.loss_value)
 
@@ -426,14 +483,41 @@ if __name__ == "__main__":
     #
     #     best_path, _ = algorithm(start, end, map_size, terrain, visibility_range=10)
 
-    start = [0, 0]
-    end = [40, 40]
-    map_size = [50, 50]
+    # start = [0, 0]
+    # end = [40, 40]
+    # map_size = [50, 50]
+    # terrain = terrain_generator(
+    #     terrain_size=map_size, terrain_type="hills", noise_num=0
+    # )
+
+    # 4 roboty, każdy ma wspólny cel
+    starts = [[5, 10], [20, 0], [0, 30], [1, 1]]
+    ends = [[48, 49], [48, 49], [48, 49], [48, 49]]
+
+    # Teren 51x51 (jak w A*)
+    map_size = (51, 51)
     terrain = terrain_generator(
-        terrain_size=map_size, terrain_type="hills", noise_num=0
+        noise_num=0, terrain_size=map_size, terrain_type="hills"
     )
 
-    best_path, _ = algorithm(start, end, map_size, terrain, visibility_range=10)
+    occupied_positions = []
+    paths = []
+
+    for start, end in zip(starts, ends):
+        result_path, _ = algorithm(
+            start=start,
+            end=end,
+            map_size=map_size,
+            terrain=terrain,
+            visibility_range=10,
+            occupied_positions=occupied_positions,
+        )
+        print("poszło")
+        paths.append(result_path)
+        occupied_positions.append(result_path)
+
+    # best_path, _ = algorithm(start, end, map_size, terrain, visibility_range=10)
     print("100% completed!")
-    plot_graph(best_path, terrain, start=start, end=end)
-    plt.show()
+    # plot_graph(best_path, terrain, start=start, end=end)
+    # plt.show()
+    plot_graphs_animation(all_paths=paths, terrain=terrain, starts=starts, ends=ends)
