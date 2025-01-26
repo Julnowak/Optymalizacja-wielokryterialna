@@ -5,6 +5,10 @@ import time
 
 import numpy as np
 import matplotlib
+
+from algorytmy.ASTAR_multi import generate_neighborhood
+from algorytmy.dd import pathfinding
+
 matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
@@ -127,58 +131,46 @@ class GeneticTSP3DPath:
     #   Funkcja Kosztu      #
     #############################
 
-    def cost_move(self, p1, p2):
-        """
-        Identycznie jak w A*:
-          cost = 1 + 10000 * abs( z2 - z1 )
-        """
-        if p1 > p2:
-            key = (p2, p1)
-        else:
-            key = (p1, p2)
-
-        if key in self.cost_cache:
-            return self.cost_cache[key]
-
-        r1, c1 = p1
-        r2, c2 = p2
-        z1 = self.terrain[r1, c1]
-        z2 = self.terrain[r2, c2]
-
-        # Tak samo jak w A*: 1 + 10000*(różnica w wysokości)
-        base_cost = 1 + 10000 * abs(z2 - z1)
-        self.cost_cache[key] = base_cost
-        return base_cost
+    def heuristic(self, a, b):
+        (x1, y1), (x2, y2) = a, b
+        return abs(x1 - x2) + abs(y1 - y2)
 
     def distance_path(self, path):
-        """
-        Suma 'A*-like' kosztów ruchu + kara za kolizje w oknie +/-2.
-        """
-        key = tuple(path)
-        if key in self.path_cost_cache:
-            return self.path_cost_cache[key]
+        cost = 0
+        robot_distance = 2  # Minimalna dozwolona odległość między robotami
+        penalty_factor = 1000  # Współczynnik kary za zbyt bliską odległość
+        stp_num= 0
 
-        # 1) Suma kosztów ruchów (tak jak w A*)
-        cost = 0.0
         for i in range(len(path) - 1):
-            cost += self.cost_move(path[i], path[i+1])
+            (x1, y1), (x2, y2) = path[i], path[i + 1]
+            height_diff = abs(self.terrain[x2][y2] - self.terrain[x1][y1])
+            cost += height_diff + self.heuristic((x1, y1), (x2, y2))
 
-        # 2) Kolizje (uwzględniamy okno +/-2 wokół i-tego kroku)
-        for i, pos in enumerate(path):
-            for other_path in self.occupied_paths:
-                # Sprawdzamy kroki i-2, i-1, i, i+1, i+2
-                for dt in range(-2, 3):
-                    step_idx = i + dt
-                    if step_idx < 0:
-                        continue
-                    if step_idx < len(other_path):
-                        if other_path[step_idx] == pos:
-                            cost += self.collision_penalty
-                            # (opcjonalnie możesz wstawić print("ffff") jak w A*)
-                            break  # wystarczy raz dodać karę
+            # Sprawdzenie odległości od zajętych ścieżek innych robotów
+            occupied_future_positions = set()
 
-        self.path_cost_cache[key] = cost
+            for row in self.occupied_paths:
+                for offset in range(-robot_distance, robot_distance + 1):  # Uwzględniamy dystans
+                    index = stp_num + offset
+                    if 0 <= index < len(row):  # Sprawdzenie, czy indeks jest w zakresie
+                        occupied_future_positions.add(row[index])
+
+            neighbors = generate_neighborhood(path[i], robot_distance, [
+                (0, 1), (1, 0), (0, -1), (-1, 0),
+                (1, 1), (-1, -1), (-1, 1), (1, -1), (0,0)
+            ], (len(terrain), len(terrain[0])))
+
+            # Jeśli dany ruch prowadzi do zajętej pozycji, nakładamy dużą karę
+            if path[i] in occupied_future_positions:
+                cost += 100000 # Duża kara za kolizję, ale nie nieskończoność
+
+            # Dodatkowa kara za bliskość do zajętych pozycji (im bliżej, tym większa kara)
+            for n in neighbors:
+                if n in occupied_future_positions:
+                    cost += 100000 / max(self.heuristic(path[i], n), 1)  # Dynamiczna kara
+
         return cost
+
 
     #############################
     #   Walidacja ścieżki      #
@@ -302,53 +294,42 @@ class GeneticTSP3DPath:
         wklejamy środek parent2 (jeśli pasuje 8-kier i brak duplikatów),
         doklejamy end.
         """
-        if len(parent1) < 2 or len(parent2) < 2:
-            return parent1
-
-        cut = random.randint(1, max(len(parent1)-2, 1))
-        child = parent1[:cut]
-        used = set(child)
-        cur = child[-1]
-        # środek parent2 (bez startu i końca)
-        middle = parent2[1:-1]
-        for pt in middle:
-            if pt not in used:
-                # sprawdzamy, czy (pt - cur) jest w directions
-                dr = pt[0] - cur[0]
-                dc = pt[1] - cur[1]
-                if (dr, dc) in self.directions:
-                    child.append(pt)
-                    used.add(pt)
-                    cur = pt
-
-        endp = parent1[-1]
-        if child[-1] != endp:
-            child.append(endp)
-
+        child = pathfinding.crossover(parent1, parent2)
         return child
+
 
     def mutate(self, path):
         """
         Mutacja - w jednym losowym miejscu staramy się
         zastąpić punkt innym 8-kierunkowym (bez duplikatów).
         """
-        if len(path) < 3:
-            return path
-        newp = path[:]
-        idx = random.randint(1, len(newp) - 2)
-        r, c = newp[idx]
 
-        # losowo tasujemy 8 kierunków
-        dirs_8 = self.directions[:]
-        random.shuffle(dirs_8)
-        used = set(newp)
-        for (dx, dy) in dirs_8:
-            nr, nc = r + dx, c + dy
-            if 0 <= nr < self.size_x and 0 <= nc < self.size_y:
-                if (nr, nc) not in used:
-                    newp[idx] = (nr, nc)
-                    break
+        newp = self.generate_random_path(path[0], path[-1])
+
         return newp
+        # if len(path) < 3:
+        #     return path
+        # newp = path[:]
+        # idx = random.randint(1, len(newp) - 2)
+        # r, c = newp[idx]
+        #
+        # # losowo tasujemy 8 kierunków
+        # dirs_8 = self.directions[:]
+        # random.shuffle(dirs_8)
+        # used = set(newp)
+        # for (dx, dy) in dirs_8:
+        #     nr, nc = r + dx, c + dy
+        #     if 0 <= nr < self.size_x and 0 <= nc < self.size_y:
+        #         if (nr, nc) not in used:
+        #             newp[idx] = (nr, nc)
+        #             break
+        # return newp
+
+    def killing_children(self, c1, c2 ):
+        if self.distance_path(c1) < self.distance_path(c2):
+            return c1
+        return c2
+
 
     def generate_children(self, mating_pool, offspring_count):
         kids = []
@@ -356,10 +337,16 @@ class GeneticTSP3DPath:
             p1 = random.choice(mating_pool)
             p2 = random.choice(mating_pool)
             if p1 != p2:
-                c = self.crossover(p1, p2)
-                if self.valid_path(c):
-                    kids.append(c)
+                c1, c2 = self.crossover(p1, p2)
+                if self.valid_path(c1) and self.valid_path(c2):
+                    winner = self.killing_children(c1, c2)
+                    kids.append(winner)
+                elif self.valid_path(c1):
+                    kids.append(c1)
+                elif self.valid_path(c2):
+                    kids.append(c2)
         return kids
+
 
 #############################
 #  3) Funkcje GA            #
@@ -382,21 +369,23 @@ def run_tsp3d_path_single_robot(
     """
     # t0 = time.time()
     best_cost_list = []
+    all_all_paths = []
 
     # 1) Inicjalizacja populacji
     population = ga.generate_population(pop_size, tuple(start_2d), tuple(end_2d))
 
+    print("----------------------------------------------")
+    # for p in population:
+    #     print(ga.distance_path(p))
     best = min(population, key=lambda p: ga.distance_path(p))
     best_cost = ga.distance_path(best)
 
+    print("----------------------------------------------")
+
     best_cost_list.append(best_cost)
-    # init_time = time.time() - t0
-    # print(f"Initial best dist={best_cost:.4f} | init_time={init_time:.2f}s")
 
     # 2) Pętla pokoleń
-    total_start = time.time()
     for gen in range(num_of_generations):
-        gen_start = time.time()
 
         # a) Elity
         elites = ga.select_elites(population, elite_size)
@@ -435,13 +424,46 @@ def run_tsp3d_path_single_robot(
             best = curr
             best_cost = curr_cost
         best_cost_list.append(best_cost)
-        gen_time = time.time() - gen_start
-        print(f"GEN {gen+1}/{num_of_generations} - best so far={best_cost:.4f}, time={gen_time:.2f} sec")
+        all_all_paths.append(best)
+        print(f"GEN {gen+1}/{num_of_generations} - best so far={best_cost:.4f}")
+    return best, best_cost_list, all_all_paths
 
-    total_end = time.time()
-    print(f"\nCalkowity czas GA (dla 1 robota): {(total_end - total_start):.2f} sec.")
-    return best, best_cost_list
 
+def pareto_front(costs):
+    """
+    Oblicza indeksy punktów należących do frontu Pareto.
+    """
+    pareto_points = []
+    for i, cost1 in enumerate(costs):
+        is_dominated = False
+        for j, cost2 in enumerate(costs):
+            if all(c2 <= c1 for c1, c2 in zip(cost1, cost2)) and any(c2 < c1 for c1, c2 in zip(cost1, cost2)):
+                is_dominated = True
+                break
+        if not is_dominated:
+            pareto_points.append(i)
+    return pareto_points
+
+
+def plot_pareto(costs_per_iteration, bp):
+    """
+    Rysuje wykresy frontu Pareto dla kosztów z każdej iteracji.
+    """
+    import matplotlib.pyplot as plt
+
+    print(bp)
+
+    costs = np.array(costs_per_iteration)
+    pareto_indices = pareto_front(bp)
+
+    plt.figure()
+    plt.scatter(costs, list(range(len(costs))), label=f"Wszystkie rozw.", color='gray')
+    # plt.scatter(costs[pareto_indices], list(costs[pareto_indices]), label="Punkty Pareto", color='red')
+    plt.xlabel("Koszt odległości")
+    plt.ylabel("Kara kolizji")
+    plt.title(f"Front Pareto - iteracja")
+    plt.legend()
+    plt.show()
 
 def run_multi_robot_tsp3d_path(
         terrain,
@@ -452,7 +474,7 @@ def run_multi_robot_tsp3d_path(
         elite_size=5,
         tournament_size=3,
         offspring_rate=0.5,
-        mutation_rate=0.05
+        mutation_rate=0.2
 ):
     """
     Sekwencyjnie uruchamia GA dla wielu robotów,
@@ -467,7 +489,7 @@ def run_multi_robot_tsp3d_path(
     best_cost_lists = []
     for i, (st, en) in enumerate(zip(starts_2d, ends_2d)):
         print(f"\n=== Planowanie dla robota {i+1}: start={st}, end={en} ===")
-        best_path, best_val = run_tsp3d_path_single_robot(
+        best_path, best_val, all_all_paths = run_tsp3d_path_single_robot(
             ga,
             st, en,
             pop_size=pop_size,
@@ -486,6 +508,8 @@ def run_multi_robot_tsp3d_path(
         # aby kolejne roboty unikały kolizji.
         ga.occupied_paths.append(best_path)
         all_paths.append(best_path)
+        #
+        # plot_pareto(best_val, best_path)
 
     return all_paths, best_cost_lists
 
@@ -498,24 +522,27 @@ if __name__ == "__main__":
     # 4 roboty, każdy ma wspólny cel
     starts = [(5, 10), (20, 0), (0, 30), (1, 1)]
     ends   = [(48, 49), (48, 49), (48, 49), (48, 49)]
-    starts = [(5, 10),]
-    ends   = [(48, 49),]
+
+    starts = [(1, 1), (1, 1),(1, 1), (1, 1)]
+    ends   = [(48, 49), (48, 49), (48, 49), (48, 49)]
+    # starts = [(5, 10),]
+    # ends   = [(48, 49),]
 
     # Teren 51x51 (jak w A*)
     map_size = (51, 51)
     terrain = terrain_generator(
         noise_num=0,
         terrain_size=map_size,
-        terrain_type="hills"
+        terrain_type="hillsd"
     )
 
     # Parametry GA
-    pop_size = 1000
-    num_of_generations = 50
-    elite_size = 5
-    tournament_size = 3
+    pop_size = 100
+    num_of_generations = 30
+    elite_size = 10
+    tournament_size = 10
     offspring_rate = 0.5
-    mutation_rate = 0.8
+    mutation_rate = 1
 
     # Uruchamiamy wielorobotowe planowanie
     final_paths, costs = run_multi_robot_tsp3d_path(
@@ -540,3 +567,4 @@ if __name__ == "__main__":
         plt.plot(c)
 
     plt.show()
+
