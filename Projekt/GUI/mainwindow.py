@@ -3,7 +3,9 @@ import os
 import sys
 import time
 
+import numpy as np
 import pandas as pd
+from PIL import Image
 from PySide6 import QtWidgets
 from PySide6.QtWidgets import QApplication, QMainWindow, QMessageBox, QFileDialog, QTableWidgetItem
 
@@ -30,6 +32,7 @@ class MainWindow(QMainWindow):
         self.paths = []
 
         self.ui.map_plot.hide()
+        self.ui.cost_plot.hide()
         self.ui.result_plot.hide()
         self.ui.generate_map_btn.clicked.connect(self.visualize_map)
         self.ui.start_btn.clicked.connect(self.start)
@@ -37,6 +40,7 @@ class MainWindow(QMainWindow):
 
         self.ui.animation_btn.clicked.connect(self.visualize_animation)
         self.ui.openFile_btn.clicked.connect(self.getFileName)
+        self.ui.read_image_btn.clicked.connect(self.getImageName)
 
 
     def start(self):
@@ -54,7 +58,7 @@ class MainWindow(QMainWindow):
 
         start_positions = A_list
         self.starts = start_positions
-        goal = (int(self.ui.stop_point_x.value()), int(self.ui.stop_point_y.value()))
+        goal = (int(self.ui.stop_point_y.value()), int(self.ui.stop_point_x.value()))
 
         if self.ui.algorithm_type.currentText() == "A-STAR":
             # ASTAR
@@ -66,7 +70,7 @@ class MainWindow(QMainWindow):
             self.all_best_vals = []
             for start in start_positions:
                 print(self.ui.robot_dist_num.value())
-                path, min_val, costs = astar(self.terrain, start, goal, occupied_positions, robot_distance=int(self.ui.robot_dist_num.value()) ,
+                path, min_val, costs, costs_f = astar(self.terrain, start, goal, occupied_positions, robot_distance=int(self.ui.robot_dist_num.value()) ,
                              terrain_weight=int(self.ui.terrain_weight_num.value()), robot_distance_weight=int(self.ui.robodist_weight_num.value()))
                 self.all_costs.append(costs)
                 self.all_best_vals.append(min_val)
@@ -79,10 +83,35 @@ class MainWindow(QMainWindow):
 
             end = time.time()
 
+            self.ui.ASTAR_time_line.setText(str(end-beg))
+
             ### Zobrazowanie wyników
             self.visualize_results()
             self.visualize_cost_plot()
+
+            max_len = max(len(p) for p in self.paths)
+
+            # Ustawienie liczby wierszy i kolumn w tabeli
+            self.ui.result_table.setRowCount(max_len)  # Liczba wierszy to liczba ścieżek
+            self.ui.result_table.setColumnCount(len(self.paths))  # Liczba kolumn to maksymalna długość ścieżki
+
+            # Wypełnienie tabeli danymi
+            for i, p in enumerate(self.paths):
+                for j, pi in enumerate(p):
+                    self.ui.result_table.setItem(j, i, QTableWidgetItem(str(pi)))
+            self.ui.result_table.setHorizontalHeaderLabels(self.labels)
             print("100% completed!")
+
+
+            max_len = max(len(ac) for ac in self.all_costs)
+            self.ui.cost_table.setRowCount(max_len)  # Liczba wierszy to liczba ścieżek
+            self.ui.cost_table.setColumnCount(len(self.paths))  # Liczba kolumn to maksymalna długość ścieżki
+
+            # Wypełnienie tabeli danymi
+            for i, ac in enumerate(self.all_costs):
+                for j, aci in enumerate(ac):
+                    self.ui.cost_table.setItem(j, i, QTableWidgetItem(str(aci)))
+            self.ui.cost_table.setHorizontalHeaderLabels(self.labels)
 
         elif self.ui.algorithm_type.currentText() == "CSO":
             # best_path, minimum_loss_values = algorithm(start=[int(self.ui.start_point_x.value()), int(self.ui.start_point_y.value())],
@@ -127,9 +156,24 @@ class MainWindow(QMainWindow):
         self.ui.map_plot.show()
 
         # Generowanie terenu
-        self.terrain = terrain_generator(noise_num=float(self.ui.noise_num.value()),
-                                    terrain_size=(int(self.ui.terrain_x.value()), int(self.ui.terrain_y.value())),
-                                    terrain_type=map_terrain_type(self.ui.map_type.currentText()))
+        if self.ui.generator_radio.isChecked():
+            self.terrain = terrain_generator(noise_num=float(self.ui.noise_num.value()),
+                                        terrain_size=(int(self.ui.terrain_x.value()), int(self.ui.terrain_y.value())),
+                                        terrain_type=map_terrain_type(self.ui.map_type.currentText()))
+
+        else:
+            image = Image.open(self.ui.image_path.text())
+            grayscale_image = image.convert('L')  # 'L' oznacza obraz w skali szarości
+            matrix = np.array(grayscale_image)
+
+            # Przekonwertuj macierz NumPy na listę list
+            matrix_list_of_lists = matrix.tolist()
+
+            # # Wyświetl wynik (listę list)
+            # for row in matrix_list_of_lists:
+            #     print(row)
+            self.terrain = matrix_list_of_lists
+
 
 
         # Wyświetlanie terenu za pomocą imshow
@@ -194,6 +238,44 @@ class MainWindow(QMainWindow):
 
         # Odświeżenie wykresu
         self.ui.map_plot.canvas.draw()
+
+    def getImageName(self):
+        try:
+            response = QFileDialog.getOpenFileName(
+                self, 'Wybierz plik graficzny', os.getcwd()[:-3] + "dane", "(*.png *.PNG *.jpg *.jpeg )"
+            )
+
+            def func():
+                self.ui.info_lab.setText("Wczytano obraz!")  # Display message
+                timer.stop()  # Stop the timer after showing the message
+                QTimer.singleShot(5000, clear_message)  # Wait 5 seconds before clearing the message
+
+            def clear_message():
+                self.ui.info_lab.setText("")  # Clear the message after 5 seconds
+
+            print(response)
+            self.ui.image_path.setText(response[0])  # Assuming response contains a file path
+
+            # Create the timer
+            timer = QTimer()
+            timer.timeout.connect(func)  # Connect the timer's timeout signal to the func method
+            timer.start(50)  # Set the interval for the timer (50 ms)
+
+            msg = QMessageBox()
+            msg.setText("Poprawnie załadowano obraz.")
+            msg.setWindowTitle("Sukces")
+            msg.setIcon(QMessageBox.Information)
+            button = msg.exec()
+            if button == QMessageBox.Ok:
+                print("OK!")
+        except:
+            msg = QMessageBox()
+            msg.setText("W trakcie ładowania obrazu wystąpił błąd!")
+            msg.setWindowTitle("Błąd!")
+            msg.setIcon(QMessageBox.Critical)
+            button = msg.exec()
+            if button == QMessageBox.Ok:
+                print("OK!")
 
     def getFileName(self):
         try:

@@ -137,6 +137,7 @@ def astar(terrain, start, goal, occupied_positions, robot_distance=2, terrain_we
 
     directions = [(0, 1), (1, 0), (0, -1), (-1, 0), (1, 1), (-1, -1), (-1, 1), (1, -1)]
     costs = []
+    costs_f = []
 
     while open_set:
         open_set.sort()  # Sortowanie listy w celu wyboru elementu o najniższym koszcie
@@ -148,10 +149,11 @@ def astar(terrain, start, goal, occupied_positions, robot_distance=2, terrain_we
                 path.append(current)
                 current = came_from[current]
             path.append(start)
-            return path[::-1], min_cost, costs
+            return path[::-1], min_cost, costs, costs_f
 
         x, y = current
         costs.append(min_cost)
+        costs_f.append(f_score[current])
 
         for dx, dy in directions:
             neighbor = (x + dx, y + dy)
@@ -199,56 +201,56 @@ from PIL import Image
 import numpy as np
 
 # Open the image file
-image = Image.open('kopup.PNG')
-grayscale_image = image.convert('L')  # 'L' oznacza obraz w skali szarości
-matrix = np.array(grayscale_image)
-
-# Przekonwertuj macierz NumPy na listę list
-matrix_list_of_lists = matrix.tolist()
-
-# # Wyświetl wynik (listę list)
-# for row in matrix_list_of_lists:
-#     print(row)
-terrain =  matrix_list_of_lists
+# image = Image.open('kopup.PNG')
+# grayscale_image = image.convert('L')  # 'L' oznacza obraz w skali szarości
+# matrix = np.array(grayscale_image)
+#
+# # Przekonwertuj macierz NumPy na listę list
+# matrix_list_of_lists = matrix.tolist()
+#
+# # # Wyświetl wynik (listę list)
+# # for row in matrix_list_of_lists:
+# #     print(row)
+# terrain = matrix_list_of_lists
 
 # Inicjalizacja mapy terenu 51x51
 # terrain = terrain_generator(0, terrain_size=(51, 51), terrain_type="hills")
 # print(terrain)
 # Punkty startowe dla N robotów
-start_positions = [(2, 2), (10, 0), (0, 10), (1, 1)]
-start_positions = [(0, 2), (2, 0), (0, 0), (2, 2)]
-start_positions = [(0, 0), (10,0)]
-goal = (40, 40)
-
-# Lista pozycji zajętych przez roboty (początkowo puste)
-occupied_positions = list()
-paths = []
-
-all_cost = []
-for start in start_positions:
-    path, min_val, costs = astar(terrain, start, goal, occupied_positions, robot_distance=2, robot_distance_weight=1, terrain_weight=1)
-    all_cost.append(costs)
-    print(" -------------------- ")
-    if path:
-        paths.append(path)
-        occupied_positions.append(path)  # Aktualizacja zajętych pozycji
-    else:
-        print(f"Brak możliwej ścieżki dla robota z pozycji {start}")
-
-
-# Rysowanie wyników
-plot_graph(paths, terrain, start_positions, goal)
-# plot_graph_animation(paths, terrain, start_positions, goal)
-
-num = 0
-for i in all_cost:
-    plt.plot(i, color=["red", "blue", "orange", "yellow", "magenta"][num])
-    num+=1
-
-plt.show()
-if paths:
-    for i, path in enumerate(paths):
-        print(f"Najkrótsza ścieżka dla robota {i + 1}: {path}")
-        print(len(path))
-else:
-    print("Brak możliwych ścieżek dla wszystkich robotów.")
+# start_positions = [(2, 2), (10, 0), (0, 10), (1, 1)]
+# start_positions = [(0, 2), (2, 0), (0, 0), (2, 2)]
+# start_positions = [(0, 0), (10,0)]
+# goal = (40, 40)
+#
+# # Lista pozycji zajętych przez roboty (początkowo puste)
+# occupied_positions = list()
+# paths = []
+#
+# all_cost = []
+# for start in start_positions:
+#     path, min_val, costs = astar(terrain, start, goal, occupied_positions, robot_distance=2, robot_distance_weight=1, terrain_weight=1)
+#     all_cost.append(costs)
+#     print(" -------------------- ")
+#     if path:
+#         paths.append(path)
+#         occupied_positions.append(path)  # Aktualizacja zajętych pozycji
+#     else:
+#         print(f"Brak możliwej ścieżki dla robota z pozycji {start}")
+#
+#
+# # Rysowanie wyników
+# plot_graph(paths, terrain, start_positions, goal)
+# # plot_graph_animation(paths, terrain, start_positions, goal)
+#
+# num = 0
+# for i in all_cost:
+#     plt.plot(i, color=["red", "blue", "orange", "yellow", "magenta"][num])
+#     num+=1
+#
+# plt.show()
+# if paths:
+#     for i, path in enumerate(paths):
+#         print(f"Najkrótsza ścieżka dla robota {i + 1}: {path}")
+#         print(len(path))
+# else:
+#     print("Brak możliwych ścieżek dla wszystkich robotów.")

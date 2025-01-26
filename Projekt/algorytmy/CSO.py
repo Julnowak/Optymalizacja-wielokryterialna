@@ -317,8 +317,8 @@ def algorithm(
     map_size,
     terrain,
     visibility_range,
-    num_of_iterations: int = 100,
-    cockroaches_num: int = 20,
+    num_of_iterations: int = 10,
+    cockroaches_num: int = 100,
     probability_of_dispersion: float = 10,
     max_step: int = 1,
 ):
