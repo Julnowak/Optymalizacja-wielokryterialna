@@ -18,8 +18,9 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
 from PySide6.QtWidgets import (QApplication, QComboBox, QDoubleSpinBox, QGridLayout,
     QGroupBox, QHeaderView, QLabel, QLineEdit,
     QMainWindow, QMenuBar, QPushButton, QRadioButton,
-    QSizePolicy, QSpacerItem, QSpinBox, QStatusBar,
-    QTabWidget, QTableWidget, QTableWidgetItem, QWidget)
+    QSizePolicy, QSpacerItem, QSpinBox, QStackedWidget,
+    QStatusBar, QTabWidget, QTableWidget, QTableWidgetItem,
+    QWidget)
 
 from plotwidget import plotwidget
 
@@ -38,190 +39,6 @@ class Ui_MainWindow(object):
         self.tab.setObjectName(u"tab")
         self.gridLayout_2 = QGridLayout(self.tab)
         self.gridLayout_2.setObjectName(u"gridLayout_2")
-        self.groupBox = QGroupBox(self.tab)
-        self.groupBox.setObjectName(u"groupBox")
-        self.groupBox.setMaximumSize(QSize(250, 16777215))
-        self.gridLayout_4 = QGridLayout(self.groupBox)
-        self.gridLayout_4.setObjectName(u"gridLayout_4")
-        self.robodist_weight_num = QSpinBox(self.groupBox)
-        self.robodist_weight_num.setObjectName(u"robodist_weight_num")
-        self.robodist_weight_num.setValue(1)
-
-        self.gridLayout_4.addWidget(self.robodist_weight_num, 5, 5, 1, 1)
-
-        self.stop_point_y = QSpinBox(self.groupBox)
-        self.stop_point_y.setObjectName(u"stop_point_y")
-        self.stop_point_y.setMaximum(1000000000)
-        self.stop_point_y.setValue(50)
-
-        self.gridLayout_4.addWidget(self.stop_point_y, 13, 5, 1, 1)
-
-        self.terrain_y = QSpinBox(self.groupBox)
-        self.terrain_y.setObjectName(u"terrain_y")
-        self.terrain_y.setMinimum(1)
-        self.terrain_y.setMaximum(1000000000)
-        self.terrain_y.setValue(100)
-
-        self.gridLayout_4.addWidget(self.terrain_y, 12, 5, 1, 1)
-
-        self.label_10 = QLabel(self.groupBox)
-        self.label_10.setObjectName(u"label_10")
-
-        self.gridLayout_4.addWidget(self.label_10, 5, 2, 1, 3)
-
-        self.label_5 = QLabel(self.groupBox)
-        self.label_5.setObjectName(u"label_5")
-
-        self.gridLayout_4.addWidget(self.label_5, 10, 2, 1, 1)
-
-        self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
-
-        self.gridLayout_4.addItem(self.verticalSpacer, 8, 2, 1, 4)
-
-        self.label_2 = QLabel(self.groupBox)
-        self.label_2.setObjectName(u"label_2")
-
-        self.gridLayout_4.addWidget(self.label_2, 0, 2, 1, 3)
-
-        self.algorithm_type = QComboBox(self.groupBox)
-        self.algorithm_type.addItem("")
-        self.algorithm_type.addItem("")
-        self.algorithm_type.addItem("")
-        self.algorithm_type.setObjectName(u"algorithm_type")
-
-        self.gridLayout_4.addWidget(self.algorithm_type, 16, 4, 1, 2)
-
-        self.verticalSpacer_2 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
-
-        self.gridLayout_4.addItem(self.verticalSpacer_2, 15, 2, 1, 4)
-
-        self.label_8 = QLabel(self.groupBox)
-        self.label_8.setObjectName(u"label_8")
-
-        self.gridLayout_4.addWidget(self.label_8, 4, 2, 1, 3)
-
-        self.label = QLabel(self.groupBox)
-        self.label.setObjectName(u"label")
-
-        self.gridLayout_4.addWidget(self.label, 2, 2, 1, 3)
-
-        self.map_type = QComboBox(self.groupBox)
-        self.map_type.addItem("")
-        self.map_type.addItem("")
-        self.map_type.addItem("")
-        self.map_type.addItem("")
-        self.map_type.addItem("")
-        self.map_type.addItem("")
-        self.map_type.addItem("")
-        self.map_type.addItem("")
-        self.map_type.setObjectName(u"map_type")
-
-        self.gridLayout_4.addWidget(self.map_type, 10, 4, 1, 2)
-
-        self.terrain_x = QSpinBox(self.groupBox)
-        self.terrain_x.setObjectName(u"terrain_x")
-        self.terrain_x.setMinimum(1)
-        self.terrain_x.setMaximum(1000000000)
-        self.terrain_x.setSingleStep(1)
-        self.terrain_x.setValue(100)
-
-        self.gridLayout_4.addWidget(self.terrain_x, 12, 4, 1, 1)
-
-        self.label_6 = QLabel(self.groupBox)
-        self.label_6.setObjectName(u"label_6")
-
-        self.gridLayout_4.addWidget(self.label_6, 11, 2, 1, 1)
-
-        self.vehicle_num = QSpinBox(self.groupBox)
-        self.vehicle_num.setObjectName(u"vehicle_num")
-        self.vehicle_num.setMinimum(1)
-        self.vehicle_num.setMaximum(1000000000)
-
-        self.gridLayout_4.addWidget(self.vehicle_num, 0, 5, 1, 1)
-
-        self.label_7 = QLabel(self.groupBox)
-        self.label_7.setObjectName(u"label_7")
-
-        self.gridLayout_4.addWidget(self.label_7, 12, 2, 1, 1)
-
-        self.stop_point_x = QSpinBox(self.groupBox)
-        self.stop_point_x.setObjectName(u"stop_point_x")
-        self.stop_point_x.setMaximum(1000000000)
-        self.stop_point_x.setValue(50)
-
-        self.gridLayout_4.addWidget(self.stop_point_x, 13, 4, 1, 1)
-
-        self.generate_map_btn = QPushButton(self.groupBox)
-        self.generate_map_btn.setObjectName(u"generate_map_btn")
-
-        self.gridLayout_4.addWidget(self.generate_map_btn, 17, 2, 1, 4)
-
-        self.iteration_num = QSpinBox(self.groupBox)
-        self.iteration_num.setObjectName(u"iteration_num")
-        self.iteration_num.setMinimum(1)
-        self.iteration_num.setMaximum(1000000000)
-        self.iteration_num.setValue(50)
-
-        self.gridLayout_4.addWidget(self.iteration_num, 2, 5, 1, 1)
-
-        self.generator_radio = QRadioButton(self.groupBox)
-        self.generator_radio.setObjectName(u"generator_radio")
-        self.generator_radio.setMinimumSize(QSize(100, 0))
-        self.generator_radio.setChecked(True)
-
-        self.gridLayout_4.addWidget(self.generator_radio, 9, 2, 1, 2)
-
-        self.label_3 = QLabel(self.groupBox)
-        self.label_3.setObjectName(u"label_3")
-
-        self.gridLayout_4.addWidget(self.label_3, 16, 2, 1, 1)
-
-        self.terrain_weight_num = QSpinBox(self.groupBox)
-        self.terrain_weight_num.setObjectName(u"terrain_weight_num")
-        self.terrain_weight_num.setValue(1)
-
-        self.gridLayout_4.addWidget(self.terrain_weight_num, 4, 5, 1, 1)
-
-        self.noise_num = QDoubleSpinBox(self.groupBox)
-        self.noise_num.setObjectName(u"noise_num")
-        self.noise_num.setMaximum(100.000000000000000)
-        self.noise_num.setSingleStep(0.010000000000000)
-        self.noise_num.setValue(1.000000000000000)
-
-        self.gridLayout_4.addWidget(self.noise_num, 11, 4, 1, 2)
-
-        self.label_9 = QLabel(self.groupBox)
-        self.label_9.setObjectName(u"label_9")
-
-        self.gridLayout_4.addWidget(self.label_9, 13, 2, 1, 1)
-
-        self.start_btn = QPushButton(self.groupBox)
-        self.start_btn.setObjectName(u"start_btn")
-
-        self.gridLayout_4.addWidget(self.start_btn, 18, 2, 1, 4)
-
-        self.label_4 = QLabel(self.groupBox)
-        self.label_4.setObjectName(u"label_4")
-
-        self.gridLayout_4.addWidget(self.label_4, 3, 2, 1, 1)
-
-        self.robot_dist_num = QSpinBox(self.groupBox)
-        self.robot_dist_num.setObjectName(u"robot_dist_num")
-        self.robot_dist_num.setMinimum(1)
-        self.robot_dist_num.setMaximum(1000000000)
-
-        self.gridLayout_4.addWidget(self.robot_dist_num, 3, 5, 1, 1)
-
-        self.image_radio = QRadioButton(self.groupBox)
-        self.image_radio.setObjectName(u"image_radio")
-        self.image_radio.setMinimumSize(QSize(100, 0))
-        self.image_radio.setLayoutDirection(Qt.LeftToRight)
-
-        self.gridLayout_4.addWidget(self.image_radio, 9, 5, 1, 1)
-
-
-        self.gridLayout_2.addWidget(self.groupBox, 0, 1, 2, 1)
-
         self.groupBox_2 = QGroupBox(self.tab)
         self.groupBox_2.setObjectName(u"groupBox_2")
         self.gridLayout_3 = QGridLayout(self.groupBox_2)
@@ -235,6 +52,281 @@ class Ui_MainWindow(object):
 
 
         self.gridLayout_2.addWidget(self.groupBox_2, 0, 0, 2, 1)
+
+        self.groupBox = QGroupBox(self.tab)
+        self.groupBox.setObjectName(u"groupBox")
+        self.groupBox.setMaximumSize(QSize(300, 16777215))
+        self.gridLayout_4 = QGridLayout(self.groupBox)
+        self.gridLayout_4.setObjectName(u"gridLayout_4")
+        self.terrain_x = QSpinBox(self.groupBox)
+        self.terrain_x.setObjectName(u"terrain_x")
+        self.terrain_x.setMinimum(1)
+        self.terrain_x.setMaximum(1000000000)
+        self.terrain_x.setSingleStep(1)
+        self.terrain_x.setValue(100)
+
+        self.gridLayout_4.addWidget(self.terrain_x, 7, 4, 1, 1)
+
+        self.label_7 = QLabel(self.groupBox)
+        self.label_7.setObjectName(u"label_7")
+
+        self.gridLayout_4.addWidget(self.label_7, 7, 2, 1, 1)
+
+        self.label_3 = QLabel(self.groupBox)
+        self.label_3.setObjectName(u"label_3")
+
+        self.gridLayout_4.addWidget(self.label_3, 12, 2, 1, 1)
+
+        self.terrain_y = QSpinBox(self.groupBox)
+        self.terrain_y.setObjectName(u"terrain_y")
+        self.terrain_y.setMinimum(1)
+        self.terrain_y.setMaximum(1000000000)
+        self.terrain_y.setValue(100)
+
+        self.gridLayout_4.addWidget(self.terrain_y, 7, 5, 1, 1)
+
+        self.image_radio = QRadioButton(self.groupBox)
+        self.image_radio.setObjectName(u"image_radio")
+        self.image_radio.setMinimumSize(QSize(100, 0))
+        self.image_radio.setLayoutDirection(Qt.LeftToRight)
+
+        self.gridLayout_4.addWidget(self.image_radio, 4, 4, 1, 2)
+
+        self.label_5 = QLabel(self.groupBox)
+        self.label_5.setObjectName(u"label_5")
+
+        self.gridLayout_4.addWidget(self.label_5, 5, 2, 1, 1)
+
+        self.label_6 = QLabel(self.groupBox)
+        self.label_6.setObjectName(u"label_6")
+
+        self.gridLayout_4.addWidget(self.label_6, 6, 2, 1, 1)
+
+        self.generate_map_btn = QPushButton(self.groupBox)
+        self.generate_map_btn.setObjectName(u"generate_map_btn")
+
+        self.gridLayout_4.addWidget(self.generate_map_btn, 13, 2, 1, 4)
+
+        self.verticalSpacer_2 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+
+        self.gridLayout_4.addItem(self.verticalSpacer_2, 10, 2, 1, 4)
+
+        self.algorithm_type = QComboBox(self.groupBox)
+        self.algorithm_type.addItem("")
+        self.algorithm_type.addItem("")
+        self.algorithm_type.addItem("")
+        self.algorithm_type.setObjectName(u"algorithm_type")
+
+        self.gridLayout_4.addWidget(self.algorithm_type, 12, 4, 1, 2)
+
+        self.generator_radio = QRadioButton(self.groupBox)
+        self.generator_radio.setObjectName(u"generator_radio")
+        self.generator_radio.setMinimumSize(QSize(100, 0))
+        self.generator_radio.setChecked(True)
+
+        self.gridLayout_4.addWidget(self.generator_radio, 4, 2, 1, 2)
+
+        self.map_type = QComboBox(self.groupBox)
+        self.map_type.addItem("")
+        self.map_type.addItem("")
+        self.map_type.addItem("")
+        self.map_type.addItem("")
+        self.map_type.addItem("")
+        self.map_type.addItem("")
+        self.map_type.addItem("")
+        self.map_type.addItem("")
+        self.map_type.setObjectName(u"map_type")
+
+        self.gridLayout_4.addWidget(self.map_type, 5, 4, 1, 2)
+
+        self.start_btn = QPushButton(self.groupBox)
+        self.start_btn.setObjectName(u"start_btn")
+
+        self.gridLayout_4.addWidget(self.start_btn, 14, 2, 1, 4)
+
+        self.noise_num = QDoubleSpinBox(self.groupBox)
+        self.noise_num.setObjectName(u"noise_num")
+        self.noise_num.setMaximum(100.000000000000000)
+        self.noise_num.setSingleStep(0.010000000000000)
+        self.noise_num.setValue(1.000000000000000)
+
+        self.gridLayout_4.addWidget(self.noise_num, 6, 4, 1, 2)
+
+        self.stackedWidget = QStackedWidget(self.groupBox)
+        self.stackedWidget.setObjectName(u"stackedWidget")
+        self.stackedWidget.setMinimumSize(QSize(0, 180))
+        self.page = QWidget()
+        self.page.setObjectName(u"page")
+        self.gridLayout_16 = QGridLayout(self.page)
+        self.gridLayout_16.setObjectName(u"gridLayout_16")
+        self.groupBox_8 = QGroupBox(self.page)
+        self.groupBox_8.setObjectName(u"groupBox_8")
+        self.gridLayout_15 = QGridLayout(self.groupBox_8)
+        self.gridLayout_15.setObjectName(u"gridLayout_15")
+        self.label_4 = QLabel(self.groupBox_8)
+        self.label_4.setObjectName(u"label_4")
+
+        self.gridLayout_15.addWidget(self.label_4, 0, 0, 1, 1)
+
+        self.robot_dist_num = QSpinBox(self.groupBox_8)
+        self.robot_dist_num.setObjectName(u"robot_dist_num")
+        self.robot_dist_num.setMaximumSize(QSize(50, 16777215))
+        self.robot_dist_num.setMinimum(1)
+        self.robot_dist_num.setMaximum(1000000000)
+
+        self.gridLayout_15.addWidget(self.robot_dist_num, 0, 1, 1, 1)
+
+        self.label_8 = QLabel(self.groupBox_8)
+        self.label_8.setObjectName(u"label_8")
+
+        self.gridLayout_15.addWidget(self.label_8, 1, 0, 1, 1)
+
+        self.terrain_weight_num = QSpinBox(self.groupBox_8)
+        self.terrain_weight_num.setObjectName(u"terrain_weight_num")
+        self.terrain_weight_num.setValue(1)
+
+        self.gridLayout_15.addWidget(self.terrain_weight_num, 1, 1, 1, 1)
+
+        self.label_10 = QLabel(self.groupBox_8)
+        self.label_10.setObjectName(u"label_10")
+
+        self.gridLayout_15.addWidget(self.label_10, 2, 0, 1, 1)
+
+        self.robodist_weight_num = QSpinBox(self.groupBox_8)
+        self.robodist_weight_num.setObjectName(u"robodist_weight_num")
+        self.robodist_weight_num.setValue(1)
+
+        self.gridLayout_15.addWidget(self.robodist_weight_num, 2, 1, 1, 1)
+
+
+        self.gridLayout_16.addWidget(self.groupBox_8, 0, 0, 1, 1)
+
+        self.stackedWidget.addWidget(self.page)
+        self.page_2 = QWidget()
+        self.page_2.setObjectName(u"page_2")
+        self.gridLayout_14 = QGridLayout(self.page_2)
+        self.gridLayout_14.setObjectName(u"gridLayout_14")
+        self.groupBox_9 = QGroupBox(self.page_2)
+        self.groupBox_9.setObjectName(u"groupBox_9")
+        self.gridLayout_17 = QGridLayout(self.groupBox_9)
+        self.gridLayout_17.setObjectName(u"gridLayout_17")
+        self.label_2 = QLabel(self.groupBox_9)
+        self.label_2.setObjectName(u"label_2")
+
+        self.gridLayout_17.addWidget(self.label_2, 0, 0, 1, 1)
+
+        self.vehicle_num = QSpinBox(self.groupBox_9)
+        self.vehicle_num.setObjectName(u"vehicle_num")
+        self.vehicle_num.setMinimum(1)
+        self.vehicle_num.setMaximum(1000000000)
+
+        self.gridLayout_17.addWidget(self.vehicle_num, 0, 1, 1, 1)
+
+        self.label = QLabel(self.groupBox_9)
+        self.label.setObjectName(u"label")
+
+        self.gridLayout_17.addWidget(self.label, 1, 0, 1, 1)
+
+        self.iteration_num = QSpinBox(self.groupBox_9)
+        self.iteration_num.setObjectName(u"iteration_num")
+        self.iteration_num.setMinimum(1)
+        self.iteration_num.setMaximum(1000000000)
+        self.iteration_num.setValue(50)
+
+        self.gridLayout_17.addWidget(self.iteration_num, 1, 1, 1, 1)
+
+
+        self.gridLayout_14.addWidget(self.groupBox_9, 0, 0, 1, 1)
+
+        self.stackedWidget.addWidget(self.page_2)
+        self.page_3 = QWidget()
+        self.page_3.setObjectName(u"page_3")
+        self.gridLayout_18 = QGridLayout(self.page_3)
+        self.gridLayout_18.setObjectName(u"gridLayout_18")
+        self.groupBox_10 = QGroupBox(self.page_3)
+        self.groupBox_10.setObjectName(u"groupBox_10")
+        self.gridLayout_19 = QGridLayout(self.groupBox_10)
+        self.gridLayout_19.setObjectName(u"gridLayout_19")
+        self.offspring_percent_num = QDoubleSpinBox(self.groupBox_10)
+        self.offspring_percent_num.setObjectName(u"offspring_percent_num")
+        self.offspring_percent_num.setMaximum(1.000000000000000)
+        self.offspring_percent_num.setSingleStep(0.010000000000000)
+        self.offspring_percent_num.setValue(0.500000000000000)
+
+        self.gridLayout_19.addWidget(self.offspring_percent_num, 2, 1, 1, 1)
+
+        self.label_14 = QLabel(self.groupBox_10)
+        self.label_14.setObjectName(u"label_14")
+        self.label_14.setMinimumSize(QSize(110, 0))
+
+        self.gridLayout_19.addWidget(self.label_14, 0, 0, 1, 1)
+
+        self.generation_num = QSpinBox(self.groupBox_10)
+        self.generation_num.setObjectName(u"generation_num")
+        self.generation_num.setMinimum(1)
+        self.generation_num.setMaximum(1000000000)
+        self.generation_num.setValue(50)
+
+        self.gridLayout_19.addWidget(self.generation_num, 1, 1, 1, 1)
+
+        self.generation_size_num = QSpinBox(self.groupBox_10)
+        self.generation_size_num.setObjectName(u"generation_size_num")
+        self.generation_size_num.setMinimum(1)
+        self.generation_size_num.setMaximum(1000000000)
+        self.generation_size_num.setValue(1000)
+
+        self.gridLayout_19.addWidget(self.generation_size_num, 0, 1, 1, 1)
+
+        self.label_15 = QLabel(self.groupBox_10)
+        self.label_15.setObjectName(u"label_15")
+
+        self.gridLayout_19.addWidget(self.label_15, 1, 0, 1, 1)
+
+        self.mutation_percent_num = QDoubleSpinBox(self.groupBox_10)
+        self.mutation_percent_num.setObjectName(u"mutation_percent_num")
+        self.mutation_percent_num.setMaximum(1.000000000000000)
+        self.mutation_percent_num.setValue(0.200000000000000)
+
+        self.gridLayout_19.addWidget(self.mutation_percent_num, 3, 1, 1, 1)
+
+        self.label_16 = QLabel(self.groupBox_10)
+        self.label_16.setObjectName(u"label_16")
+
+        self.gridLayout_19.addWidget(self.label_16, 2, 0, 1, 1)
+
+        self.label_17 = QLabel(self.groupBox_10)
+        self.label_17.setObjectName(u"label_17")
+
+        self.gridLayout_19.addWidget(self.label_17, 3, 0, 1, 1)
+
+
+        self.gridLayout_18.addWidget(self.groupBox_10, 0, 0, 1, 1)
+
+        self.stackedWidget.addWidget(self.page_3)
+
+        self.gridLayout_4.addWidget(self.stackedWidget, 1, 2, 1, 4)
+
+        self.label_9 = QLabel(self.groupBox)
+        self.label_9.setObjectName(u"label_9")
+
+        self.gridLayout_4.addWidget(self.label_9, 11, 2, 1, 1)
+
+        self.stop_point_x = QSpinBox(self.groupBox)
+        self.stop_point_x.setObjectName(u"stop_point_x")
+        self.stop_point_x.setMaximum(1000000000)
+        self.stop_point_x.setValue(50)
+
+        self.gridLayout_4.addWidget(self.stop_point_x, 11, 4, 1, 1)
+
+        self.stop_point_y = QSpinBox(self.groupBox)
+        self.stop_point_y.setObjectName(u"stop_point_y")
+        self.stop_point_y.setMaximum(1000000000)
+        self.stop_point_y.setValue(50)
+
+        self.gridLayout_4.addWidget(self.stop_point_y, 11, 5, 1, 1)
+
+
+        self.gridLayout_2.addWidget(self.groupBox, 0, 1, 2, 1)
 
         self.tabWidget.addTab(self.tab, "")
         self.tab_3 = QWidget()
@@ -286,12 +378,12 @@ class Ui_MainWindow(object):
         self.gridLayout_5.setObjectName(u"gridLayout_5")
         self.groupBox_3 = QGroupBox(self.tab_2)
         self.groupBox_3.setObjectName(u"groupBox_3")
-        self.groupBox_3.setMinimumSize(QSize(500, 0))
+        self.groupBox_3.setMinimumSize(QSize(0, 0))
         self.gridLayout_6 = QGridLayout(self.groupBox_3)
         self.gridLayout_6.setObjectName(u"gridLayout_6")
         self.result_plot = plotwidget(self.groupBox_3)
         self.result_plot.setObjectName(u"result_plot")
-        self.result_plot.setMinimumSize(QSize(500, 0))
+        self.result_plot.setMinimumSize(QSize(0, 0))
         self.result_plot.setMaximumSize(QSize(16777215, 500))
 
         self.gridLayout_6.addWidget(self.result_plot, 0, 0, 1, 1)
@@ -301,6 +393,8 @@ class Ui_MainWindow(object):
 
         self.groupBox_4 = QGroupBox(self.tab_2)
         self.groupBox_4.setObjectName(u"groupBox_4")
+        self.groupBox_4.setMinimumSize(QSize(400, 0))
+        self.groupBox_4.setMaximumSize(QSize(400, 16777215))
         self.gridLayout_7 = QGridLayout(self.groupBox_4)
         self.gridLayout_7.setObjectName(u"gridLayout_7")
         self.animation_btn = QPushButton(self.groupBox_4)
@@ -360,16 +454,19 @@ class Ui_MainWindow(object):
 
         self.ASTAR_time_line = QLineEdit(self.groupBox_5)
         self.ASTAR_time_line.setObjectName(u"ASTAR_time_line")
+        self.ASTAR_time_line.setReadOnly(True)
 
         self.gridLayout_10.addWidget(self.ASTAR_time_line, 0, 1, 1, 1)
 
         self.CSO_time_line = QLineEdit(self.groupBox_5)
         self.CSO_time_line.setObjectName(u"CSO_time_line")
+        self.CSO_time_line.setReadOnly(True)
 
         self.gridLayout_10.addWidget(self.CSO_time_line, 2, 1, 1, 1)
 
         self.TSPGA_time_line = QLineEdit(self.groupBox_5)
         self.TSPGA_time_line.setObjectName(u"TSPGA_time_line")
+        self.TSPGA_time_line.setReadOnly(True)
 
         self.gridLayout_10.addWidget(self.TSPGA_time_line, 4, 1, 1, 1)
 
@@ -409,6 +506,7 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
 
         self.tabWidget.setCurrentIndex(0)
+        self.stackedWidget.setCurrentIndex(0)
 
 
         QMetaObject.connectSlotsByName(MainWindow)
@@ -416,16 +514,19 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainWindow", None))
+        self.groupBox_2.setTitle(QCoreApplication.translate("MainWindow", u"Mapa", None))
         self.groupBox.setTitle(QCoreApplication.translate("MainWindow", u"Parametry", None))
-        self.label_10.setText(QCoreApplication.translate("MainWindow", u"Waga dystansu robot\u00f3w:", None))
+        self.label_7.setText(QCoreApplication.translate("MainWindow", u"Rozmiar:", None))
+        self.label_3.setText(QCoreApplication.translate("MainWindow", u"Algorytm:", None))
+        self.image_radio.setText(QCoreApplication.translate("MainWindow", u"Z obrazu", None))
         self.label_5.setText(QCoreApplication.translate("MainWindow", u"Typ mapy:", None))
-        self.label_2.setText(QCoreApplication.translate("MainWindow", u"Liczba pojazd\u00f3w:", None))
+        self.label_6.setText(QCoreApplication.translate("MainWindow", u"Szum:", None))
+        self.generate_map_btn.setText(QCoreApplication.translate("MainWindow", u"Generuj map\u0119", None))
         self.algorithm_type.setItemText(0, QCoreApplication.translate("MainWindow", u"A-STAR", None))
         self.algorithm_type.setItemText(1, QCoreApplication.translate("MainWindow", u"CSO", None))
         self.algorithm_type.setItemText(2, QCoreApplication.translate("MainWindow", u"TSP GA", None))
 
-        self.label_8.setText(QCoreApplication.translate("MainWindow", u"Waga terenu:", None))
-        self.label.setText(QCoreApplication.translate("MainWindow", u"Iteracje:", None))
+        self.generator_radio.setText(QCoreApplication.translate("MainWindow", u"Z generatora", None))
         self.map_type.setItemText(0, QCoreApplication.translate("MainWindow", u"Wzg\u00f3rza", None))
         self.map_type.setItemText(1, QCoreApplication.translate("MainWindow", u"Linie", None))
         self.map_type.setItemText(2, QCoreApplication.translate("MainWindow", u"Skos", None))
@@ -435,16 +536,20 @@ class Ui_MainWindow(object):
         self.map_type.setItemText(6, QCoreApplication.translate("MainWindow", u"Labirynt", None))
         self.map_type.setItemText(7, QCoreApplication.translate("MainWindow", u"Szum", None))
 
-        self.label_6.setText(QCoreApplication.translate("MainWindow", u"Szum:", None))
-        self.label_7.setText(QCoreApplication.translate("MainWindow", u"Rozmiar:", None))
-        self.generate_map_btn.setText(QCoreApplication.translate("MainWindow", u"Generuj map\u0119", None))
-        self.generator_radio.setText(QCoreApplication.translate("MainWindow", u"Z generatora", None))
-        self.label_3.setText(QCoreApplication.translate("MainWindow", u"Algorytm:", None))
-        self.label_9.setText(QCoreApplication.translate("MainWindow", u"Punkt stop:", None))
         self.start_btn.setText(QCoreApplication.translate("MainWindow", u"START", None))
+        self.groupBox_8.setTitle(QCoreApplication.translate("MainWindow", u"Algorytm A-STAR", None))
         self.label_4.setText(QCoreApplication.translate("MainWindow", u"Odleg\u0142o\u015b\u0107 robot\u00f3w:", None))
-        self.image_radio.setText(QCoreApplication.translate("MainWindow", u"Z obrazu", None))
-        self.groupBox_2.setTitle(QCoreApplication.translate("MainWindow", u"Mapa", None))
+        self.label_8.setText(QCoreApplication.translate("MainWindow", u"Waga terenu:", None))
+        self.label_10.setText(QCoreApplication.translate("MainWindow", u"Waga dystansu robot\u00f3w:", None))
+        self.groupBox_9.setTitle(QCoreApplication.translate("MainWindow", u"Algorytm CSO", None))
+        self.label_2.setText(QCoreApplication.translate("MainWindow", u"Liczba pojazd\u00f3w:", None))
+        self.label.setText(QCoreApplication.translate("MainWindow", u"Iteracje:", None))
+        self.groupBox_10.setTitle(QCoreApplication.translate("MainWindow", u"Algorytm TSP GA", None))
+        self.label_14.setText(QCoreApplication.translate("MainWindow", u"Rozmiar populacji:", None))
+        self.label_15.setText(QCoreApplication.translate("MainWindow", u"Liczba generacji:", None))
+        self.label_16.setText(QCoreApplication.translate("MainWindow", u"Potomstwo [%]:", None))
+        self.label_17.setText(QCoreApplication.translate("MainWindow", u"Mutacja [%]:", None))
+        self.label_9.setText(QCoreApplication.translate("MainWindow", u"Punkt stop:", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), QCoreApplication.translate("MainWindow", u"Menu", None))
         self.openFile_btn.setText(QCoreApplication.translate("MainWindow", u"Wczytaj z pliku", None))
         self.info_lab.setText("")

@@ -77,19 +77,20 @@ def heuristic(a, b):
     return abs(x1 - x2) + abs(y1 - y2)
 
 
-def generate_neighborhood(point, size, directions):
+def generate_neighborhood(point, size, directions, terrain_size):
     # Inicjalizujemy zbiór na sąsiedztwo
     neighborhood = []
-
     x, y = point
+    max_rows, max_cols = terrain_size
 
-    # Iterujemy po wszystkich kierunkach
     for dx, dy in directions:
         for dist in range(1, size + 1):
-            # Obliczamy nowe współrzędne punktu
             new_x = x + dx * dist
             new_y = y + dy * dist
-            neighborhood.append((new_x, new_y))
+
+            # Sprawdzenie, czy nowa pozycja mieści się w granicach mapy terenu
+            if 0 <= new_x < max_rows and 0 <= new_y < max_cols:
+                neighborhood.append((new_x, new_y))
 
     return neighborhood
 
@@ -111,7 +112,7 @@ def movement_cost(current, neighbor, terrain, oc_pos, stp_num, robot_distance=2,
     neighbors = generate_neighborhood(neighbor, robot_distance, [
         (0, 1), (1, 0), (0, -1), (-1, 0),
         (1, 1), (-1, -1), (-1, 1), (1, -1),
-    ])
+    ], (len(terrain),len(terrain[0])))
 
     # Jeśli dany ruch prowadzi do zajętej pozycji, nakładamy dużą karę
     if neighbor in occupied_future_positions:
@@ -216,10 +217,10 @@ import numpy as np
 # Inicjalizacja mapy terenu 51x51
 # terrain = terrain_generator(0, terrain_size=(51, 51), terrain_type="hills")
 # print(terrain)
-# Punkty startowe dla N robotów
+# # Punkty startowe dla N robotów
 # start_positions = [(2, 2), (10, 0), (0, 10), (1, 1)]
-# start_positions = [(0, 2), (2, 0), (0, 0), (2, 2)]
-# start_positions = [(0, 0), (10,0)]
+# # start_positions = [(0, 2), (2, 0), (0, 0), (2, 2)]
+# # start_positions = [(0, 0), (10,0)]
 # goal = (40, 40)
 #
 # # Lista pozycji zajętych przez roboty (początkowo puste)
@@ -228,7 +229,7 @@ import numpy as np
 #
 # all_cost = []
 # for start in start_positions:
-#     path, min_val, costs = astar(terrain, start, goal, occupied_positions, robot_distance=2, robot_distance_weight=1, terrain_weight=1)
+#     path, min_val, costs, costs_f = astar(terrain, start, goal, occupied_positions, robot_distance=2, robot_distance_weight=1, terrain_weight=1)
 #     all_cost.append(costs)
 #     print(" -------------------- ")
 #     if path:
@@ -240,7 +241,7 @@ import numpy as np
 #
 # # Rysowanie wyników
 # plot_graph(paths, terrain, start_positions, goal)
-# # plot_graph_animation(paths, terrain, start_positions, goal)
+# plot_graph_animation(paths, terrain, start_positions, goal)
 #
 # num = 0
 # for i in all_cost:

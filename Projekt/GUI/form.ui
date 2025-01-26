@@ -25,11 +25,36 @@
         <string>Menu</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_2">
+        <item row="0" column="0" rowspan="2">
+         <widget class="QGroupBox" name="groupBox_2">
+          <property name="title">
+           <string>Mapa</string>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_3">
+           <item row="0" column="0">
+            <widget class="plotwidget" name="map_plot" native="true">
+             <property name="minimumSize">
+              <size>
+               <width>300</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>16777215</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
         <item row="0" column="1" rowspan="2">
          <widget class="QGroupBox" name="groupBox">
           <property name="maximumSize">
            <size>
-            <width>250</width>
+            <width>300</width>
             <height>16777215</height>
            </size>
           </property>
@@ -37,24 +62,37 @@
            <string>Parametry</string>
           </property>
           <layout class="QGridLayout" name="gridLayout_4">
-           <item row="5" column="5">
-            <widget class="QSpinBox" name="robodist_weight_num">
-             <property name="value">
+           <item row="7" column="4">
+            <widget class="QSpinBox" name="terrain_x">
+             <property name="minimum">
               <number>1</number>
              </property>
-            </widget>
-           </item>
-           <item row="13" column="5">
-            <widget class="QSpinBox" name="stop_point_y">
              <property name="maximum">
               <number>1000000000</number>
              </property>
+             <property name="singleStep">
+              <number>1</number>
+             </property>
              <property name="value">
-              <number>50</number>
+              <number>100</number>
              </property>
             </widget>
            </item>
-           <item row="12" column="5">
+           <item row="7" column="2">
+            <widget class="QLabel" name="label_7">
+             <property name="text">
+              <string>Rozmiar:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="12" column="2">
+            <widget class="QLabel" name="label_3">
+             <property name="text">
+              <string>Algorytm:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="7" column="5">
             <widget class="QSpinBox" name="terrain_y">
              <property name="minimum">
               <number>1</number>
@@ -67,22 +105,45 @@
              </property>
             </widget>
            </item>
-           <item row="5" column="2" colspan="3">
-            <widget class="QLabel" name="label_10">
+           <item row="4" column="4" colspan="2">
+            <widget class="QRadioButton" name="image_radio">
+             <property name="minimumSize">
+              <size>
+               <width>100</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="layoutDirection">
+              <enum>Qt::LeftToRight</enum>
+             </property>
              <property name="text">
-              <string>Waga dystansu robotów:</string>
+              <string>Z obrazu</string>
              </property>
             </widget>
            </item>
-           <item row="10" column="2">
+           <item row="5" column="2">
             <widget class="QLabel" name="label_5">
              <property name="text">
               <string>Typ mapy:</string>
              </property>
             </widget>
            </item>
-           <item row="8" column="2" colspan="4">
-            <spacer name="verticalSpacer">
+           <item row="6" column="2">
+            <widget class="QLabel" name="label_6">
+             <property name="text">
+              <string>Szum:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="13" column="2" colspan="4">
+            <widget class="QPushButton" name="generate_map_btn">
+             <property name="text">
+              <string>Generuj mapę</string>
+             </property>
+            </widget>
+           </item>
+           <item row="10" column="2" colspan="4">
+            <spacer name="verticalSpacer_2">
              <property name="orientation">
               <enum>Qt::Vertical</enum>
              </property>
@@ -94,14 +155,7 @@
              </property>
             </spacer>
            </item>
-           <item row="0" column="2" colspan="3">
-            <widget class="QLabel" name="label_2">
-             <property name="text">
-              <string>Liczba pojazdów:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="16" column="4" colspan="2">
+           <item row="12" column="4" colspan="2">
             <widget class="QComboBox" name="algorithm_type">
              <item>
               <property name="text">
@@ -120,34 +174,23 @@
              </item>
             </widget>
            </item>
-           <item row="15" column="2" colspan="4">
-            <spacer name="verticalSpacer_2">
-             <property name="orientation">
-              <enum>Qt::Vertical</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
+           <item row="4" column="2" colspan="2">
+            <widget class="QRadioButton" name="generator_radio">
+             <property name="minimumSize">
               <size>
-               <width>20</width>
-               <height>40</height>
+               <width>100</width>
+               <height>0</height>
               </size>
              </property>
-            </spacer>
-           </item>
-           <item row="4" column="2" colspan="3">
-            <widget class="QLabel" name="label_8">
              <property name="text">
-              <string>Waga terenu:</string>
+              <string>Z generatora</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
              </property>
             </widget>
            </item>
-           <item row="2" column="2" colspan="3">
-            <widget class="QLabel" name="label">
-             <property name="text">
-              <string>Iteracje:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="10" column="4" colspan="2">
+           <item row="5" column="4" colspan="2">
             <widget class="QComboBox" name="map_type">
              <item>
               <property name="text">
@@ -191,107 +234,14 @@
              </item>
             </widget>
            </item>
-           <item row="12" column="4">
-            <widget class="QSpinBox" name="terrain_x">
-             <property name="minimum">
-              <number>1</number>
-             </property>
-             <property name="maximum">
-              <number>1000000000</number>
-             </property>
-             <property name="singleStep">
-              <number>1</number>
-             </property>
-             <property name="value">
-              <number>100</number>
-             </property>
-            </widget>
-           </item>
-           <item row="11" column="2">
-            <widget class="QLabel" name="label_6">
+           <item row="14" column="2" colspan="4">
+            <widget class="QPushButton" name="start_btn">
              <property name="text">
-              <string>Szum:</string>
+              <string>START</string>
              </property>
             </widget>
            </item>
-           <item row="0" column="5">
-            <widget class="QSpinBox" name="vehicle_num">
-             <property name="minimum">
-              <number>1</number>
-             </property>
-             <property name="maximum">
-              <number>1000000000</number>
-             </property>
-            </widget>
-           </item>
-           <item row="12" column="2">
-            <widget class="QLabel" name="label_7">
-             <property name="text">
-              <string>Rozmiar:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="13" column="4">
-            <widget class="QSpinBox" name="stop_point_x">
-             <property name="maximum">
-              <number>1000000000</number>
-             </property>
-             <property name="value">
-              <number>50</number>
-             </property>
-            </widget>
-           </item>
-           <item row="17" column="2" colspan="4">
-            <widget class="QPushButton" name="generate_map_btn">
-             <property name="text">
-              <string>Generuj mapę</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="5">
-            <widget class="QSpinBox" name="iteration_num">
-             <property name="minimum">
-              <number>1</number>
-             </property>
-             <property name="maximum">
-              <number>1000000000</number>
-             </property>
-             <property name="value">
-              <number>50</number>
-             </property>
-            </widget>
-           </item>
-           <item row="9" column="2" colspan="2">
-            <widget class="QRadioButton" name="generator_radio">
-             <property name="minimumSize">
-              <size>
-               <width>100</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>Z generatora</string>
-             </property>
-             <property name="checked">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="16" column="2">
-            <widget class="QLabel" name="label_3">
-             <property name="text">
-              <string>Algorytm:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="4" column="5">
-            <widget class="QSpinBox" name="terrain_weight_num">
-             <property name="value">
-              <number>1</number>
-             </property>
-            </widget>
-           </item>
-           <item row="11" column="4" colspan="2">
+           <item row="6" column="4" colspan="2">
             <widget class="QDoubleSpinBox" name="noise_num">
              <property name="maximum">
               <double>100.000000000000000</double>
@@ -304,75 +254,253 @@
              </property>
             </widget>
            </item>
-           <item row="13" column="2">
+           <item row="1" column="2" colspan="4">
+            <widget class="QStackedWidget" name="stackedWidget">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>180</height>
+              </size>
+             </property>
+             <property name="currentIndex">
+              <number>0</number>
+             </property>
+             <widget class="QWidget" name="page">
+              <layout class="QGridLayout" name="gridLayout_16">
+               <item row="0" column="0">
+                <widget class="QGroupBox" name="groupBox_8">
+                 <property name="title">
+                  <string>Algorytm A-STAR</string>
+                 </property>
+                 <layout class="QGridLayout" name="gridLayout_15">
+                  <item row="0" column="0">
+                   <widget class="QLabel" name="label_4">
+                    <property name="text">
+                     <string>Odległość robotów:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="1">
+                   <widget class="QSpinBox" name="robot_dist_num">
+                    <property name="maximumSize">
+                     <size>
+                      <width>50</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
+                    <property name="minimum">
+                     <number>1</number>
+                    </property>
+                    <property name="maximum">
+                     <number>1000000000</number>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="0">
+                   <widget class="QLabel" name="label_8">
+                    <property name="text">
+                     <string>Waga terenu:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="1">
+                   <widget class="QSpinBox" name="terrain_weight_num">
+                    <property name="value">
+                     <number>1</number>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="0">
+                   <widget class="QLabel" name="label_10">
+                    <property name="text">
+                     <string>Waga dystansu robotów:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="1">
+                   <widget class="QSpinBox" name="robodist_weight_num">
+                    <property name="value">
+                     <number>1</number>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+             <widget class="QWidget" name="page_2">
+              <layout class="QGridLayout" name="gridLayout_14">
+               <item row="0" column="0">
+                <widget class="QGroupBox" name="groupBox_9">
+                 <property name="title">
+                  <string>Algorytm CSO</string>
+                 </property>
+                 <layout class="QGridLayout" name="gridLayout_17">
+                  <item row="0" column="0">
+                   <widget class="QLabel" name="label_2">
+                    <property name="text">
+                     <string>Liczba pojazdów:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="1">
+                   <widget class="QSpinBox" name="vehicle_num">
+                    <property name="minimum">
+                     <number>1</number>
+                    </property>
+                    <property name="maximum">
+                     <number>1000000000</number>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="0">
+                   <widget class="QLabel" name="label">
+                    <property name="text">
+                     <string>Iteracje:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="1">
+                   <widget class="QSpinBox" name="iteration_num">
+                    <property name="minimum">
+                     <number>1</number>
+                    </property>
+                    <property name="maximum">
+                     <number>1000000000</number>
+                    </property>
+                    <property name="value">
+                     <number>50</number>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+             <widget class="QWidget" name="page_3">
+              <layout class="QGridLayout" name="gridLayout_18">
+               <item row="0" column="0">
+                <widget class="QGroupBox" name="groupBox_10">
+                 <property name="title">
+                  <string>Algorytm TSP GA</string>
+                 </property>
+                 <layout class="QGridLayout" name="gridLayout_19">
+                  <item row="2" column="1">
+                   <widget class="QDoubleSpinBox" name="offspring_percent_num">
+                    <property name="maximum">
+                     <double>1.000000000000000</double>
+                    </property>
+                    <property name="singleStep">
+                     <double>0.010000000000000</double>
+                    </property>
+                    <property name="value">
+                     <double>0.500000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="0">
+                   <widget class="QLabel" name="label_14">
+                    <property name="minimumSize">
+                     <size>
+                      <width>110</width>
+                      <height>0</height>
+                     </size>
+                    </property>
+                    <property name="text">
+                     <string>Rozmiar populacji:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="1">
+                   <widget class="QSpinBox" name="generation_num">
+                    <property name="minimum">
+                     <number>1</number>
+                    </property>
+                    <property name="maximum">
+                     <number>1000000000</number>
+                    </property>
+                    <property name="value">
+                     <number>50</number>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="1">
+                   <widget class="QSpinBox" name="generation_size_num">
+                    <property name="minimum">
+                     <number>1</number>
+                    </property>
+                    <property name="maximum">
+                     <number>1000000000</number>
+                    </property>
+                    <property name="value">
+                     <number>1000</number>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="0">
+                   <widget class="QLabel" name="label_15">
+                    <property name="text">
+                     <string>Liczba generacji:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="1">
+                   <widget class="QDoubleSpinBox" name="mutation_percent_num">
+                    <property name="maximum">
+                     <double>1.000000000000000</double>
+                    </property>
+                    <property name="value">
+                     <double>0.200000000000000</double>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="0">
+                   <widget class="QLabel" name="label_16">
+                    <property name="text">
+                     <string>Potomstwo [%]:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="0">
+                   <widget class="QLabel" name="label_17">
+                    <property name="text">
+                     <string>Mutacja [%]:</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </widget>
+           </item>
+           <item row="11" column="2">
             <widget class="QLabel" name="label_9">
              <property name="text">
               <string>Punkt stop:</string>
              </property>
             </widget>
            </item>
-           <item row="18" column="2" colspan="4">
-            <widget class="QPushButton" name="start_btn">
-             <property name="text">
-              <string>START</string>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="2">
-            <widget class="QLabel" name="label_4">
-             <property name="text">
-              <string>Odległość robotów:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="5">
-            <widget class="QSpinBox" name="robot_dist_num">
-             <property name="minimum">
-              <number>1</number>
-             </property>
+           <item row="11" column="4">
+            <widget class="QSpinBox" name="stop_point_x">
              <property name="maximum">
               <number>1000000000</number>
              </property>
-            </widget>
-           </item>
-           <item row="9" column="5">
-            <widget class="QRadioButton" name="image_radio">
-             <property name="minimumSize">
-              <size>
-               <width>100</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="layoutDirection">
-              <enum>Qt::LeftToRight</enum>
-             </property>
-             <property name="text">
-              <string>Z obrazu</string>
+             <property name="value">
+              <number>50</number>
              </property>
             </widget>
            </item>
-          </layout>
-         </widget>
-        </item>
-        <item row="0" column="0" rowspan="2">
-         <widget class="QGroupBox" name="groupBox_2">
-          <property name="title">
-           <string>Mapa</string>
-          </property>
-          <layout class="QGridLayout" name="gridLayout_3">
-           <item row="0" column="0">
-            <widget class="plotwidget" name="map_plot" native="true">
-             <property name="minimumSize">
-              <size>
-               <width>300</width>
-               <height>0</height>
-              </size>
+           <item row="11" column="5">
+            <widget class="QSpinBox" name="stop_point_y">
+             <property name="maximum">
+              <number>1000000000</number>
              </property>
-             <property name="maximumSize">
-              <size>
-               <width>16777215</width>
-               <height>16777215</height>
-              </size>
+             <property name="value">
+              <number>50</number>
              </property>
             </widget>
            </item>
@@ -464,7 +592,7 @@
          <widget class="QGroupBox" name="groupBox_3">
           <property name="minimumSize">
            <size>
-            <width>500</width>
+            <width>0</width>
             <height>0</height>
            </size>
           </property>
@@ -476,7 +604,7 @@
             <widget class="plotwidget" name="result_plot" native="true">
              <property name="minimumSize">
               <size>
-               <width>500</width>
+               <width>0</width>
                <height>0</height>
               </size>
              </property>
@@ -493,6 +621,18 @@
         </item>
         <item row="0" column="1">
          <widget class="QGroupBox" name="groupBox_4">
+          <property name="minimumSize">
+           <size>
+            <width>400</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>400</width>
+            <height>16777215</height>
+           </size>
+          </property>
           <property name="title">
            <string>Tabela rezultatów</string>
           </property>
@@ -594,13 +734,25 @@
             </widget>
            </item>
            <item row="0" column="1">
-            <widget class="QLineEdit" name="ASTAR_time_line"/>
+            <widget class="QLineEdit" name="ASTAR_time_line">
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+            </widget>
            </item>
            <item row="2" column="1">
-            <widget class="QLineEdit" name="CSO_time_line"/>
+            <widget class="QLineEdit" name="CSO_time_line">
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+            </widget>
            </item>
            <item row="4" column="1">
-            <widget class="QLineEdit" name="TSPGA_time_line"/>
+            <widget class="QLineEdit" name="TSPGA_time_line">
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+            </widget>
            </item>
           </layout>
          </widget>

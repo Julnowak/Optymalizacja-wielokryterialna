@@ -15,6 +15,7 @@ from PySide6.QtWidgets import QApplication, QMainWindow, QMessageBox, QFileDialo
 #     pyside2-uic form.ui -o ui_form.py
 from algorytmy.ASTAR_multi import astar
 from algorytmy.CSO import algorithm, plot_graph
+from algorytmy.TSP3D_multi import run_multi_robot_tsp3d_path
 from algorytmy.terrain import terrain_generator
 from ui_form import Ui_MainWindow
 from PySide6.QtCore import QThread, Signal, QTimer
@@ -42,6 +43,29 @@ class MainWindow(QMainWindow):
         self.ui.openFile_btn.clicked.connect(self.getFileName)
         self.ui.read_image_btn.clicked.connect(self.getImageName)
 
+        self.ui.algorithm_type.currentIndexChanged.connect(self.change_prams)
+        self.ui.generator_radio.clicked.connect(self.radioclick)
+        self.ui.image_radio.clicked.connect(self.radioclick)
+
+    def radioclick(self):
+        if not self.ui.generator_radio.isChecked():
+            self.ui.map_type.setEnabled(False)
+            self.ui.noise_num.setEnabled(False)
+            self.ui.terrain_y.setEnabled(False)
+            self.ui.terrain_x.setEnabled(False)
+        else:
+            self.ui.map_type.setEnabled(True)
+            self.ui.noise_num.setEnabled(True)
+            self.ui.terrain_y.setEnabled(True)
+            self.ui.terrain_x.setEnabled(True)
+
+    def change_prams(self):
+        if self.ui.algorithm_type.currentText() == "A-STAR":
+            self.ui.stackedWidget.setCurrentIndex(0)
+        elif self.ui.algorithm_type.currentText() == "CSO":
+            self.ui.stackedWidget.setCurrentIndex(1)
+        elif self.ui.algorithm_type.currentText() == "TSP GA":
+            self.ui.stackedWidget.setCurrentIndex(2)
 
     def start(self):
         A = []
@@ -85,10 +109,6 @@ class MainWindow(QMainWindow):
 
             self.ui.ASTAR_time_line.setText(str(end-beg))
 
-            ### Zobrazowanie wyników
-            self.visualize_results()
-            self.visualize_cost_plot()
-
             max_len = max(len(p) for p in self.paths)
 
             # Ustawienie liczby wierszy i kolumn w tabeli
@@ -100,6 +120,7 @@ class MainWindow(QMainWindow):
                 for j, pi in enumerate(p):
                     self.ui.result_table.setItem(j, i, QTableWidgetItem(str(pi)))
             self.ui.result_table.setHorizontalHeaderLabels(self.labels)
+
             print("100% completed!")
 
 
@@ -124,8 +145,47 @@ class MainWindow(QMainWindow):
             # print(minimum_loss_values )
             pass
         elif self.ui.algorithm_type.currentText() == "TSP GA":
-            pass
 
+            # Parametry GA
+            pop_size = int(self.ui.generation_size_num.value())
+            num_of_generations = int(self.ui.generation_num.value())
+            elite_size = 5
+            tournament_size = 3
+            offspring_rate = float(self.ui.offspring_percent_num.value())
+            mutation_rate = float(self.ui.mutation_percent_num.value())
+
+            beg = time.time()
+            # Uruchamiamy wielorobotowe planowanie
+            self.paths = run_multi_robot_tsp3d_path(
+                self.terrain,
+                self.starts,
+                [goal]*len(self.starts),
+                pop_size=pop_size,
+                num_of_generations=num_of_generations,
+                elite_size=elite_size,
+                tournament_size=tournament_size,
+                offspring_rate=offspring_rate,
+                mutation_rate=mutation_rate
+            )
+
+            end = time.time()
+            self.ui.TSPGA_time_line.setText(str(end - beg))
+
+            max_len = max(len(p) for p in self.paths)
+
+            # Ustawienie liczby wierszy i kolumn w tabeli
+            self.ui.result_table.setRowCount(max_len)  # Liczba wierszy to liczba ścieżek
+            self.ui.result_table.setColumnCount(len(self.paths))  # Liczba kolumn to maksymalna długość ścieżki
+
+            # Wypełnienie tabeli danymi
+            for i, p in enumerate(self.paths):
+                for j, pi in enumerate(p):
+                    self.ui.result_table.setItem(j, i, QTableWidgetItem(str(pi)))
+            self.ui.result_table.setHorizontalHeaderLabels(self.labels)
+
+        ### Zobrazowanie wyników
+        self.visualize_results()
+        self.visualize_cost_plot()
         algo_time = end-beg
         print(algo_time)
 

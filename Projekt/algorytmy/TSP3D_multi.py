@@ -94,13 +94,7 @@ def plot_graphs_animation(all_paths, terrain, starts, ends):
 #############################
 
 class GeneticTSP3DPath:
-    """
-    GA w stylu 'komiwojażer 3D' dla pojedynczej ścieżki (start->end).
-    - Ruch w 8 kierunkach (tak jak w A*).
-    - Funkcja celu:
-        cost_move = 1 + 10000 * abs( z2 - z1 )   (jak w A*)
-      + uwzględnienie kolizji w oknie czasu +/- 2.
-    """
+
     def __init__(self, terrain, occupied_paths=None):
         self.terrain = terrain
         self.size_x, self.size_y = terrain.shape
@@ -386,14 +380,15 @@ def run_tsp3d_path_single_robot(
     Uruchamia algorytm GA (TSP 3D) dla JEDNEGO robota (start->end).
     Zwraca najlepszą znalezioną ścieżkę (listę (r,c)) i jej koszt.
     """
-    t0 = time.time()
+    # t0 = time.time()
 
     # 1) Inicjalizacja populacji
     population = ga.generate_population(pop_size, tuple(start_2d), tuple(end_2d))
+
     best = min(population, key=lambda p: ga.distance_path(p))
     best_cost = ga.distance_path(best)
-    init_time = time.time() - t0
-    print(f"Initial best dist={best_cost:.4f} | init_time={init_time:.2f}s")
+    # init_time = time.time() - t0
+    # print(f"Initial best dist={best_cost:.4f} | init_time={init_time:.2f}s")
 
     # 2) Pętla pokoleń
     total_start = time.time()
@@ -491,43 +486,45 @@ def run_multi_robot_tsp3d_path(
 #  4) MAIN DEMO             #
 #############################
 
-if __name__ == "__main__":
-
-    # 4 roboty, każdy ma wspólny cel
-    starts = [(5, 10), (20, 0), (0, 30), (1, 1)]
-    ends   = [(48, 49), (48, 49), (48, 49), (48, 49)]
-
-    # Teren 51x51 (jak w A*)
-    map_size = (51, 51)
-    terrain = terrain_generator(
-        noise_num=0,
-        terrain_size=map_size,
-        terrain_type="hills"
-    )
-
-    # Parametry GA
-    pop_size = 2500
-    num_of_generations = 50
-    elite_size = 5
-    tournament_size = 3
-    offspring_rate = 0.5
-    mutation_rate = 0.2
-
-    # Uruchamiamy wielorobotowe planowanie
-    final_paths = run_multi_robot_tsp3d_path(
-        terrain,
-        starts,
-        ends,
-        pop_size=pop_size,
-        num_of_generations=num_of_generations,
-        elite_size=elite_size,
-        tournament_size=tournament_size,
-        offspring_rate=offspring_rate,
-        mutation_rate=mutation_rate
-    )
-
-    # Wizualizacja statyczna (wszystkie ścieżki)
-    plot_graphs_static(final_paths, terrain, starts, ends)
-
-    # Wizualizacja animowana (krok-po-kroku)
-    plot_graphs_animation(final_paths, terrain, starts, ends)
+# if __name__ == "__main__":
+#
+#     # 4 roboty, każdy ma wspólny cel
+#     starts = [(5, 10), (20, 0), (0, 30), (1, 1)]
+#     ends   = [(48, 49), (48, 49), (48, 49), (48, 49)]
+#     starts = [(5, 10),]
+#     ends   = [(48, 49),]
+#
+#     # Teren 51x51 (jak w A*)
+#     map_size = (51, 51)
+#     terrain = terrain_generator(
+#         noise_num=0,
+#         terrain_size=map_size,
+#         terrain_type="hills"
+#     )
+#
+#     # Parametry GA
+#     pop_size = 1000
+#     num_of_generations = 10
+#     elite_size = 5
+#     tournament_size = 3
+#     offspring_rate = 0.5
+#     mutation_rate = 0.2
+#
+#     # Uruchamiamy wielorobotowe planowanie
+#     final_paths = run_multi_robot_tsp3d_path(
+#         terrain,
+#         starts,
+#         ends,
+#         pop_size=pop_size,
+#         num_of_generations=num_of_generations,
+#         elite_size=elite_size,
+#         tournament_size=tournament_size,
+#         offspring_rate=offspring_rate,
+#         mutation_rate=mutation_rate
+#     )
+#
+#     # Wizualizacja statyczna (wszystkie ścieżki)
+#     plot_graphs_static(final_paths, terrain, starts, ends)
+#
+#     # Wizualizacja animowana (krok-po-kroku)
+#     plot_graphs_animation(final_paths, terrain, starts, ends)
