@@ -68,7 +68,7 @@ class MainWindow(QMainWindow):
             self.ui.stackedWidget.setCurrentIndex(0)
         elif self.ui.algorithm_type.currentText() == "CSO":
             self.ui.stackedWidget.setCurrentIndex(1)
-        elif self.ui.algorithm_type.currentText() == "TSP GA":
+        elif self.ui.algorithm_type.currentText() == "VEGA":
             self.ui.stackedWidget.setCurrentIndex(2)
 
     def start(self):
@@ -143,7 +143,7 @@ class MainWindow(QMainWindow):
 
             print("100% completed!")
 
-        elif self.ui.algorithm_type.currentText() == "TSP GA":
+        elif self.ui.algorithm_type.currentText() == "VEGA":
 
             # Parametry GA
             pop_size = int(self.ui.generation_size_num.value())
