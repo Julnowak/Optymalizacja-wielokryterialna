@@ -142,8 +142,9 @@ class GeneticTSP3DPath:
 
         for i in range(len(path) - 1):
             (x1, y1), (x2, y2) = path[i], path[i + 1]
-            height_diff = abs(self.terrain[x2][y2] - self.terrain[x1][y1])
-            cost += height_diff * 1000 + self.heuristic((x1, y1), (x2, y2))
+            matrix_list_of_lists = self.terrain.tolist()
+            height_diff = abs(matrix_list_of_lists[x2][y2] - matrix_list_of_lists[x1][y1])
+            cost += height_diff*100 + self.heuristic(path[i], path[-1])
 
             # Sprawdzenie odległości od zajętych ścieżek innych robotów
             occupied_future_positions = set()
@@ -161,7 +162,7 @@ class GeneticTSP3DPath:
 
             neighbors = generate_neighborhood(path[i+1], robot_distance, [
                 (0, 1), (1, 0), (0, -1), (-1, 0),
-                (1, 1), (-1, -1), (-1, 1), (1, -1)
+                (1, 1), (-1, -1), (-1, 1), (1, -1), (0,0)
             ], (len(self.terrain), len(self.terrain[0])))
 
             # Jeśli dany ruch prowadzi do zajętej pozycji, nakładamy dużą karę
@@ -170,11 +171,54 @@ class GeneticTSP3DPath:
             # Dodatkowa kara za bliskość do zajętych pozycji (im bliżej, tym większa kara)
             for n in neighbors:
                 if n in occupied_future_positions:
-                    cost += 100 / max(self.heuristic(path[i], n), 1)  # Dynamiczna kara
+                    cost += 100 / max(self.heuristic(path[i+1], n), 1)  # Dynamiczna kara
             stp_num += 1
 
         return cost
 
+    def distance_path_pareto(self, path):
+        terrain_cost = 0
+        distance_cost = 0
+        robot_distance = 2  # Minimalna dozwolona odległość między robotami
+        stp_num = 0
+
+        for i in range(len(path) - 1):
+            (x1, y1), (x2, y2) = path[i], path[i + 1]
+            matrix_list_of_lists = self.terrain.tolist()
+            height_diff = abs(matrix_list_of_lists[x2][y2] - matrix_list_of_lists[x1][y1])
+            terrain_cost += height_diff*100 + self.heuristic(path[i], path[-1])
+
+            # Sprawdzenie odległości od zajętych ścieżek innych robotów
+            occupied_future_positions = set()
+
+            curr_occupied = []
+            for row in self.occupied_paths:
+                try:
+                    curr_occupied.append(row[i])
+                except:
+                    pass
+                for offset in range(-robot_distance, robot_distance + 1):  # Uwzględniamy dystans
+                    index = stp_num + offset
+                    if 0 <= index < len(row):  # Sprawdzenie, czy indeks jest w zakresie
+                        occupied_future_positions.add(row[index])
+
+            neighbors = generate_neighborhood(path[i + 1], robot_distance, [
+                (0, 1), (1, 0), (0, -1), (-1, 0),
+                (1, 1), (-1, -1), (-1, 1), (1, -1), (0, 0)
+            ], (len(self.terrain), len(self.terrain[0])))
+
+            # Jeśli dany ruch prowadzi do zajętej pozycji, nakładamy dużą karę
+            if path[i] in curr_occupied:
+                distance_cost += 99999999  # Duża kara za kolizję, ale nie nieskończoność
+
+            # Dodatkowa kara za bliskość do zajętych pozycji (im bliżej, tym większa kara)
+            for n in neighbors:
+                if n in occupied_future_positions:
+                    distance_cost += 100 / max(self.heuristic(path[i + 1], n), 1)  # Dynamiczna kara
+
+            stp_num += 1
+
+        return terrain_cost, distance_cost
 
     #############################
     #   Walidacja ścieżki      #
@@ -255,14 +299,14 @@ class GeneticTSP3DPath:
 
         return path
 
-    def generate_population(self, pop_size, start, end):
+    def generate_population(self, pop_size, startp, end):
         """
         Tworzymy populację, sprawdzamy valid_path, jak ok - dodajemy.
         """
         population = []
         seen = set()
         while len(population) < pop_size:
-            newp = self.generate_random_path(start, end)
+            newp = self.generate_random_path(startp, end)
             keyp = tuple(newp)
             if keyp not in seen and self.valid_path(newp):
                 population.append(newp)
@@ -308,26 +352,24 @@ class GeneticTSP3DPath:
         zastąpić punkt innym 8-kierunkowym (bez duplikatów).
         """
 
-        newp = self.generate_random_path(path[0], path[-1])
+        if len(path) < 3:
+            return path
+        newp = path[:]
+        idx = random.randint(1, len(newp) - 2)
+        r, c = newp[idx]
 
+        # losowo tasujemy 8 kierunków
+        dirs_8 = self.directions[:]
+        random.shuffle(dirs_8)
+        used = set(newp)
+        for (dx, dy) in dirs_8:
+            nr, nc = r + dx, c + dy
+            if 0 <= nr < self.size_x and 0 <= nc < self.size_y:
+                if (nr, nc) not in used:
+                    newp[idx] = (nr, nc)
+                    break
         return newp
-        # if len(path) < 3:
-        #     return path
-        # newp = path[:]
-        # idx = random.randint(1, len(newp) - 2)
-        # r, c = newp[idx]
-        #
-        # # losowo tasujemy 8 kierunków
-        # dirs_8 = self.directions[:]
-        # random.shuffle(dirs_8)
-        # used = set(newp)
-        # for (dx, dy) in dirs_8:
-        #     nr, nc = r + dx, c + dy
-        #     if 0 <= nr < self.size_x and 0 <= nc < self.size_y:
-        #         if (nr, nc) not in used:
-        #             newp[idx] = (nr, nc)
-        #             break
-        # return newp
+
 
     def killing_children(self, c1, c2 ):
         if self.distance_path(c1) < self.distance_path(c2):
@@ -356,6 +398,7 @@ class GeneticTSP3DPath:
 #  3) Funkcje GA            #
 #############################
 
+# VEGA
 def run_tsp3d_path_single_robot(
         ga: GeneticTSP3DPath,
         start_2d,
@@ -367,113 +410,156 @@ def run_tsp3d_path_single_robot(
         offspring_rate=0.5,
         mutation_rate=0.05
 ):
-    """
-    Uruchamia algorytm GA (TSP 3D) dla JEDNEGO robota (start->end).
-    Zwraca najlepszą znalezioną ścieżkę (listę (r,c)) i jej koszt.
-    """
-    # t0 = time.time()
     best_cost_list = []
     all_all_paths = []
 
     # 1) Inicjalizacja populacji
     population = ga.generate_population(pop_size, tuple(start_2d), tuple(end_2d))
 
-    print("----------------------------------------------")
-    # for p in population:
-    #     print(ga.distance_path(p))
-    best = min(population, key=lambda p: ga.distance_path(p))
-    best_cost = ga.distance_path(best)
-
-    print("----------------------------------------------")
-
-    best_cost_list.append(best_cost)
+    def evaluate_fitness(path):
+        cost_terrain, cost_distance = ga.distance_path_pareto(path)
+        return cost_distance, cost_terrain
 
     # 2) Pętla pokoleń
     for gen in range(num_of_generations):
 
-        # a) Elity
-        elites = ga.select_elites(population, elite_size)
-        non_elites = [p for p in population if p not in elites]
+        # a) Podział populacji na subpopulacje według każdego kryterium
+        population_sorted_by_distance = sorted(population, key=lambda p: evaluate_fitness(p)[0])
+        population_sorted_by_terrain = sorted(population, key=lambda p: evaluate_fitness(p)[1])
 
-        # b) rodzice (turniej)
+        # b) Wybór elity (najlepsze według obu kryteriów)
+        elites_distance = population_sorted_by_distance[:elite_size // 2]
+        elites_terrain = population_sorted_by_terrain[:elite_size // 2]
+        elites = elites_distance + elites_terrain
+
+        # c) Selekcja turniejowa według różnych kryteriów
         pool_size = len(population) - elite_size
-        parents = ga.create_pool(non_elites, tournament_size, pool_size)
-        parents += elites
+        parents_distance = ga.create_pool(population_sorted_by_distance, tournament_size, pool_size // 2)
+        parents_terrain = ga.create_pool(population_sorted_by_terrain, tournament_size, pool_size // 2)
+        parents = parents_distance + parents_terrain
 
-        # c) dzieci (krzyżowanie)
+        # d) Krzyżowanie
         num_children = int(len(parents) * offspring_rate)
         children = ga.generate_children(parents, num_children)
 
-        # d) mutacja
+        # e) Mutacja
         for i in range(len(children)):
             if random.random() < mutation_rate:
-                mp = ga.mutate(children[i])
-                if ga.valid_path(mp):
-                    children[i] = mp
-                ga.children_mutated += 1
+                mutated_child = ga.mutate(children[i])
+                if ga.valid_path(mutated_child):
+                    children[i] = mutated_child
 
-        # e) nowa populacja
-        newpop = elites + children
-        if len(newpop) < len(population) and len(non_elites) > 0:
-            needed = len(population) - len(newpop)
-            newpop += random.sample(non_elites, min(needed, len(non_elites)))
-        newpop = newpop[:len(population)]
-        population = newpop
+        # f) Tworzenie nowej populacji (łączenie i mieszanie subpopulacji)
+        new_population = elites + children
+        if len(new_population) < pop_size:
+            new_population += random.sample(population, pop_size - len(new_population))
 
-        # f) aktualizacja best
-        curr = min(population, key=lambda p: ga.distance_path(p))
-        curr_cost = ga.distance_path(curr)
+        random.shuffle(new_population)  # Mieszanie subpopulacji dla różnorodności
 
-        if curr_cost < best_cost:
-            best = curr
-            best_cost = curr_cost
-        best_cost_list.append(best_cost)
-        all_all_paths.append(best)
-        print(f"GEN {gen+1}/{num_of_generations} - best so far={best_cost:.4f}")
-    return best, best_cost_list, all_all_paths
+        population = new_population
 
+        # g) Aktualizacja najlepszego rozwiązania
+        curr_best = min(population, key=lambda p: sum(evaluate_fitness(p)))
+        curr_best_cost = evaluate_fitness(curr_best)
 
-def pareto_front(costs):
-    """
-    Oblicza indeksy punktów należących do frontu Pareto.
-    """
-    pareto_points = []
-    for i, cost1 in enumerate(costs):
-        is_dominated = False
-        for j, cost2 in enumerate(costs):
-            if all(c2 <= c1 for c1, c2 in zip(cost1, cost2)) and any(c2 < c1 for c1, c2 in zip(cost1, cost2)):
-                is_dominated = True
-                break
-        if not is_dominated:
-            pareto_points.append(i)
-    return pareto_points
+        best_cost_list.append(curr_best_cost)
+        all_all_paths.append(curr_best)
+        print(f"GEN {gen + 1}/{num_of_generations} - best so far (distance, terrain) = {curr_best_cost}")
+    ff = pareto_front(all_all_paths, ga)
+    plot_pareto(ff,ga, all_all_paths)
+    return curr_best, best_cost_list, all_all_paths
 
+# def run_tsp3d_path_single_robot(
+#         ga: GeneticTSP3DPath,
+#         start_2d,
+#         end_2d,
+#         pop_size=30,
+#         num_of_generations=20,
+#         elite_size=5,
+#         tournament_size=3,
+#         offspring_rate=0.5,
+#         mutation_rate=0.05
+# ):
+#     """
+#     Uruchamia algorytm GA (TSP 3D) dla JEDNEGO robota (start->end).
+#     Zwraca najlepszą znalezioną ścieżkę (listę (r,c)) i jej koszt.
+#     """
+#     # t0 = time.time()
+#     best_cost_list = []
+#     all_all_paths = []
+#
+#     # 1) Inicjalizacja populacji
+#     population = ga.generate_population(pop_size, tuple(start_2d), tuple(end_2d))
+#
+#     pf = pareto_front(population, ga)
+#     plot_pareto(pf, ga, population)
+#     population = pf
+#     while pop_size > 20 and len(population) < 20:
+#         popu = ga.generate_population(pop_size, tuple(start_2d), tuple(end_2d))
+#         nf = pareto_front(popu, ga)
+#         population += nf
+#         plot_pareto(population, ga, popu)
+#
+#     print("----------------------------------------------")
+#     # for p in population:
+#     #     print(ga.distance_path(p))
+#     best = min(population, key=lambda p: ga.distance_path(p))
+#     best_cost = ga.distance_path(best)
+#
+#     print("----------------------------------------------")
+#
+#     best_cost_list.append(best_cost)
+#
+#     # 2) Pętla pokoleń
+#     for gen in range(num_of_generations):
+#
+#         # a) Elity
+#         elites = ga.select_elites(population, elite_size)
+#         non_elites = [p for p in population if p not in elites]
+#
+#         # b) rodzice (turniej)
+#         pool_size = len(population) - elite_size
+#         parents = ga.create_pool(non_elites, tournament_size, pool_size)
+#         parents += elites
+#
+#         # c) dzieci (krzyżowanie)
+#         num_children = int(len(parents) * offspring_rate)
+#         children = ga.generate_children(parents, num_children)
+#
+#         # d) mutacja
+#         for i in range(len(children)):
+#             if random.random() < mutation_rate:
+#                 mp = ga.mutate(children[i])
+#                 if ga.valid_path(mp):
+#                     children[i] = mp
+#                 ga.children_mutated += 1
+#
+#         # e) nowa populacja
+#         newpop = elites + children
+#         if len(newpop) < len(population) and len(non_elites) > 0:
+#             needed = len(population) - len(newpop)
+#             newpop += random.sample(non_elites, min(needed, len(non_elites)))
+#         newpop = newpop[:len(population)]
+#         population = newpop
+#
+#         # f) aktualizacja best
+#         curr = min(population, key=lambda p: ga.distance_path(p))
+#         curr_cost = ga.distance_path(curr)
+#
+#         if curr_cost < best_cost:
+#             best = curr
+#             best_cost = curr_cost
+#         best_cost_list.append(best_cost)
+#         all_all_paths.append(best)
+#         print(f"GEN {gen+1}/{num_of_generations} - best so far={best_cost:.4f}")
+#     return best, best_cost_list, all_all_paths
 
-def plot_pareto(costs_per_iteration, bp):
-    """
-    Rysuje wykresy frontu Pareto dla kosztów z każdej iteracji.
-    """
-    import matplotlib.pyplot as plt
-
-    print(bp)
-
-    costs = np.array(costs_per_iteration)
-    pareto_indices = pareto_front(bp)
-
-    plt.figure()
-    plt.scatter(costs, list(range(len(costs))), label=f"Wszystkie rozw.", color='gray')
-    # plt.scatter(costs[pareto_indices], list(costs[pareto_indices]), label="Punkty Pareto", color='red')
-    plt.xlabel("Koszt odległości")
-    plt.ylabel("Kara kolizji")
-    plt.title(f"Front Pareto - iteracja")
-    plt.legend()
-    plt.show()
 
 def run_multi_robot_tsp3d_path(
         terrain,
         starts_2d,
         ends_2d,
-        pop_size=30,
+        pop_size=100,
         num_of_generations=20,
         elite_size=5,
         tournament_size=3,
@@ -517,6 +603,62 @@ def run_multi_robot_tsp3d_path(
 
     return all_paths, best_cost_lists
 
+
+def dominates(solution1, solution2):
+    """
+    Sprawdza, czy solution1 dominuje solution2 zgodnie z kryteriami Pareto.
+    """
+    return all(s1 <= s2 for s1, s2 in zip(solution1, solution2)) and any(s1 < s2 for s1, s2 in zip(solution1, solution2))
+
+def pareto_front(population, ga):
+    """
+    Znajduje rozwiązania Pareto-optymalne w populacji.
+    """
+    pareto_set = []
+    for candidate in population:
+        ans = ga.distance_path_pareto(candidate)
+        candidate_obj = (ans[0], ans[1], len(candidate))
+        dominated = False
+        for other in population:
+            ans_other = ga.distance_path_pareto(other)
+            other_obj = (ans_other[0], ans_other[1], len(other))
+            if dominates(other_obj, candidate_obj):
+                dominated = True
+                break
+        if not dominated:
+            pareto_set.append(candidate)
+    return pareto_set
+
+def plot_pareto(pareto_solutions, ga, pop):
+    """
+    Rysuje front Pareto dla populacji.
+    """
+
+    costs1 = []
+    for p in pop:
+        nuff = ga.distance_path_pareto(p)
+        costs1.append((nuff[0], nuff[1], len(p)))
+
+    terrain_cost1, distance_cost1, lengths1 = zip(*costs1)
+
+    costs = []
+    for p in pareto_solutions:
+        nuff = ga.distance_path_pareto(p)
+        costs.append((nuff[0], nuff[1], len(p)))
+
+    terrain_cost, distance_cost, lengths = zip(*costs)
+
+
+    plt.scatter(terrain_cost1, distance_cost1, color='gray', label='Population')
+    plt.scatter(terrain_cost, distance_cost, color='red', label='Pareto Front')
+    plt.xlabel('Dystans (koszt)')
+    plt.ylabel('Długość trasy')
+    plt.title('Front Pareto dla problemu TSP3D')
+    plt.legend()
+    plt.grid()
+    plt.show()
+
+
 #############################
 #  4) MAIN DEMO             #
 #############################
@@ -529,8 +671,8 @@ if __name__ == "__main__":
 
     starts = [(1, 1), (0, 1),(1, 0), (0, 0)]
     ends   = [(48, 49), (48, 49), (48, 49), (48, 49)]
-    # starts = [(5, 10),]
-    # ends   = [(48, 49),]
+    # starts = [(5, 10), (20, 0)]
+    # ends   = [(48, 49), (48, 49)]
 
     # Teren 51x51 (jak w A*)
     map_size = (51, 51)
@@ -542,13 +684,12 @@ if __name__ == "__main__":
 
     # Parametry GA
     pop_size = 100
-    num_of_generations = 30
+    num_of_generations = 10
     elite_size = 10
     tournament_size = 10
     offspring_rate = 0.5
     mutation_rate = 0.5
 
-    # Uruchamiamy wielorobotowe planowanie
     final_paths, costs = run_multi_robot_tsp3d_path(
         terrain,
         starts,
@@ -571,4 +712,3 @@ if __name__ == "__main__":
         plt.plot(c)
 
     plt.show()
-

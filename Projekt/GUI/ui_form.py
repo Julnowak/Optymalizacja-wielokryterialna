@@ -63,7 +63,7 @@ class Ui_MainWindow(object):
         self.terrain_x.setMinimum(1)
         self.terrain_x.setMaximum(1000000000)
         self.terrain_x.setSingleStep(1)
-        self.terrain_x.setValue(100)
+        self.terrain_x.setValue(50)
 
         self.gridLayout_4.addWidget(self.terrain_x, 7, 4, 1, 1)
 
@@ -80,7 +80,7 @@ class Ui_MainWindow(object):
         self.stop_point_x = QSpinBox(self.groupBox)
         self.stop_point_x.setObjectName(u"stop_point_x")
         self.stop_point_x.setMaximum(1000000000)
-        self.stop_point_x.setValue(50)
+        self.stop_point_x.setValue(45)
 
         self.gridLayout_4.addWidget(self.stop_point_x, 10, 4, 1, 1)
 
@@ -88,7 +88,7 @@ class Ui_MainWindow(object):
         self.terrain_y.setObjectName(u"terrain_y")
         self.terrain_y.setMinimum(1)
         self.terrain_y.setMaximum(1000000000)
-        self.terrain_y.setValue(100)
+        self.terrain_y.setValue(50)
 
         self.gridLayout_4.addWidget(self.terrain_y, 7, 5, 1, 1)
 
@@ -311,7 +311,7 @@ class Ui_MainWindow(object):
         self.stop_point_y = QSpinBox(self.groupBox)
         self.stop_point_y.setObjectName(u"stop_point_y")
         self.stop_point_y.setMaximum(1000000000)
-        self.stop_point_y.setValue(50)
+        self.stop_point_y.setValue(45)
 
         self.gridLayout_4.addWidget(self.stop_point_y, 10, 5, 1, 1)
 
@@ -562,7 +562,7 @@ class Ui_MainWindow(object):
         self.label.setText(QCoreApplication.translate("MainWindow", u"Iteracje:", None))
         self.label_2.setText(QCoreApplication.translate("MainWindow", u"Liczba karaluch\u00f3w:", None))
         self.label_18.setText(QCoreApplication.translate("MainWindow", u"Widzialno\u015b\u0107:", None))
-        self.groupBox_10.setTitle(QCoreApplication.translate("MainWindow", u"Algorytm TSP GA", None))
+        self.groupBox_10.setTitle(QCoreApplication.translate("MainWindow", u"Algorytm VEGA", None))
         self.label_17.setText(QCoreApplication.translate("MainWindow", u"Mutacja [%]:", None))
         self.label_14.setText(QCoreApplication.translate("MainWindow", u"Rozmiar populacji:", None))
         self.label_16.setText(QCoreApplication.translate("MainWindow", u"Potomstwo [%]:", None))
@@ -575,7 +575,7 @@ class Ui_MainWindow(object):
         self.generate_map_btn.setText(QCoreApplication.translate("MainWindow", u"Generuj map\u0119", None))
         self.algorithm_type.setItemText(0, QCoreApplication.translate("MainWindow", u"A-STAR", None))
         self.algorithm_type.setItemText(1, QCoreApplication.translate("MainWindow", u"CSO", None))
-        self.algorithm_type.setItemText(2, QCoreApplication.translate("MainWindow", u"TSP GA", None))
+        self.algorithm_type.setItemText(2, QCoreApplication.translate("MainWindow", u"VEGA", None))
 
         self.generator_radio.setText(QCoreApplication.translate("MainWindow", u"Z generatora", None))
         self.label_9.setText(QCoreApplication.translate("MainWindow", u"Punkt stop:", None))

@@ -19,7 +19,10 @@ from algorytmy.CSO import algorithm
 from algorytmy.TSP3D_multi import run_multi_robot_tsp3d_path
 from algorytmy.terrain import terrain_generator
 from ui_form import Ui_MainWindow
-from PySide6.QtCore import QTimer
+from PySide6.QtCore import QTimer, Signal, QThread, QObject
+
+
+
 
 
 class MainWindow(QMainWindow):
@@ -69,6 +72,8 @@ class MainWindow(QMainWindow):
             self.ui.stackedWidget.setCurrentIndex(2)
 
     def start(self):
+        self.ui.map_plot.canvas.axes.clear()
+        self.ui.map_plot.show()
         A = []
         for i in range(self.ui.beg_points_table.rowCount()):
             A.append([])
@@ -110,56 +115,34 @@ class MainWindow(QMainWindow):
 
             self.ui.ASTAR_time_line.setText(str(end-beg))
 
-            max_len = max(len(p) for p in self.paths)
-
-            # Ustawienie liczby wierszy i kolumn w tabeli
-            self.ui.result_table.setRowCount(max_len)  # Liczba wierszy to liczba ścieżek
-            self.ui.result_table.setColumnCount(len(self.paths))  # Liczba kolumn to maksymalna długość ścieżki
-
-            # Wypełnienie tabeli danymi
-            for i, p in enumerate(self.paths):
-                for j, pi in enumerate(p):
-                    self.ui.result_table.setItem(j, i, QTableWidgetItem(str(pi)))
-            self.ui.result_table.setHorizontalHeaderLabels(self.labels)
-
-            print("100% completed!")
-
-
-            max_len = max(len(ac) for ac in self.all_costs)
-            self.ui.cost_table.setRowCount(max_len)  # Liczba wierszy to liczba ścieżek
-            self.ui.cost_table.setColumnCount(len(self.paths))  # Liczba kolumn to maksymalna długość ścieżki
-
-            # Wypełnienie tabeli danymi
-            for i, ac in enumerate(self.all_costs):
-                for j, aci in enumerate(ac):
-                    self.ui.cost_table.setItem(j, i, QTableWidgetItem(str(aci)))
-            self.ui.cost_table.setHorizontalHeaderLabels(self.labels)
-
         elif self.ui.algorithm_type.currentText() == "CSO":
-
             occupied_positions = []
-            paths = []
-
+            self.all_costs = []
             beg = time.time()
 
             for start in A:
-                result_path, _ = algorithm(
+                result_path, cost = algorithm(
                     start=start,
                     end=[int(self.ui.stop_point_y.value()), int(self.ui.stop_point_x.value())],
                     map_size=(len(self.terrain), len(self.terrain[0])),
                     terrain=self.terrain,
                     visibility_range=10,
                     occupied_positions=[],
+                    num_of_iterations= int(self.ui.iteration_num.value()),
                     cockroaches_num = int(self.ui.vehicle_num.value())
                 )
+
                 print("poszło")
-                self.paths.append(result_path)
+
+                self.paths.append([(i[0], i[1]) for i in result_path])
+                self.all_costs.append(cost)
                 occupied_positions.append(result_path)
 
             end = time.time()
             self.ui.CSO_time_line.setText(str(end - beg))
 
             print("100% completed!")
+
         elif self.ui.algorithm_type.currentText() == "TSP GA":
 
             # Parametry GA
@@ -172,7 +155,7 @@ class MainWindow(QMainWindow):
 
             beg = time.time()
             # Uruchamiamy wielorobotowe planowanie
-            self.paths = run_multi_robot_tsp3d_path(
+            self.paths, self.all_costs = run_multi_robot_tsp3d_path(
                 self.terrain,
                 self.starts,
                 [goal]*len(self.starts),
@@ -187,17 +170,29 @@ class MainWindow(QMainWindow):
             end = time.time()
             self.ui.TSPGA_time_line.setText(str(end - beg))
 
-            max_len = max(len(p) for p in self.paths)
+        max_len = max(len(p) for p in self.paths)
+        print(self.paths)
+        # Ustawienie liczby wierszy i kolumn w tabeli
+        self.ui.result_table.setRowCount(max_len)  # Liczba wierszy to liczba ścieżek
+        self.ui.result_table.setColumnCount(len(self.paths))  # Liczba kolumn to maksymalna długość ścieżki
 
-            # Ustawienie liczby wierszy i kolumn w tabeli
-            self.ui.result_table.setRowCount(max_len)  # Liczba wierszy to liczba ścieżek
-            self.ui.result_table.setColumnCount(len(self.paths))  # Liczba kolumn to maksymalna długość ścieżki
+        # Wypełnienie tabeli danymi
+        for i, p in enumerate(self.paths):
+            for j, pi in enumerate(p):
+                self.ui.result_table.setItem(j, i, QTableWidgetItem(str(pi)))
+        self.ui.result_table.setHorizontalHeaderLabels(self.labels)
 
-            # Wypełnienie tabeli danymi
-            for i, p in enumerate(self.paths):
-                for j, pi in enumerate(p):
-                    self.ui.result_table.setItem(j, i, QTableWidgetItem(str(pi)))
-            self.ui.result_table.setHorizontalHeaderLabels(self.labels)
+        print("100% completed!")
+
+        max_len = max(len(ac) for ac in self.all_costs)
+        self.ui.cost_table.setRowCount(max_len)  # Liczba wierszy to liczba ścieżek
+        self.ui.cost_table.setColumnCount(len(self.paths))  # Liczba kolumn to maksymalna długość ścieżki
+
+        # Wypełnienie tabeli danymi
+        for i, ac in enumerate(self.all_costs):
+            for j, aci in enumerate(ac):
+                self.ui.cost_table.setItem(j, i, QTableWidgetItem(str(aci)))
+        self.ui.cost_table.setHorizontalHeaderLabels(self.labels)
 
         ### Zobrazowanie wyników
         self.visualize_results()
@@ -230,6 +225,8 @@ class MainWindow(QMainWindow):
 
         self.ui.map_plot.canvas.axes.clear()
         self.ui.map_plot.show()
+        self.ui.map_plot.canvas.draw_idle()
+
 
         # Generowanie terenu
         if self.ui.generator_radio.isChecked():
@@ -243,12 +240,12 @@ class MainWindow(QMainWindow):
             matrix = np.array(grayscale_image)
 
             # Przekonwertuj macierz NumPy na listę list
-            matrix_list_of_lists = matrix.tolist()
+
 
             # # Wyświetl wynik (listę list)
             # for row in matrix_list_of_lists:
             #     print(row)
-            self.terrain = matrix_list_of_lists
+            self.terrain = matrix
 
 
 
@@ -257,7 +254,7 @@ class MainWindow(QMainWindow):
 
         # Dodanie colorbar (pasek kolorów) do mapy
         if self.flag:
-            self.ui.map_plot.canvas.figure.colorbar(terrain_image, ax=self.ui.map_plot.canvas.axes, label="S(u)")
+            self.ui.map_plot.canvas.figure.colorbar(terrain_image, ax=self.ui.map_plot.canvas.axes, label="Wysokość")
             self.flag = False
 
         # Rysowanie obwódki dla punktu stop (większy punkt, tylko kolor obwódki)
@@ -318,7 +315,7 @@ class MainWindow(QMainWindow):
     def getImageName(self):
         try:
             response = QFileDialog.getOpenFileName(
-                self, 'Wybierz plik graficzny', os.getcwd()[:-3] + "dane", "(*.png *.PNG *.jpg *.jpeg )"
+                self, 'Wybierz plik graficzny', os.getcwd()[:-3] + "obrazy", "(*.png *.PNG *.jpg *.jpeg )"
             )
 
             def func():
@@ -444,7 +441,7 @@ class MainWindow(QMainWindow):
 
         # Dodanie colorbar (pasek kolorów) do mapy
         if self.flag:
-            self.ui.map_plot.canvas.figure.colorbar(terrain_image, ax=self.ui.map_plot.canvas.axes, label="S(u)")
+            self.ui.map_plot.canvas.figure.colorbar(terrain_image, ax=self.ui.map_plot.canvas.axes, label="Wysokość")
             self.flag = False
 
 

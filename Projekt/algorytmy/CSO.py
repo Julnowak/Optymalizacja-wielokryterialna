@@ -4,7 +4,7 @@ import random
 import numpy as np
 import matplotlib
 
-from algorytmy.TSP3D_multi import plot_graphs_animation
+from algorytmy.TSP3D_multi import plot_graphs_animation, plot_graphs_static
 from algorytmy.terrain import terrain_generator
 
 matplotlib.use("TkAgg")
@@ -73,15 +73,17 @@ def loss_function(
     path,
     terrain,
     occupied_positions,
+    end,
     robot_distance=2,
-    terrain_weight=1,
+    terrain_weight=100,
     robot_distance_weight=1,
+
 ):
     cost = 0
     for i in range(len(path) - 1):
         (x1, y1), (x2, y2) = path[i], path[i + 1]
-        height_diff = abs(terrain[x2][y2] - terrain[x1][y1])
-        cost += height_diff * terrain_weight
+        height_diff = abs(terrain[x2][y2] - terrain[x1][y1]) * terrain_weight * distance(path[i], end)
+        cost += height_diff
 
         occupied_future_positions = []
         for row in occupied_positions:
@@ -112,14 +114,14 @@ def loss_function(
         # Jeśli dany ruch prowadzi do zajętej pozycji, nakładamy dużą karę
         if path[i] in occupied_future_positions:
             cost += (
-                100000 * robot_distance_weight
+                1000000000 * robot_distance_weight
             )  # Duża kara za kolizję, ale nie nieskończoność
 
         # Dodatkowa kara za bliskość do zajętych pozycji (im bliżej, tym większa kara)
         for n in neighbors:
             if n in occupied_future_positions:
                 cost += (
-                    100000 * robot_distance_weight / max(distance(path[i], n), 1)
+                    10* robot_distance_weight / max(distance(path[i], n), 1)
                 )  # Dynamiczna kara
 
     return cost
@@ -390,16 +392,6 @@ def dispersal(actual, map_size):
             new_actual[i][0] -= addon if new_actual[i][0] > 0 else 0
             new_actual[i][1] += addon if new_actual[i][1] < map_size[1] else 0
 
-    # for i in new_actual:
-    #     if (
-    #         i[0] > map_size[0]
-    #         or i[1] > map_size[1]
-    #         or i[0] < map_size[0]  # To zawsze będzie prawda, jeśli i[0] != 100 - Co za tym idzie mamy problem z dyspersją
-    #         or i[1] < map_size[1]
-    #     ):
-    #         return actual
-    # return new_actual
-
     # Jeśli którykolwiek punkt wyjdzie poza [0, map_size[0]) albo [0, map_size[1]),
     # odrzucamy nową ścieżkę (wracamy do 'actual'). W przeciwnym wypadku akceptujemy 'new_actual'.
     for point in new_actual:
@@ -428,7 +420,7 @@ def algorithm(
     visibility_range,
     occupied_positions,
     num_of_iterations: int = 10,
-    cockroaches_num: int = 100,
+    cockroaches_num: int = 10,
     probability_of_dispersion: float = 10,
     max_step: int = 1,
 ):
@@ -438,7 +430,7 @@ def algorithm(
     for i in range(cockroaches_num):
         new_path = initial_path(start, end, map_size)
         calc_new = loss_function(
-            path=new_path, terrain=terrain, occupied_positions=occupied_positions
+            path=new_path, terrain=terrain, end=end, occupied_positions=occupied_positions
         )
         new_sol = Solution(new_path, calc_new)
         solutions.append(new_sol)
@@ -489,6 +481,7 @@ def algorithm(
                     path=sol.path,
                     terrain=terrain,
                     occupied_positions=occupied_positions,
+                    end=end
                 )
                 if best_solution.loss_value > sol.loss_value:
                     best_solution = sol
@@ -509,6 +502,7 @@ def algorithm(
                     path=sol.path,
                     terrain=terrain,
                     occupied_positions=occupied_positions,
+                    end=end
                 )
                 if (
                     best_solution.loss_value > sol.loss_value
@@ -563,8 +557,10 @@ if __name__ == "__main__":
             end=end,
             map_size=map_size,
             terrain=terrain,
-            visibility_range=10,
+            visibility_range=5,
+            num_of_iterations=50,
             occupied_positions=occupied_positions,
+            cockroaches_num=20
         )
         print("poszło")
         paths.append(result_path)
@@ -575,3 +571,4 @@ if __name__ == "__main__":
     # plot_graph(best_path, terrain, start=start, end=end)
     # plt.show()
     plot_graphs_animation(all_paths=paths, terrain=terrain, starts=starts, ends=ends)
+    plot_graphs_static(all_paths=paths, terrain=terrain, starts=starts, ends=ends)

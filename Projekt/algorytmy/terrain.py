@@ -61,12 +61,13 @@ def terrain_generator(noise_num=1, terrain_size=(100, 100), terrain_type="hills"
 # plt.xlabel('X')
 # plt.ylabel('Y')
 # plt.show()
-#
+
 
 if '__name__' == "__main__":
     # Tworzenie heatmapy
     plt.figure(figsize=(10, 8))
     terr = terrain_generator()
+    print(terr)
     print(terr)
     plt.imshow(terr, origin='upper', cmap="magma")
     plt.colorbar(label='Wysokość terenu')
